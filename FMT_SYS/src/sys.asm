@@ -2,34 +2,34 @@
 ; version 2003.03.04.1
 ;---------------------------------------------------------------------
 ;
-; FM TOWNS ŒÝŠ· ROM ƒVƒŠ[ƒY
+; FM TOWNS äº’æ› ROM ã‚·ãƒªãƒ¼ã‚º
 ;
-; FMT_SYS.ROM : ƒƒCƒ“ƒp[ƒg
+; FMT_SYS.ROM : ãƒ¡ã‚¤ãƒ³ãƒ‘ãƒ¼ãƒˆ
 ; 0FFFFC000h - 0FFFFFFFFh
 ;
 ; by Kasanova
 ;
 ;---------------------------------------------------------------------
-; FMT_SYS.ROM ‚Ì\‘¢(–{•¨‚Ì)
-; 0FFFC0000h - 0FFFDFFFFh : 12ƒhƒbƒgƒtƒHƒ“ƒg
-;                           ‹@Ží‚É‚æ‚Á‚Ä‚ÍALL FFhA‹N“®ƒƒS(ƒpƒbƒNƒh
-;                           ƒsƒNƒZƒ‹•ûŽ®)‚ª‚ ‚é‹@Ží‚à‚ ‚è
-; 0FFFE0000h - 0FFFE7FFFh : EXT-BOOT(32ƒrƒbƒgƒvƒƒOƒ‰ƒ€)
-; 0FFFE8000h - 0FFFEFFFFh : ƒVƒXƒeƒ€ƒAƒCƒRƒ“
-; 0FFFF0000h - 0FFFF7FFFh : ‰½‚©‚Ìƒpƒ^[ƒ“?
-; 0FFFF8000h - 0FFFFAFFFh ; ‹N“®ƒƒS(ƒvƒŒ[ƒ“•ûŽ®)
-;                           ‹@Ží‚É‚æ‚Á‚Ä‚Í Extention BIOS
-; 0FFFFB000h - 0FFFFBFFFh : ƒu[ƒgŽž‚ÉŽg‚¤ƒAƒCƒRƒ“
-; 0FFFFC000h - 0FFFFFFFFh ; 16ƒrƒbƒgƒvƒƒOƒ‰ƒ€
+; FMT_SYS.ROM ã®æ§‹é€ (æœ¬ç‰©ã®)
+; 0FFFC0000h - 0FFFDFFFFh : 12ãƒ‰ãƒƒãƒˆãƒ•ã‚©ãƒ³ãƒˆ
+;                           æ©Ÿç¨®ã«ã‚ˆã£ã¦ã¯ALL FFhã€èµ·å‹•ãƒ­ã‚´(ãƒ‘ãƒƒã‚¯ãƒ‰
+;                           ãƒ”ã‚¯ã‚»ãƒ«æ–¹å¼)ãŒã‚ã‚‹æ©Ÿç¨®ã‚‚ã‚ã‚Š
+; 0FFFE0000h - 0FFFE7FFFh : EXT-BOOT(32ãƒ“ãƒƒãƒˆãƒ—ãƒ­ã‚°ãƒ©ãƒ )
+; 0FFFE8000h - 0FFFEFFFFh : ã‚·ã‚¹ãƒ†ãƒ ã‚¢ã‚¤ã‚³ãƒ³
+; 0FFFF0000h - 0FFFF7FFFh : ä½•ã‹ã®ãƒ‘ã‚¿ãƒ¼ãƒ³?
+; 0FFFF8000h - 0FFFFAFFFh ; èµ·å‹•ãƒ­ã‚´(ãƒ—ãƒ¬ãƒ¼ãƒ³æ–¹å¼)
+;                           æ©Ÿç¨®ã«ã‚ˆã£ã¦ã¯ Extention BIOS
+; 0FFFFB000h - 0FFFFBFFFh : ãƒ–ãƒ¼ãƒˆæ™‚ã«ä½¿ã†ã‚¢ã‚¤ã‚³ãƒ³
+; 0FFFFC000h - 0FFFFFFFFh ; 16ãƒ“ãƒƒãƒˆãƒ—ãƒ­ã‚°ãƒ©ãƒ 
 ;---------------------------------------------------------------------
-; FMT_SYS.ROM ‚Ì\‘¢(‚±‚ÌŒÝŠ·ROM‚Ì)
-; 0FFFC0000h - 0FFFDFFFFh : 12ƒhƒbƒgƒtƒHƒ“ƒg
-; 0FFFE0000h - 0FFFE7FFFh : EXT-BOOT(32ƒrƒbƒgƒvƒƒOƒ‰ƒ€)A‚Ü‚¾Žg‚Á‚Ä‚¢‚È‚¢
-; 0FFFE8000h - 0FFFEFFFFh : ƒVƒXƒeƒ€ƒAƒCƒRƒ“
-; 0FFFF0000h - 0FFFF7FFFh : ƒ_ƒ~[ƒf[ƒ^(0ffh)
-; 0FFFF8000h - 0FFFFBBFFh ; ‹N“®ƒƒS(ƒvƒŒ[ƒ“•ûŽ®A4ƒvƒŒ[ƒ“•ª)
-; 0FFFFBC00h - 0FFFFBFFFh : ƒu[ƒgŽž‚ÉŽg‚¤ƒAƒCƒRƒ“
-; 0FFFFC000h - 0FFFFFFFFh ; 16ƒrƒbƒg+32ƒrƒbƒgƒvƒƒOƒ‰ƒ€
+; FMT_SYS.ROM ã®æ§‹é€ (ã“ã®äº’æ›ROMã®)
+; 0FFFC0000h - 0FFFDFFFFh : 12ãƒ‰ãƒƒãƒˆãƒ•ã‚©ãƒ³ãƒˆ
+; 0FFFE0000h - 0FFFE7FFFh : EXT-BOOT(32ãƒ“ãƒƒãƒˆãƒ—ãƒ­ã‚°ãƒ©ãƒ )ã€ã¾ã ä½¿ã£ã¦ã„ãªã„
+; 0FFFE8000h - 0FFFEFFFFh : ã‚·ã‚¹ãƒ†ãƒ ã‚¢ã‚¤ã‚³ãƒ³
+; 0FFFF0000h - 0FFFF7FFFh : ãƒ€ãƒŸãƒ¼ãƒ‡ãƒ¼ã‚¿(0ffh)
+; 0FFFF8000h - 0FFFFBBFFh ; èµ·å‹•ãƒ­ã‚´(ãƒ—ãƒ¬ãƒ¼ãƒ³æ–¹å¼ã€4ãƒ—ãƒ¬ãƒ¼ãƒ³åˆ†)
+; 0FFFFBC00h - 0FFFFBFFFh : ãƒ–ãƒ¼ãƒˆæ™‚ã«ä½¿ã†ã‚¢ã‚¤ã‚³ãƒ³
+; 0FFFFC000h - 0FFFFFFFFh ; 16ãƒ“ãƒƒãƒˆ+32ãƒ“ãƒƒãƒˆãƒ—ãƒ­ã‚°ãƒ©ãƒ 
 ;---------------------------------------------------------------------
 
 %define BOOTCODE_BASE 0ffffc000h
@@ -101,7 +101,7 @@
 
 ;---------------------------------------------------------------------
 
-; ‚ ‚â‚µ‚¢ƒwƒbƒ_
+; ã‚ã‚„ã—ã„ãƒ˜ãƒƒãƒ€
 	dd	0,0,0,0, 0,0,0,0
 ;
 
@@ -158,11 +158,11 @@ startall:
 	call	init_keyboard
 	call	init_crtc
 
-	; CMOSî•ñ‚ª³‚µ‚¢‚©H
+	; CMOSæƒ…å ±ãŒæ­£ã—ã„ã‹ï¼Ÿ
 	mov	ah,20h
 	CALLFAR	cmos_bios
 	jnc	.noinitcmos
-	; CMOS‰Šú‰»
+	; CMOSåˆæœŸåŒ–
 	mov	ah,0
 	CALLFAR cmos_bios
 .noinitcmos:
@@ -176,12 +176,12 @@ startall:
 	mov	al,PMODE_MEMORYCHECK
 	call	call_pmode
 
-	; CD‚ª“Ç‚ß‚é‚©H
+	; CDãŒèª­ã‚ã‚‹ã‹ï¼Ÿ
 	mov	ah,0eh
 	CALLFAR disk_bios
 	jnc	.cdok
 
-	; Žè”²‚«(^^;
+	; æ‰‹æŠœã(^^;
 	mov	cl,ICON_CD
 	mov	dx, (VRAM_PITCH*368)+(VRAM_PITCH-4)
 	call	call_pmode
@@ -191,7 +191,7 @@ startall:
 	jmp	$
 
 .cdok:
-	; IPL“Ç‚Ýž‚Ý
+	; IPLèª­ã¿è¾¼ã¿
 	push	ds
 	mov	cx,0
 	mov	dx,0
@@ -220,26 +220,26 @@ startall:
 	call	far [cs:si]
 
 .wrongipl:
-	; ‹N“®‚ÉŽ¸”s‚·‚é‚Æ–ß‚Á‚Ä‚­‚é
-	; ¬Œ÷‚µ‚½ê‡‚Í‚Q“x‚Æ–ß‚Á‚Ä‚±‚È‚¢
+	; èµ·å‹•ã«å¤±æ•—ã™ã‚‹ã¨æˆ»ã£ã¦ãã‚‹
+	; æˆåŠŸã—ãŸå ´åˆã¯ï¼’åº¦ã¨æˆ»ã£ã¦ã“ãªã„
 	mov	si,mes_wrongipl
 	mov	di,VRAM_PITCH*384
 	call	textout
 
-	; Ž€
+	; æ­»
 	jmp	$
 
 mes_reading:
-	db	'ƒVƒXƒeƒ€“Ç‚Ýž‚Ý’†‚Å‚·@@@@',0
+	db	'ã‚·ã‚¹ãƒ†ãƒ èª­ã¿è¾¼ã¿ä¸­ã§ã™ã€€ã€€ã€€ã€€',0
 mes_wrongipl:
-	db	'ƒVƒXƒeƒ€‚ªˆá‚¢‚Ü‚·@@@@@@',0
+	db	'ã‚·ã‚¹ãƒ†ãƒ ãŒé•ã„ã¾ã™ã€€ã€€ã€€ã€€ã€€ã€€',0
 mes_setsys:
-	db	'ƒVƒXƒeƒ€‚ðƒZƒbƒg‚µ‚Ä‚­‚¾‚³‚¢@',0
+	db	'ã‚·ã‚¹ãƒ†ãƒ ã‚’ã‚»ãƒƒãƒˆã—ã¦ãã ã•ã„ã€€',0
 mes_cantboot:
-	db	'‚b‚c‚ðƒZƒbƒg‚µ‚ÄƒŠƒZƒbƒg‚µ‚Ä‚Ë',0
+	db	'ï¼£ï¼¤ã‚’ã‚»ãƒƒãƒˆã—ã¦ãƒªã‚»ãƒƒãƒˆã—ã¦ã­',0
 
 ;---------------------------------------------------------------------
-; IPL‚Ìƒo[ƒWƒ‡ƒ“‚ðƒ`ƒFƒbƒN
+; IPLã®ãƒãƒ¼ã‚¸ãƒ§ãƒ³ã‚’ãƒã‚§ãƒƒã‚¯
 
 check_iplvalidity:
 	push	es
@@ -265,7 +265,7 @@ check_iplvalidity:
 	dw	0,0b000h
 
 ;---------------------------------------------------------------------
-; GDT‚ðƒZƒbƒg
+; GDTã‚’ã‚»ãƒƒãƒˆ
 
 set_gdt:
 	lgdt	[cs:.lgdtr]
@@ -277,14 +277,14 @@ set_gdt:
 		dd	0fc000h+.gdtentry
 
 .gdtentry:	db	 00h, 00h,00h, 00h,00h,00h, 00h,00h
-		db	0ffh,0ffh,00h, 00h,00h,9bh,0c0h,00h
+		db	0ffh,0ffh,00h, 00h,00h,9bh,0cfh,00h	; CaptainYS 0c0h->0cfh.  Bug fix.  Segment limit was stopping at 0FFFFFFFh.  SHould be FFFFFFFFh
 		db	0ffh,0ffh,00h, 00h,00h,93h,0cfh,00h
 		db	0ffh,0ffh,00h,0c0h,0fh,9bh,000h,00h
 		db	0ffh,0ffh,00h,0c0h,0fh,93h,000h,00h
 		db	0ffh,000h,00h,0c0h,0fh,9bh,0c0h,00h
 
 ;---------------------------------------------------------------------
-; ƒvƒƒeƒNƒgƒ‚[ƒhEƒvƒƒVƒWƒƒ‚ðŒÄ‚Ô
+; ãƒ—ãƒ­ãƒ†ã‚¯ãƒˆãƒ¢ãƒ¼ãƒ‰ãƒ»ãƒ—ãƒ­ã‚·ã‚¸ãƒ£ã‚’å‘¼ã¶
 
 call_pmode:
 	push	ds
@@ -318,8 +318,8 @@ return_from_pmode:
 	ret
 
 ;---------------------------------------------------------------------
-; PIC‰Šú‰»
-; ¦ƒEƒFƒCƒg‚ð“ü‚ê‚Ä‚¢‚È‚¢‚Ì‚ÅAŽÀ‹@‚Å‚Í“®ì‚µ‚È‚¢
+; PICåˆæœŸåŒ–
+; â€»ã‚¦ã‚§ã‚¤ãƒˆã‚’å…¥ã‚Œã¦ã„ãªã„ã®ã§ã€å®Ÿæ©Ÿã§ã¯å‹•ä½œã—ãªã„
 
 init_pic:
 	mov	al,19h
@@ -345,14 +345,14 @@ init_pic:
 	ret
 
 ;---------------------------------------------------------------------
-; ƒL[ƒ{[ƒh‰Šú‰»
+; ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰åˆæœŸåŒ–
 
 init_keyboard:
 	mov	dx,602h
 	mov	al,0a1h ; reset
 	out	dx,al
 
-	; ƒoƒbƒtƒ@‚ª‹ó‚É‚È‚é‚Ü‚Å‘Ò‚Â
+	; ãƒãƒƒãƒ•ã‚¡ãŒç©ºã«ãªã‚‹ã¾ã§å¾…ã¤
 .loop:
 	mov	dx,602h
 	in	al,dx
@@ -365,7 +365,7 @@ init_keyboard:
 	ret
 
 ;---------------------------------------------------------------------
-; CRTC‰Šú‰»AFMRŒÝŠ·‚Ì‰æ–Êƒ‚[ƒh‚Ö
+; CRTCåˆæœŸåŒ–ã€FMRäº’æ›ã®ç”»é¢ãƒ¢ãƒ¼ãƒ‰ã¸
 
 init_crtc:
 	mov	dx,0fda0h
@@ -403,17 +403,17 @@ init_crtc:
 	mov	al,8
 	out	dx,al
 
-	; ‘SƒvƒŒ[ƒ“‚ð‘‚«ž‚Ý‘ÎÛ‚ÉÝ’è
+	; å…¨ãƒ—ãƒ¬ãƒ¼ãƒ³ã‚’æ›¸ãè¾¼ã¿å¯¾è±¡ã«è¨­å®š
 	mov	dx,0ff81h
 	mov	al,0fh
 	out	dx,al
 
-	; ‘SƒvƒŒ[ƒ“•\Ž¦
+	; å…¨ãƒ—ãƒ¬ãƒ¼ãƒ³è¡¨ç¤º
 	mov	dx,0ff82h
 	mov	al,67h
 	out	dx,al
 
-	; •`‰æ‘ÎÛƒvƒŒ[ƒ“‚ð‘I‘ð
+	; æç”»å¯¾è±¡ãƒ—ãƒ¬ãƒ¼ãƒ³ã‚’é¸æŠž
 	mov	dx,0ff83h
 	xor	al,al
 	out	dx,al
@@ -428,10 +428,10 @@ crtcinitdata:
 	dw	0050h, 004ah, 0001h, 0000h, 003fh, 0003h, 0000h, 0150h
 
 ;---------------------------------------------------------------------
-; •¶Žš—ñ•\Ž¦
+; æ–‡å­—åˆ—è¡¨ç¤º
 ;
-; si = •¶Žš—ñ
-; di = •\Ž¦æVRAMƒAƒhƒŒƒX
+; si = æ–‡å­—åˆ—
+; di = è¡¨ç¤ºå…ˆVRAMã‚¢ãƒ‰ãƒ¬ã‚¹
 
 textout:
 	push	es
@@ -464,7 +464,7 @@ textout:
 	pop	es
 	ret
 
-; ƒVƒtƒgJIS¨JIS•ÏŠ·
+; ã‚·ãƒ•ãƒˆJISâ†’JISå¤‰æ›
 sjistojis:
 	cmp	cl,0e0h
 	jc	.j1
@@ -489,44 +489,44 @@ sjistojis:
 	ret
 
 ;---------------------------------------------------------------------
-; DISK-BIOS(‚ÆŸŽè‚ÉŒÄ‚ñ‚Å‚¢‚é)
-; ah‚É‰ž‚¶‚ÄŽŸ‚Ì‹@”\‚ð’ñ‹Ÿ‚·‚é(ah = 2-0x11)
+; DISK-BIOS(ã¨å‹æ‰‹ã«å‘¼ã‚“ã§ã„ã‚‹)
+; ahã«å¿œã˜ã¦æ¬¡ã®æ©Ÿèƒ½ã‚’æä¾›ã™ã‚‹(ah = 2-0x11)
 	align 2
 disk_command_table:
-	dw	disk_command_02 ; 2 : –¢ŽÀ‘•
-	dw	disk_command_03 ; 3 : ƒƒfƒBƒAæ“ª‚ÖƒV[ƒNH
-	dw	disk_command_04 ; 4 : –¢ŽÀ‘•
-	dw	disk_command_05 ; 5 : ƒŠ[ƒh
-	dw	disk_command_06 ; 6 : ƒ‰ƒCƒg
-	dw	disk_command_xx ; 7 : –³Œø
-	dw	disk_command_08 ; 8 : ƒhƒ‰ƒCƒuƒŠƒZƒbƒg(FDD & HDD)
-	dw	disk_command_xx ; 9 : –³Œø
-	dw	disk_command_xx ; a : –³Œø
-	dw	disk_command_xx ; b : –³Œø
-	dw	disk_command_xx ; c : –³Œø
-	dw	disk_command_xx ; d : –³Œø
-	dw	disk_command_0e ; e : ƒhƒ‰ƒCƒuƒ`ƒFƒbƒN
-	dw	disk_command_xx ; f : –³Œø
-	dw	disk_command_xx ;10 : –³Œø
-	dw	disk_command_11 ;11 : –¢ŽÀ‘•
+	dw	disk_command_02 ; 2 : æœªå®Ÿè£…
+	dw	disk_command_03 ; 3 : ãƒ¡ãƒ‡ã‚£ã‚¢å…ˆé ­ã¸ã‚·ãƒ¼ã‚¯ï¼Ÿ
+	dw	disk_command_04 ; 4 : æœªå®Ÿè£…
+	dw	disk_command_05 ; 5 : ãƒªãƒ¼ãƒ‰
+	dw	disk_command_06 ; 6 : ãƒ©ã‚¤ãƒˆ
+	dw	disk_command_xx ; 7 : ç„¡åŠ¹
+	dw	disk_command_08 ; 8 : ãƒ‰ãƒ©ã‚¤ãƒ–ãƒªã‚»ãƒƒãƒˆ(FDD & HDD)
+	dw	disk_command_xx ; 9 : ç„¡åŠ¹
+	dw	disk_command_xx ; a : ç„¡åŠ¹
+	dw	disk_command_xx ; b : ç„¡åŠ¹
+	dw	disk_command_xx ; c : ç„¡åŠ¹
+	dw	disk_command_xx ; d : ç„¡åŠ¹
+	dw	disk_command_0e ; e : ãƒ‰ãƒ©ã‚¤ãƒ–ãƒã‚§ãƒƒã‚¯
+	dw	disk_command_xx ; f : ç„¡åŠ¹
+	dw	disk_command_xx ;10 : ç„¡åŠ¹
+	dw	disk_command_11 ;11 : æœªå®Ÿè£…
 ;
-; ƒŠƒ^[ƒ“ƒR[ƒh: ah(0:³íI—¹)AƒGƒ‰[‚Ì—L–³‚ÍƒLƒƒƒŠ[ƒtƒ‰ƒO‚ÉƒZƒbƒg
+; ãƒªã‚¿ãƒ¼ãƒ³ã‚³ãƒ¼ãƒ‰: ah(0:æ­£å¸¸çµ‚äº†)ã€ã‚¨ãƒ©ãƒ¼ã®æœ‰ç„¡ã¯ã‚­ãƒ£ãƒªãƒ¼ãƒ•ãƒ©ã‚°ã«ã‚»ãƒƒãƒˆ
 
 disk_bios:
-	; ‚ß‚ñ‚Ç‚­‚³‚¢Bƒtƒ‰ƒO‚à•Ï‚¦‚È‚¢‚æ‚¤’ˆÓ
+	; ã‚ã‚“ã©ãã•ã„ã€‚ãƒ•ãƒ©ã‚°ã‚‚å¤‰ãˆãªã„ã‚ˆã†æ³¨æ„
 	push	dx
-	push	ax ; ‚±‚ê‚ªƒŠƒ^[ƒ“ƒR[ƒh‚É‚È‚é
+	push	ax ; ã“ã‚ŒãŒãƒªã‚¿ãƒ¼ãƒ³ã‚³ãƒ¼ãƒ‰ã«ãªã‚‹
 
-	; ‚Ü‚¸Aƒ[ƒJƒ‹ƒXƒ^ƒbƒN‚ÉØ‚è‘Ö‚¦‚é
-	; Œ»Ý‚Ì SS:SP ‚ð‘Þ”ð
+	; ã¾ãšã€ãƒ­ãƒ¼ã‚«ãƒ«ã‚¹ã‚¿ãƒƒã‚¯ã«åˆ‡ã‚Šæ›¿ãˆã‚‹
+	; ç¾åœ¨ã® SS:SP ã‚’é€€é¿
 	SAVEREG_TO_CMOS 319ch, ss
 	SAVEREG_TO_CMOS 31a0h, sp
 	LOADREG_FROM_CMOS 31a8h, sp
 	mov	ax,BOOT_SS
 	mov	ss,ax
-	; ƒ[ƒJƒ‹ƒXƒ^ƒbƒN‚ÉØ‚è‘Ö‚¦Š®—¹
+	; ãƒ­ãƒ¼ã‚«ãƒ«ã‚¹ã‚¿ãƒƒã‚¯ã«åˆ‡ã‚Šæ›¿ãˆå®Œäº†
 
-	; ŒÄo‚µŒ³ SS:SP ‚ð push
+	; å‘¼å‡ºã—å…ƒ SS:SP ã‚’ push
 	LOADREG_FROM_CMOS 319ch, ax ; ss
 	push	ax
 	LOADREG_FROM_CMOS 31a0h, ax ; sp
@@ -540,7 +540,7 @@ disk_bios:
 
 	LOADREG_FROM_CMOS 31a8h, bp
 
-	; DS:SI ‚ÅŒÄ‚Ño‚µŒ³ƒXƒ^ƒbƒN‚ð‚¢‚¶‚ê‚é‚æ‚¤‚É‚·‚é
+	; DS:SI ã§å‘¼ã³å‡ºã—å…ƒã‚¹ã‚¿ãƒƒã‚¯ã‚’ã„ã˜ã‚Œã‚‹ã‚ˆã†ã«ã™ã‚‹
 	LOADREG_FROM_CMOS 319ch, ds
 	LOADREG_FROM_CMOS 31a0h, si
 
@@ -556,13 +556,13 @@ disk_bios:
 	mov	di,sp
 	push	bp
 
-	; ˆê”ÔÅ‰‚É push ‚µ‚½ƒŒƒWƒXƒ^‚ðƒ[ƒh
+	; ä¸€ç•ªæœ€åˆã« push ã—ãŸãƒ¬ã‚¸ã‚¹ã‚¿ã‚’ãƒ­ãƒ¼ãƒ‰
 	mov	ax,[si]
 	mov	dx,[si+2]
 
-	; –{—ˆ‚È‚ç”ÍˆÍ”»’è‚ª‚ ‚é‚ªÈ—ª
+	; æœ¬æ¥ãªã‚‰ç¯„å›²åˆ¤å®šãŒã‚ã‚‹ãŒçœç•¥
 
-	; ŒÄ‚Ô
+	; å‘¼ã¶
 	mov	al,ah
 	xor	ah,ah
 	sub	ax,2
@@ -570,7 +570,7 @@ disk_bios:
 	mov	bx,ax
 	call	[cs:disk_command_table+bx]
 
-	; Œ‹‰Ê‚ðŠi”[
+	; çµæžœã‚’æ ¼ç´
 	or	ah,ah
 	setnz	al
 	mov	[si+1],ah
@@ -605,7 +605,7 @@ disk_command_02:
 	jmp	$
 
 disk_command_03:
-	call	cd_command_0e ; ˆê‰ž‚±‚ê‚Å‘ã‘Ö
+	call	cd_command_0e ; ä¸€å¿œã“ã‚Œã§ä»£æ›¿
 	ret
 
 disk_command_04:
@@ -645,73 +645,73 @@ disk_command_11:
 
 
 ;---------------------------------------------------------------------
-; CMOS-BIOS(‚ÆŸŽè‚ÉŒÄ‚ñ‚Å‚¢‚é)
-; ah‚É‰ž‚¶‚ÄŽŸ‚Ì‹@”\‚ð’ñ‹Ÿ‚·‚é(ah = -3(0xfd)-0x20)
+; CMOS-BIOS(ã¨å‹æ‰‹ã«å‘¼ã‚“ã§ã„ã‚‹)
+; ahã«å¿œã˜ã¦æ¬¡ã®æ©Ÿèƒ½ã‚’æä¾›ã™ã‚‹(ah = -3(0xfd)-0x20)
 	align 2
-	dw	cmos_command_fd ;fd : –¢ŽÀ‘•
-	dw	cmos_command_xx ;fe : –³Œø
-	dw	cmos_command_xx ;ff : –³Œø
+	dw	cmos_command_fd ;fd : æœªå®Ÿè£…
+	dw	cmos_command_xx ;fe : ç„¡åŠ¹
+	dw	cmos_command_xx ;ff : ç„¡åŠ¹
 cmos_command_table:
-	dw	cmos_command_00 ; 0 : ƒCƒjƒVƒƒƒ‰ƒCƒY
-	dw	cmos_command_01 ; 1 : –¢ŽÀ‘•
-	dw	cmos_command_02 ; 2 : –¢ŽÀ‘•
-	dw	cmos_command_03 ; 3 : –¢ŽÀ‘•
-	dw	cmos_command_04 ; 4 : –¢ŽÀ‘•
-	dw	cmos_command_05 ; 5 : –¢ŽÀ‘•
-	dw	cmos_command_06 ; 6 : –¢ŽÀ‘•
-	dw	cmos_command_xx ; 7 : –³Œø
-	dw	cmos_command_xx ; 8 : –³Œø
-	dw	cmos_command_xx ; 9 : –³Œø
-	dw	cmos_command_xx ; a : –³Œø
-	dw	cmos_command_xx ; b : –³Œø
-	dw	cmos_command_xx ; c : –³Œø
-	dw	cmos_command_xx ; d : –³Œø
-	dw	cmos_command_xx ; e : –³Œø
-	dw	cmos_command_xx ; f : –³Œø
-	dw	cmos_command_10 ;10 : ƒuƒƒbƒN‘‚«ž‚Ý
-	dw	cmos_command_11 ;11 : ƒuƒƒbƒN“Ç‚Ýo‚µ
-	dw	cmos_command_xx ;12 : –³Œø
-	dw	cmos_command_xx ;13 : –³Œø
-	dw	cmos_command_xx ;14 : –³Œø
-	dw	cmos_command_xx ;15 : –³Œø
-	dw	cmos_command_xx ;16 : –³Œø
-	dw	cmos_command_xx ;17 : –³Œø
-	dw	cmos_command_xx ;18 : –³Œø
-	dw	cmos_command_xx ;19 : –³Œø
-	dw	cmos_command_xx ;1a : –³Œø
-	dw	cmos_command_xx ;1b : –³Œø
-	dw	cmos_command_xx ;1c : –³Œø
-	dw	cmos_command_xx ;1d : –³Œø
-	dw	cmos_command_xx ;1e : –³Œø
-	dw	cmos_command_xx ;1f : –³Œø
-	dw	cmos_command_20 ;20 : ƒwƒbƒ_‚ª³í‚©ƒ`ƒFƒbƒN
+	dw	cmos_command_00 ; 0 : ã‚¤ãƒ‹ã‚·ãƒ£ãƒ©ã‚¤ã‚º
+	dw	cmos_command_01 ; 1 : æœªå®Ÿè£…
+	dw	cmos_command_02 ; 2 : æœªå®Ÿè£…
+	dw	cmos_command_03 ; 3 : æœªå®Ÿè£…
+	dw	cmos_command_04 ; 4 : æœªå®Ÿè£…
+	dw	cmos_command_05 ; 5 : æœªå®Ÿè£…
+	dw	cmos_command_06 ; 6 : æœªå®Ÿè£…
+	dw	cmos_command_xx ; 7 : ç„¡åŠ¹
+	dw	cmos_command_xx ; 8 : ç„¡åŠ¹
+	dw	cmos_command_xx ; 9 : ç„¡åŠ¹
+	dw	cmos_command_xx ; a : ç„¡åŠ¹
+	dw	cmos_command_xx ; b : ç„¡åŠ¹
+	dw	cmos_command_xx ; c : ç„¡åŠ¹
+	dw	cmos_command_xx ; d : ç„¡åŠ¹
+	dw	cmos_command_xx ; e : ç„¡åŠ¹
+	dw	cmos_command_xx ; f : ç„¡åŠ¹
+	dw	cmos_command_10 ;10 : ãƒ–ãƒ­ãƒƒã‚¯æ›¸ãè¾¼ã¿
+	dw	cmos_command_11 ;11 : ãƒ–ãƒ­ãƒƒã‚¯èª­ã¿å‡ºã—
+	dw	cmos_command_xx ;12 : ç„¡åŠ¹
+	dw	cmos_command_xx ;13 : ç„¡åŠ¹
+	dw	cmos_command_xx ;14 : ç„¡åŠ¹
+	dw	cmos_command_xx ;15 : ç„¡åŠ¹
+	dw	cmos_command_xx ;16 : ç„¡åŠ¹
+	dw	cmos_command_xx ;17 : ç„¡åŠ¹
+	dw	cmos_command_xx ;18 : ç„¡åŠ¹
+	dw	cmos_command_xx ;19 : ç„¡åŠ¹
+	dw	cmos_command_xx ;1a : ç„¡åŠ¹
+	dw	cmos_command_xx ;1b : ç„¡åŠ¹
+	dw	cmos_command_xx ;1c : ç„¡åŠ¹
+	dw	cmos_command_xx ;1d : ç„¡åŠ¹
+	dw	cmos_command_xx ;1e : ç„¡åŠ¹
+	dw	cmos_command_xx ;1f : ç„¡åŠ¹
+	dw	cmos_command_20 ;20 : ãƒ˜ãƒƒãƒ€ãŒæ­£å¸¸ã‹ãƒã‚§ãƒƒã‚¯
 ;
-; ƒŠƒ^[ƒ“ƒR[ƒh: ah(0:³íI—¹)AƒGƒ‰[‚Ì—L–³‚ÍƒLƒƒƒŠ[ƒtƒ‰ƒO‚ÉƒZƒbƒg
+; ãƒªã‚¿ãƒ¼ãƒ³ã‚³ãƒ¼ãƒ‰: ah(0:æ­£å¸¸çµ‚äº†)ã€ã‚¨ãƒ©ãƒ¼ã®æœ‰ç„¡ã¯ã‚­ãƒ£ãƒªãƒ¼ãƒ•ãƒ©ã‚°ã«ã‚»ãƒƒãƒˆ
 
 cmos_bios:
-	; ‚±‚ê‚Ü‚½‚ß‚ñ‚Ç‚­‚³‚¢Bƒtƒ‰ƒO‚Í•Ï‚¦‚Ä‚à‚¢‚¢‚Ý‚½‚¢
+	; ã“ã‚Œã¾ãŸã‚ã‚“ã©ãã•ã„ã€‚ãƒ•ãƒ©ã‚°ã¯å¤‰ãˆã¦ã‚‚ã„ã„ã¿ãŸã„
 	push	bp
 	mov	bp,dx
 
-	; ‚Ü‚¸Aax‚ð‘Þ”ð
+	; ã¾ãšã€axã‚’é€€é¿
 	SAVEREG_TO_CMOS 319ch,ax
 
-	; ƒ[ƒJƒ‹ƒXƒ^ƒbƒN‚ÉØ‚è‘Ö‚¦‚é
-	; Œ»Ý‚Ì SS:SP ‚ð‘Þ”ð
+	; ãƒ­ãƒ¼ã‚«ãƒ«ã‚¹ã‚¿ãƒƒã‚¯ã«åˆ‡ã‚Šæ›¿ãˆã‚‹
+	; ç¾åœ¨ã® SS:SP ã‚’é€€é¿
 	SAVEREG_TO_CMOS 31a0h, ss
 	SAVEREG_TO_CMOS 31a4h, sp
 	LOADREG_FROM_CMOS 31a8h, sp
 	mov	ax,BOOT_SS
 	mov	ss,ax
-	; ƒ[ƒJƒ‹ƒXƒ^ƒbƒN‚ÉØ‚è‘Ö‚¦Š®—¹
+	; ãƒ­ãƒ¼ã‚«ãƒ«ã‚¹ã‚¿ãƒƒã‚¯ã«åˆ‡ã‚Šæ›¿ãˆå®Œäº†
 
-	; ŒÄo‚µŒ³ SS:SP ‚ð push
+	; å‘¼å‡ºã—å…ƒ SS:SP ã‚’ push
 	LOADREG_FROM_CMOS 31a0h, ax ; ss
 	push	ax
 	LOADREG_FROM_CMOS 31a4h, ax ; sp
 	push	ax
 
-	; ‘Þ”ð‚µ‚Ä‚¨‚¢‚½ax‚ð•œŒ³
+	; é€€é¿ã—ã¦ãŠã„ãŸaxã‚’å¾©å…ƒ
 	LOADREG_FROM_CMOS 319ch,ax
 
 	mov	dx,bp
@@ -731,7 +731,7 @@ cmos_bios:
 	cld
 	mov	bp,sp
 
-	; ”ÍˆÍƒ`ƒFƒbƒN‚µ‚ÄAŒÄ‚Ô
+	; ç¯„å›²ãƒã‚§ãƒƒã‚¯ã—ã¦ã€å‘¼ã¶
 	mov	al,[bp+3]
 	mov	ah,1
 
@@ -744,7 +744,7 @@ cmos_bios:
 	add	bx,bx
 	call	[cs:cmos_command_table+bx]
 
-	; Œ‹‰Ê‚ðŠi”[
+	; çµæžœã‚’æ ¼ç´
 	or	ah,ah
 	setnz	al
 	jns	.noerror
@@ -769,7 +769,7 @@ cmos_bios:
 
 	SAVEREG_TO_CMOS 319ch,ax
 
-	; ŒÄo‚µŒ³SS:SP‚Ì•œŒ³
+	; å‘¼å‡ºã—å…ƒSS:SPã®å¾©å…ƒ
 	pop	ax ; sp
 	SAVEREG_TO_CMOS 31a0h,ax
 	pop	ax ; ss
@@ -784,7 +784,7 @@ cmos_bios:
 
 
 ;---------------------------------------------------------------------
-; ŠeƒfƒoƒCƒX“Á—L‚Ìˆ—‚ð‹Lq‚µ‚½ƒR[ƒh‚ðƒCƒ“ƒNƒ‹[ƒh
+; å„ãƒ‡ãƒã‚¤ã‚¹ç‰¹æœ‰ã®å‡¦ç†ã‚’è¨˜è¿°ã—ãŸã‚³ãƒ¼ãƒ‰ã‚’ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰
 
 %include "sys_cd.asm"
 %include "sys_fd.asm"
@@ -796,7 +796,7 @@ cmos_bios:
 %include "sys_p32.asm"
 
 ;---------------------------------------------------------------------
-; ƒEƒFƒCƒg(‚¤‚ñ‚Ã‚Å‚Í‚ ‚Ü‚èˆÓ–¡‚ª–³‚¢‚Ì‚ÅÈ—ª)
+; ã‚¦ã‚§ã‚¤ãƒˆ(ã†ã‚“ã¥ã§ã¯ã‚ã¾ã‚Šæ„å‘³ãŒç„¡ã„ã®ã§çœç•¥)
 
 waitloop:
 	retf
@@ -821,24 +821,32 @@ invalid5:
 
 ;---------------------------------------------------------------------
 
-	align 3000h, db 0
+	; CaptainYS >>
+	; Current version of NASM requires alignment to be 2^N.
+	; Rep count must be adjusted so that the total file size becomes 16384 bytes.
+%rep 2000h
+	db 0
+%endrep
+	align 1000h, db 0
+	; CaptainYS <<
+
 
 %rep 0fb0h
 	db 0
 %endrep
 
-	JMPFAR invalid1 ; f’fƒGƒ‰[?
-	JMPFAR invalid2 ; f’fƒGƒ‰[?
+	JMPFAR invalid1 ; è¨ºæ–­ã‚¨ãƒ©ãƒ¼?
+	JMPFAR invalid2 ; è¨ºæ–­ã‚¨ãƒ©ãƒ¼?
 	JMPFAR invalid3 ; ?
-	JMPFAR invalid4 ; •¶Žš—ñ•\Ž¦(–¢ŽÀ‘•)
+	JMPFAR invalid4 ; æ–‡å­—åˆ—è¡¨ç¤º(æœªå®Ÿè£…)
 	JMPFAR disk_bios
 	JMPFAR cmos_bios
-	JMPFAR invalid5 ; •¶Žš—ñ•\Ž¦(–¢ŽÀ‘•)
+	JMPFAR invalid5 ; æ–‡å­—åˆ—è¡¨ç¤º(æœªå®Ÿè£…)
 	JMPFAR waitloop
 
 	dd 0,0, 0,0,0,0
 
-	JMPFAR startall ; ‚±‚±‚©‚ç‚·‚×‚Ä‚ªŽn‚Ü‚é
+	JMPFAR startall ; ã“ã“ã‹ã‚‰ã™ã¹ã¦ãŒå§‹ã¾ã‚‹
 
 	db 0,0,0
 	dd 0,0

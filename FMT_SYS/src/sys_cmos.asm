@@ -1,14 +1,14 @@
 ; version 2003.03.04.1
 ;---------------------------------------------------------------------
 ;
-; FM TOWNS ŒİŠ· ROM ƒVƒŠ[ƒY
+; FM TOWNS äº’æ› ROM ã‚·ãƒªãƒ¼ã‚º
 ;
 ; FMT_SYS.ROM : CMOS BIOS
 ;
 ; by Kasanova
 ;
 ;---------------------------------------------------------------------
-; ¦’P“Æ‚Å‚ÍƒAƒZƒ“ƒuƒ‹‚µ‚Ü‚¹‚ñ
+; â€»å˜ç‹¬ã§ã¯ã‚¢ã‚»ãƒ³ãƒ–ãƒ«ã—ã¾ã›ã‚“
 
 
 ;---------------------------------------------------------------------
@@ -28,7 +28,7 @@ cmos_command_00:
 	mov	ax,cs
 	mov	ds,ax
 
-	; ‚Ü‚¸ƒNƒŠƒA
+	; ã¾ãšã‚¯ãƒªã‚¢
 	xor	dx,dx
 	xor	al,al
 	mov	cx,0a8h
@@ -37,7 +37,7 @@ cmos_command_00:
 	inc	dx
 	loop	.loop1
 
-	; ‰Šúƒf[ƒ^“]‘—
+	; åˆæœŸãƒ‡ãƒ¼ã‚¿è»¢é€
 	xor	dx,dx
 	mov	si,.initdata
 	mov	cx,.initdata_end-.initdata
@@ -74,7 +74,7 @@ cmos_command_00:
 	mov	dx,0a4h
 	call	cmos_write2byte
 
-	; ƒ`ƒFƒbƒNƒTƒ€ƒe[ƒuƒ‹‰Šú‰»
+	; ãƒã‚§ãƒƒã‚¯ã‚µãƒ ãƒ†ãƒ¼ãƒ–ãƒ«åˆæœŸåŒ–
 	xor	ax,ax
 	xor	cl,cl
 .loop5:
@@ -88,11 +88,11 @@ cmos_command_00:
 	xor	ah,ah
 	ret
 
-	; cmosã‚Ìƒf[ƒ^ƒuƒƒbƒN‚ğ’è‹`ƒf[ƒ^
+	; cmosä¸Šã®ãƒ‡ãƒ¼ã‚¿ãƒ–ãƒ­ãƒƒã‚¯ã‚’å®šç¾©ãƒ‡ãƒ¼ã‚¿
 .initdata:
-	db	1,0ffh       ; ƒuƒƒbƒN‘¶İƒtƒ‰ƒO{ƒuƒƒbƒN”Ô†H
-	db	'BOOT'       ; ¯•Êq
-	dw	00a8h, 0040h ; cmosã‚ÌƒAƒhƒŒƒX‚ÆƒTƒCƒY
+	db	1,0ffh       ; ãƒ–ãƒ­ãƒƒã‚¯å­˜åœ¨ãƒ•ãƒ©ã‚°ï¼‹ãƒ–ãƒ­ãƒƒã‚¯ç•ªå·ï¼Ÿ
+	db	'BOOT'       ; è­˜åˆ¥å­
+	dw	00a8h, 0040h ; cmosä¸Šã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã¨ã‚µã‚¤ã‚º
 
 	db	1,0feh
 	db	'SETU'
@@ -140,7 +140,7 @@ cmos_command_04:
 
 ;---------------------------------------------------------------------
 
-; CMOS‚Ìa2h”Ô’n‚Ìî•ñ‚ğbx‚É•Ô‚·‚¾‚¯
+; CMOSã®a2hç•ªåœ°ã®æƒ…å ±ã‚’bxã«è¿”ã™ã ã‘
 cmos_command_05:
 	mov	dx,0a2h
 	call	cmos_read2byte
@@ -157,7 +157,7 @@ cmos_command_06:
 
 ; transfer block to cmos
 cmos_command_10:
-	; ”ÍˆÍƒ`ƒFƒbƒN
+	; ç¯„å›²ãƒã‚§ãƒƒã‚¯
 	mov	cl,[bp+6] ; cl
 	mov	al,[bp+2] ; al
 	call	cmos_check_blockvalidity
@@ -167,7 +167,7 @@ cmos_command_10:
 	or	ah,ah
 	jnz	.exit1
 
-	; “]‘——Ê‚ª 0 ‚È‚ç‰½‚à‚µ‚È‚¢
+	; è»¢é€é‡ãŒ 0 ãªã‚‰ä½•ã‚‚ã—ãªã„
 	or	bx,bx
 	jnz	.starttransfer
 .exit1:
@@ -206,7 +206,7 @@ cmos_command_10:
 
 ; transfer block from cmos
 cmos_command_11:
-	; ”ÍˆÍƒ`ƒFƒbƒN
+	; ç¯„å›²ãƒã‚§ãƒƒã‚¯
 	mov	cl,[bp+6] ; cl
 	mov	al,[bp+2] ; al
 	call	cmos_check_blockvalidity
@@ -216,7 +216,7 @@ cmos_command_11:
 	or	ah,ah
 	jnz	.exit1
 
-	; “]‘——Ê‚ª 0 ‚È‚ç‰½‚à‚µ‚È‚¢
+	; è»¢é€é‡ãŒ 0 ãªã‚‰ä½•ã‚‚ã—ãªã„
 	or	bx,bx
 	jnz	.starttransfer
 .exit1:
@@ -235,14 +235,14 @@ cmos_command_11:
 	ret
 
 ;---------------------------------------------------------------------
-; cmosƒwƒbƒ_‚ÆŠeƒuƒƒbƒN‚Ìƒ`ƒFƒbƒN
-; out: ah != 0 : ƒwƒbƒ_ˆÙí
-;      ah == 0 : ƒwƒbƒ_³íAbx‚Éƒ`ƒFƒbƒNƒTƒ€‚ª‡‚í‚È‚©‚Á‚½
-;                ƒuƒƒbƒN‚ªƒrƒbƒg’PˆÊ‚ÅƒZƒbƒg‚³‚ê‚é
+; cmosãƒ˜ãƒƒãƒ€ã¨å„ãƒ–ãƒ­ãƒƒã‚¯ã®ãƒã‚§ãƒƒã‚¯
+; out: ah != 0 : ãƒ˜ãƒƒãƒ€ç•°å¸¸
+;      ah == 0 : ãƒ˜ãƒƒãƒ€æ­£å¸¸ã€bxã«ãƒã‚§ãƒƒã‚¯ã‚µãƒ ãŒåˆã‚ãªã‹ã£ãŸ
+;                ãƒ–ãƒ­ãƒƒã‚¯ãŒãƒ“ãƒƒãƒˆå˜ä½ã§ã‚»ãƒƒãƒˆã•ã‚Œã‚‹
 cmos_command_20:
 	mov	dx,0a6h
 	call	cmos_read2byte
-	cmp	ax,4179h        ; ƒwƒbƒ_‚Ì¯•ÊqH’l©‘Ì‚ÉˆÓ–¡‚ª‚ ‚é‚©•s–¾
+	cmp	ax,4179h        ; ãƒ˜ãƒƒãƒ€ã®è­˜åˆ¥å­ï¼Ÿå€¤è‡ªä½“ã«æ„å‘³ãŒã‚ã‚‹ã‹ä¸æ˜
 	jz	.next
 	mov	ah,3
 	ret
@@ -261,9 +261,9 @@ cmos_command_20:
 	ret
 
 ;---------------------------------------------------------------------
-; CMOS BIOS ‰º¿‚¯
+; CMOS BIOS ä¸‹è«‹ã‘
 
-; CMOSƒAƒhƒŒƒX‚ğI/OƒAƒhƒŒƒX‚É•ÏŠ·
+; CMOSã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’I/Oã‚¢ãƒ‰ãƒ¬ã‚¹ã«å¤‰æ›
 ; in dx:cmos address -> out dx:i/o address
 cmos_getaddress:
 	cmp	dx,7c0h
@@ -336,7 +336,7 @@ cmos_write2byte:
 	ret
 
 ;--------------------------------------
-; ƒ`ƒFƒbƒNƒTƒ€ƒe[ƒuƒ‹“Ç‚İ‚İ
+; ãƒã‚§ãƒƒã‚¯ã‚µãƒ ãƒ†ãƒ¼ãƒ–ãƒ«èª­ã¿è¾¼ã¿
 
 cmos_read_3f82:
 	movsx	dx,al
@@ -347,7 +347,7 @@ cmos_read_3f82:
 	ret
 
 ;--------------------------------------
-; ƒ`ƒFƒbƒNƒTƒ€ƒe[ƒuƒ‹‘‚«‚İ
+; ãƒã‚§ãƒƒã‚¯ã‚µãƒ ãƒ†ãƒ¼ãƒ–ãƒ«æ›¸ãè¾¼ã¿
 
 cmos_write_3f82:
 	movsx	dx,al
@@ -358,7 +358,7 @@ cmos_write_3f82:
 	ret
 
 ;--------------------------------------
-; ƒuƒƒbƒN”Ô†ƒe[ƒuƒ‹“Ç‚İ‚İ
+; ãƒ–ãƒ­ãƒƒã‚¯ç•ªå·ãƒ†ãƒ¼ãƒ–ãƒ«èª­ã¿è¾¼ã¿
 
 cmos_read_3fa2:
 	push	dx
@@ -369,7 +369,7 @@ cmos_read_3fa2:
 	ret
 
 ;--------------------------------------
-; ƒuƒƒbƒN”Ô†ƒe[ƒuƒ‹‘‚«‚İ
+; ãƒ–ãƒ­ãƒƒã‚¯ç•ªå·ãƒ†ãƒ¼ãƒ–ãƒ«æ›¸ãè¾¼ã¿
 
 cmos_write_3fa2:
 	push	dx
@@ -381,7 +381,7 @@ cmos_write_3fa2:
 
 ;--------------------------------------
 
-; w’è‚³‚ê‚½cmosƒuƒƒbƒN‚Ìƒ`ƒFƒbƒNƒTƒ€‚ğ•Ô‚·
+; æŒ‡å®šã•ã‚ŒãŸcmosãƒ–ãƒ­ãƒƒã‚¯ã®ãƒã‚§ãƒƒã‚¯ã‚µãƒ ã‚’è¿”ã™
 ; in al: block no
 cmos_calc_checksum:
 	push	bx
@@ -399,7 +399,7 @@ cmos_calc_checksum:
 
 ;--------------------------------------
 
-; w’è‚³‚ê‚½cmosƒuƒƒbƒN‚ÌƒAƒhƒŒƒX‚Æ’·‚³‚ğ•Ô‚·
+; æŒ‡å®šã•ã‚ŒãŸcmosãƒ–ãƒ­ãƒƒã‚¯ã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã¨é•·ã•ã‚’è¿”ã™
 ; in : al: no
 ; out: cx:length, dx:cmos address
 cmos_getaddlength:
@@ -433,7 +433,7 @@ cmos_check_blockrange:
 
 ;--------------------------------------
 
-; ƒuƒƒbƒN‚Ì—LŒø«‚ğƒ`ƒFƒbƒN
+; ãƒ–ãƒ­ãƒƒã‚¯ã®æœ‰åŠ¹æ€§ã‚’ãƒã‚§ãƒƒã‚¯
 ; in: al, cl
 cmos_check_blockvalidity:
 	call	cmos_check_blockrange
@@ -452,7 +452,7 @@ cmos_check_blockvalidity:
 	mov	bl,cl
 	push	dx
 	call	cmos_read2byte
-	; ƒuƒƒbƒN‚ª—LŒø‚©H
+	; ãƒ–ãƒ­ãƒƒã‚¯ãŒæœ‰åŠ¹ã‹ï¼Ÿ
 	test	al,1
 	jz	.error
 
@@ -471,7 +471,7 @@ cmos_check_blockvalidity:
 
 ;--------------------------------------
 
-; “]‘—”ÍˆÍ‚Ì—LŒø«‚ğƒ`ƒFƒbƒN
+; è»¢é€ç¯„å›²ã®æœ‰åŠ¹æ€§ã‚’ãƒã‚§ãƒƒã‚¯
 cmos_check_transferrange:
 	mov	al,[bp+2] ; al
 	call	cmos_getaddlength
@@ -492,7 +492,7 @@ cmos_check_transferrange:
 
 ;--------------------------------------
 
-; ƒuƒƒbƒN”Ô†ƒe[ƒuƒ‹‰Šú‰»
+; ãƒ–ãƒ­ãƒƒã‚¯ç•ªå·ãƒ†ãƒ¼ãƒ–ãƒ«åˆæœŸåŒ–
 cmos_init_blocknotable:
 	mov	si,.initdata
 	xor	dx,dx
@@ -510,7 +510,7 @@ cmos_init_blocknotable:
 
 ;--------------------------------------
 
-; 0-a4‚Ü‚Å‚Ì’l‚ğ‰ÁZ‚µ‚½’l‚ğ“¾‚é
+; 0-a4ã¾ã§ã®å€¤ã‚’åŠ ç®—ã—ãŸå€¤ã‚’å¾—ã‚‹
 cmos_get_cmosheadersum:
 	xor	dx,dx
 	mov	cx,52h
@@ -527,7 +527,7 @@ cmos_get_cmosheadersum:
 
 ;--------------------------------------
 
-; ‘SƒuƒƒbƒN‚ğƒ`ƒFƒbƒN
+; å…¨ãƒ–ãƒ­ãƒƒã‚¯ã‚’ãƒã‚§ãƒƒã‚¯
 cmos_check_allblocks:
 	xor	ax,ax
 	xor	di,di
@@ -553,7 +553,7 @@ cmos_check_allblocks:
 	cmp	al,cl
 	jz	.next
 
-	; ƒ`ƒFƒbƒNƒTƒ€ƒGƒ‰[‚Ì‚ ‚Á‚½ƒuƒƒbƒN‚Ìbit‚ğon
+	; ãƒã‚§ãƒƒã‚¯ã‚µãƒ ã‚¨ãƒ©ãƒ¼ã®ã‚ã£ãŸãƒ–ãƒ­ãƒƒã‚¯ã®bitã‚’on
 	mov	cx,si
 	mov	ax,1
 	shl	ax,cl

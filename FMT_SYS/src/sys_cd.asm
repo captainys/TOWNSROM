@@ -1,14 +1,14 @@
 ; version 2003.03.04.1
 ;---------------------------------------------------------------------
 ;
-; FM TOWNS ŒÝŠ· ROM ƒVƒŠ[ƒY
+; FM TOWNS äº’æ› ROM ã‚·ãƒªãƒ¼ã‚º
 ;
-; FMT_SYS.ROM : CDƒAƒNƒZƒX
+; FMT_SYS.ROM : CDã‚¢ã‚¯ã‚»ã‚¹
 ;
 ; by Kasanova
 ;
 ;---------------------------------------------------------------------
-; ¦’P“Æ‚Å‚ÍƒAƒZƒ“ƒuƒ‹‚µ‚Ü‚¹‚ñ
+; â€»å˜ç‹¬ã§ã¯ã‚¢ã‚»ãƒ³ãƒ–ãƒ«ã—ã¾ã›ã‚“
 
 
 %define CD_CMOS_PARA  3b60h
@@ -19,26 +19,26 @@
 %define CD_CMOS_DATA3 3b78h
 
 ;---------------------------------------------------------------------
-; “Ç‚Ýž‚Ý
-; cl+dx : “Ç‚Ýž‚ÝŠJŽnƒZƒNƒ^”Ô†(16i)
-; bx    : “Ç‚Ýž‚ÞƒZƒNƒ^”
-; ds:di : “]‘—æƒAƒhƒŒƒX
-; [ƒŠƒ^[ƒ“ƒR[ƒh]
-;  ah : 0(³íI—¹)Abx : “Ç‚ÝŽc‚µ‚½ƒZƒNƒ^”
+; èª­ã¿è¾¼ã¿
+; cl+dx : èª­ã¿è¾¼ã¿é–‹å§‹ã‚»ã‚¯ã‚¿ç•ªå·(16é€²)
+; bx    : èª­ã¿è¾¼ã‚€ã‚»ã‚¯ã‚¿æ•°
+; ds:di : è»¢é€å…ˆã‚¢ãƒ‰ãƒ¬ã‚¹
+; [ãƒªã‚¿ãƒ¼ãƒ³ã‚³ãƒ¼ãƒ‰]
+;  ah : 0(æ­£å¸¸çµ‚äº†)ã€bx : èª­ã¿æ®‹ã—ãŸã‚»ã‚¯ã‚¿æ•°
 
 cd_command_05:
 	call	cd_test_ready
-	jc	.error1          ; ƒAƒNƒZƒX‚Å‚«‚éó‘Ô‚Å‚È‚¢
+	jc	.error1          ; ã‚¢ã‚¯ã‚»ã‚¹ã§ãã‚‹çŠ¶æ…‹ã§ãªã„
 	cmp	word [es:di+2],0 ; bx
-	jz	.error2          ; “Ç‚Ýž‚ÞƒZƒNƒ^”‚ª•s“KØ
+	jz	.error2          ; èª­ã¿è¾¼ã‚€ã‚»ã‚¯ã‚¿æ•°ãŒä¸é©åˆ‡
 	
-	; “Ç‚Ýž‚ÝŠJŽnƒZƒNƒ^‚ðƒZƒbƒg
+	; èª­ã¿è¾¼ã¿é–‹å§‹ã‚»ã‚¯ã‚¿ã‚’ã‚»ãƒƒãƒˆ
 	mov	bx,CD_CMOS_PARA
 	movzx	dx,byte [es:di+4] ; cl
 	mov	ax,[si+2]         ; dx
 	call	cd_set_sectorno
 
-	; “Ç‚Ýž‚ÝI—¹ƒZƒNƒ^‚ðŒvŽZ‚µAƒZƒbƒg
+	; èª­ã¿è¾¼ã¿çµ‚äº†ã‚»ã‚¯ã‚¿ã‚’è¨ˆç®—ã—ã€ã‚»ãƒƒãƒˆ
 	movzx	dx,byte [es:di+4] ; cl
 	mov	ax,[si+2]         ; dx
 	mov	bx,[es:di+2]      ; bx
@@ -48,7 +48,7 @@ cd_command_05:
 	mov	bx,CD_CMOS_PARA+6
 	call	cd_set_sectorno
 
-	; DMA‰Šú‰»
+	; DMAåˆæœŸåŒ–
 	call	cd_init_dma
 	mov	ax,[es:di+0ah] ; di
 	mov	dx,[es:di+0ch] ; es
@@ -64,7 +64,7 @@ cd_command_05:
 	and	al,7
 	out	0afh,al
 
-	; “Ç‚Ýž‚ÝŠJŽn
+	; èª­ã¿è¾¼ã¿é–‹å§‹
 	mov	al,022h
 	call	cd_sendcommand
 	call	cd_recieve4byte
@@ -72,7 +72,7 @@ cd_command_05:
 	mov	dx,CD_CMOS_DATA0
 	in	al,dx
 	or	al,al
-	jnz	.error3 ; ƒRƒ}ƒ“ƒhŽÀsƒGƒ‰[
+	jnz	.error3 ; ã‚³ãƒžãƒ³ãƒ‰å®Ÿè¡Œã‚¨ãƒ©ãƒ¼
 
 .readloop:
 	call	cd_recieve4byte
@@ -82,13 +82,25 @@ cd_command_05:
 	jz	.transfer
 	cmp	al,6
 	jz	.exit
-	jmp	.error3 ; ƒGƒ‰[‚©AˆÙí‚ÈƒŠƒ^[ƒ“ƒR[ƒh
+	jmp	.error3 ; ã‚¨ãƒ©ãƒ¼ã‹ã€ç•°å¸¸ãªãƒªã‚¿ãƒ¼ãƒ³ã‚³ãƒ¼ãƒ‰
 
 .transfer:
-	call	cd_dma_transfer
+	; CaptainYS >>
+	; The original implementaiton is expecting DMA address be incremented automatically with AUTOI flag.
+	; However, Shadow of the Beast demands DMA address not incremented automatically even with AUTOI flag set.
+	; To compromise, I get DMA address in DX|AX, push to stack, pop, and then increment.
 	call	cd_dma_getaddress
+	PUSH	DX
+	PUSH	AX
+	call	cd_dma_transfer
+	POP		AX
+	POP		DX
+	ADD		AX,0800h
+	ADC		DX,0
+	; CaptainYS <<
+
 	call	cd_dma_setaddress
-	dec	word [es:di+2] ; bx “Ç‚ÝŽc‚µƒZƒNƒ^‚ðŒ¸‚ç‚·
+	dec	word [es:di+2] ; bx èª­ã¿æ®‹ã—ã‚»ã‚¯ã‚¿ã‚’æ¸›ã‚‰ã™
 	jmp	.readloop
 
 .exit:
@@ -113,7 +125,7 @@ cd_command_05:
 
 ;---------------------------------------------------------------------
 
-; ƒhƒ‰ƒCƒu‚Ìó‘Ô‚ðƒ`ƒFƒbƒN
+; ãƒ‰ãƒ©ã‚¤ãƒ–ã®çŠ¶æ…‹ã‚’ãƒã‚§ãƒƒã‚¯
 cd_command_0e:
 	call	cd_test_ready
 	call	cd_store_result
@@ -121,9 +133,9 @@ cd_command_0e:
 
 
 ;---------------------------------------------------------------------
-; ‰º¿‚¯
+; ä¸‹è«‹ã‘
 
-; ƒRƒ}ƒ“ƒhŽÀsŒ‹‰Ê‚ðŠi”[
+; ã‚³ãƒžãƒ³ãƒ‰å®Ÿè¡Œçµæžœã‚’æ ¼ç´
 cd_store_result:
 	mov	[si+1],ah
 	or	ah,ah
@@ -134,7 +146,7 @@ cd_store_result:
 
 ;----------
 
-; CD‚ª“Ç‚Ýž‚Ý‰Â”\‚©‚ðƒ`ƒFƒbƒN
+; CDãŒèª­ã¿è¾¼ã¿å¯èƒ½ã‹ã‚’ãƒã‚§ãƒƒã‚¯
 cd_test_ready:
 	call	cd_recieve
 	call	cd_clear_parabuffer
@@ -147,7 +159,7 @@ cd_test_ready:
 	and	al,0fh
 
 	mov	ah,80h
-	cmp	al,9 ; ƒmƒbƒgƒŒƒfƒB
+	cmp	al,9 ; ãƒŽãƒƒãƒˆãƒ¬ãƒ‡ã‚£
 	jnz	.j1
 	mov	cx,1
 	stc
@@ -159,7 +171,7 @@ cd_test_ready:
 
 ;----------
 
-; ƒpƒ‰ƒ[ƒ^Ši”[ƒoƒbƒtƒ@‚ðƒNƒŠƒA
+; ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿æ ¼ç´ãƒãƒƒãƒ•ã‚¡ã‚’ã‚¯ãƒªã‚¢
 cd_clear_parabuffer:
 	push	cx
 	push	dx
@@ -176,7 +188,7 @@ cd_clear_parabuffer:
 
 ;----------
 
-; CDCƒRƒ}ƒ“ƒh”­s
+; CDCã‚³ãƒžãƒ³ãƒ‰ç™ºè¡Œ
 cd_sendcommand:
 	push	bx
 	push	cx
@@ -208,7 +220,7 @@ cd_sendcommand:
 
 ;----------
 
-; CDC‚©‚ç‚Ì4ƒoƒCƒg‚ÌƒXƒe[ƒ^ƒX‚ðŽæ“¾
+; CDCã‹ã‚‰ã®4ãƒã‚¤ãƒˆã®ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã‚’å–å¾—
 cd_recieve4byte:
 	push	ax
 	push	dx
@@ -250,7 +262,7 @@ cd_recieve4byte:
 
 ;----------
 
-; H‚×Žc‚µ‚ðƒNƒŠƒA
+; é£Ÿã¹æ®‹ã—ã‚’ã‚¯ãƒªã‚¢
 cd_recieve:
 	push	dx
 	mov	dx,4c0h
@@ -269,7 +281,7 @@ cd_recieve:
 
 ;----------
 
-; 10i•ÏŠ·
+; 10é€²å¤‰æ›
 cd_hextodecimal:
 	push	cx
 	mov	ch,ah
@@ -284,14 +296,14 @@ cd_hextodecimal:
 
 ;----------
 
-; CD‚ÌƒZƒNƒ^”Ô†‚ð10i”‚É•ÏŠ·‚µ‚Ä•ÛŠÇ
+; CDã®ã‚»ã‚¯ã‚¿ç•ªå·ã‚’10é€²æ•°ã«å¤‰æ›ã—ã¦ä¿ç®¡
 cd_set_sectorno:
 	push	bx
 	push	cx
 	push	dx
-	add	ax,150   ; CD‚Ìæ“ªƒZƒNƒ^‚ÍƒZƒNƒ^150
+	add	ax,150   ; CDã®å…ˆé ­ã‚»ã‚¯ã‚¿ã¯ã‚»ã‚¯ã‚¿150
 	adc	dx,0
-	mov	cx,75*60 ; M-S-F ‚Ì M
+	mov	cx,75*60 ; M-S-F ã® M
 	div	cx
 	xchg	ax,dx
 	; dx = M, ax = S-F
@@ -321,23 +333,23 @@ cd_set_sectorno:
 ;----------
 
 cd_init_dma:
-	; ƒŠƒZƒbƒg
+	; ãƒªã‚»ãƒƒãƒˆ
 	mov	al,3
 	out	0a0h,al
 
-	; ƒ`ƒƒƒlƒ‹‚ð CD ‚ÉƒZƒbƒg
+	; ãƒãƒ£ãƒãƒ«ã‚’ CD ã«ã‚»ãƒƒãƒˆ
 	mov	al,3
 	out	0a1h,al
 
-	; DMA“®ì‹ÖŽ~
+	; DMAå‹•ä½œç¦æ­¢
 	mov	al,24h
 	out	0a8h,al
 
-	; ƒfƒoƒCƒXƒRƒ“ƒgƒ[ƒ‹
+	; ãƒ‡ãƒã‚¤ã‚¹ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«
 	xor	al,al
 	out	0a9h,al
 
-	; ƒ‚[ƒhƒRƒ“ƒgƒ[ƒ‹
+	; ãƒ¢ãƒ¼ãƒ‰ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«
 	mov	al,54h
 	out	0aah,al
 	ret
@@ -366,26 +378,26 @@ cd_dma_getaddress:
 
 ;----------
 
-; DMA“]‘—‚ðs‚¤
+; DMAè»¢é€ã‚’è¡Œã†
 cd_dma_transfer:
 	push	dx
-	; DMA“®ì‹–‰Â
+	; DMAå‹•ä½œè¨±å¯
 	mov	al,20h
 	out	0a8h,al
 
-	; “]‘—ŠJŽn
+	; è»¢é€é–‹å§‹
 	mov	dx,4c6h
 	mov	al,10h
 	out	dx,al
 
-	; “]‘—‚ªI‚í‚é‚Ü‚Å‘Ò‚Â
+	; è»¢é€ãŒçµ‚ã‚ã‚‹ã¾ã§å¾…ã¤
 	mov	dx,4c0h
 .loop:
 	in	al,dx
 	test	al,10h
 	jnz	.loop
 
-	; DMA“®ì‹ÖŽ~
+	; DMAå‹•ä½œç¦æ­¢
 	mov	al,24h
 	out	0a8h,al
 	pop	dx

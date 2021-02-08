@@ -1,17 +1,17 @@
 ; version 2003.03.04.1
 ;---------------------------------------------------------------------
 ;
-; FM TOWNS ŒÝŠ· ROM ƒVƒŠ[ƒY
+; FM TOWNS äº’æ› ROM ã‚·ãƒªãƒ¼ã‚º
 ;
-; FMT_SYS.ROM : ƒvƒƒeƒNƒgƒ‚[ƒhEƒvƒƒVƒWƒƒ(EXT-BOOT•”•ª‚É‘Š“–)
+; FMT_SYS.ROM : ãƒ—ãƒ­ãƒ†ã‚¯ãƒˆãƒ¢ãƒ¼ãƒ‰ãƒ»ãƒ—ãƒ­ã‚·ã‚¸ãƒ£(EXT-BOOTéƒ¨åˆ†ã«ç›¸å½“)
 ;
 ; by Kasanova
 ;
 ;---------------------------------------------------------------------
-; ¦’P“Æ‚Å‚ÍƒAƒZƒ“ƒuƒ‹‚µ‚Ü‚¹‚ñ
+; â€»å˜ç‹¬ã§ã¯ã‚¢ã‚»ãƒ³ãƒ–ãƒ«ã—ã¾ã›ã‚“
 
-; ƒR[ƒh‚ª’·‚­‚È‚Á‚Ä‚«‚½‚çAŽÀ‹@‚Æ“¯—l‚É 0xFFFE0000-0xFFFE7FFF ‚É
-; ˆÚ‚µ‚Ä‚à‚¢‚¢‚©‚à
+; ã‚³ãƒ¼ãƒ‰ãŒé•·ããªã£ã¦ããŸã‚‰ã€å®Ÿæ©Ÿã¨åŒæ§˜ã« 0xFFFE0000-0xFFFE7FFF ã«
+; ç§»ã—ã¦ã‚‚ã„ã„ã‹ã‚‚
 
 [BITS 32]
 pmode_entry:
@@ -65,22 +65,22 @@ pmode_jmptable:
 [BITS 32]
 
 ;---------------------------------------------------------------------
-; 32x32ƒAƒCƒRƒ“•\Ž¦
+; 32x32ã‚¢ã‚¤ã‚³ãƒ³è¡¨ç¤º
 ;
-; cl = 0-127 : ƒVƒXƒeƒ€ƒAƒCƒRƒ“
-; cl = 128-  : ‹N“®—pƒAƒCƒRƒ“
+; cl = 0-127 : ã‚·ã‚¹ãƒ†ãƒ ã‚¢ã‚¤ã‚³ãƒ³
+; cl = 128-  : èµ·å‹•ç”¨ã‚¢ã‚¤ã‚³ãƒ³
 pm_puticon:
 	movzx	ecx,cl
 	cmp	cl,128
 	jc	.sysicon
 
-	; ‹N“®—pƒAƒCƒRƒ“‚Ìê‡
+	; èµ·å‹•ç”¨ã‚¢ã‚¤ã‚³ãƒ³ã®å ´åˆ
 	sub	ecx,128
 	shl	ecx,7
 	lea	esi,[0ffffbc00h+ecx]
 	jmp	.draw
 
-	; ƒVƒXƒeƒ€ƒAƒCƒRƒ“‚Ìê‡
+	; ã‚·ã‚¹ãƒ†ãƒ ã‚¢ã‚¤ã‚³ãƒ³ã®å ´åˆ
 .sysicon:
 	shl	ecx,8
 	lea	esi,[0fffe8000h+ecx]
@@ -96,11 +96,11 @@ pm_puticon:
 
 
 ;---------------------------------------------------------------------
-; ƒƒ‚ƒŠƒ`ƒFƒbƒN‚ÆCMOS‚Ö‚Ì‘‚«o‚µ
+; ãƒ¡ãƒ¢ãƒªãƒã‚§ãƒƒã‚¯ã¨CMOSã¸ã®æ›¸ãå‡ºã—
 ;
-; ¦ƒƒ‚ƒŠƒJƒEƒ“ƒg‚à‚±‚±‚Ås‚¦‚é‚æ‚¤‚ÉA32ƒrƒbƒgƒR[ƒh‚Å‘‚¢‚Ä‚Ü‚·
+; â€»ãƒ¡ãƒ¢ãƒªã‚«ã‚¦ãƒ³ãƒˆã‚‚ã“ã“ã§è¡Œãˆã‚‹ã‚ˆã†ã«ã€32ãƒ“ãƒƒãƒˆã‚³ãƒ¼ãƒ‰ã§æ›¸ã„ã¦ã¾ã™
 pm_memorycheck:
-	; 3150h-317eh‚ÍAƒƒ‚ƒŠ‚ÌŽÀ‘•ó‘Ô‚ðŽ¦‚·‚ç‚µ‚¢
+	; 3150h-317ehã¯ã€ãƒ¡ãƒ¢ãƒªã®å®Ÿè£…çŠ¶æ…‹ã‚’ç¤ºã™ã‚‰ã—ã„
 	xor	al,al
 	mov	dx,3150h
 	mov	ecx,30h/2
@@ -109,8 +109,9 @@ pm_memorycheck:
 	add	dx,2
 	loop	.loop
 
-	; 5e8h‚ÍA‚¤‚ñ‚Ã‚Å‚Í•K‚¸—˜—p‰Â”\
+	; 5e8hã¯ã€ã†ã‚“ã¥ã§ã¯å¿…ãšåˆ©ç”¨å¯èƒ½
 	mov	dx,5e8h
+
 	in	al,dx
 	and	al,7fh
 	mov	dx,3a5ch
@@ -131,7 +132,7 @@ pm_memorycheck:
 	out	dx,al
 
 	dec	ecx
-	jz	.zero ; ƒƒ‚ƒŠ‚ª1MB‚µ‚©‚È‚¢I
+	jz	.zero ; ãƒ¡ãƒ¢ãƒªãŒ1MBã—ã‹ãªã„ï¼
 
 	mov	al,0ffh
 	mov	dx,3150h
@@ -148,25 +149,25 @@ pm_memorycheck:
 	add	dx,2
 	out	dx,al
 
-	; TOWNS–¼•¨ƒƒ‚ƒŠƒJƒEƒ“ƒg‚ð“ü‚ê‚é‚È‚çA‚±‚±
+	; TOWNSåç‰©ãƒ¡ãƒ¢ãƒªã‚«ã‚¦ãƒ³ãƒˆã‚’å…¥ã‚Œã‚‹ãªã‚‰ã€ã“ã“
 
 	ret
 
 
 ;---------------------------------------------------------------------
-; ‹N“®ƒƒS•\Ž¦
+; èµ·å‹•ãƒ­ã‚´è¡¨ç¤º
 pm_drawlogo:
 	; ds = es
 	mov	esi,LOGO_ADDRESS
 	mov	edi,0c0000h+VRAM_PITCH*130
-	movzx	ebx,word [esi] ; …•½ƒhƒbƒg”
+	movzx	ebx,word [esi] ; æ°´å¹³ãƒ‰ãƒƒãƒˆæ•°
 	add	ebx,7
 	shr	ebx,3
-	mov	ecx,VRAM_PITCH ; •\Ž¦ˆÊ’u‚ð‰æ–Ê’†‰›‚Ö
+	mov	ecx,VRAM_PITCH ; è¡¨ç¤ºä½ç½®ã‚’ç”»é¢ä¸­å¤®ã¸
 	sub	ecx,ebx
 	shr	ecx,1
 	add	edi,ecx
-	movzx	ecx,word [esi+2] ; ‚’¼ƒhƒbƒg”
+	movzx	ecx,word [esi+2] ; åž‚ç›´ãƒ‰ãƒƒãƒˆæ•°
 
 	add	esi,4
 
@@ -213,14 +214,14 @@ pm_drawlogo:
 	ret
 
 ;---------------------------------------------------------------------
-; ƒpƒŒƒbƒg‰Šú‰»
+; ãƒ‘ãƒ¬ãƒƒãƒˆåˆæœŸåŒ–
 ;
-; ¦ƒŠƒ{ƒ“‚ÌŠG‚ÌƒpƒŒƒbƒg‚ª‰»‚¯‚é‚Ì‚ÅAƒfƒtƒHƒ‹ƒgŒÅ’è‚É‚µ‚½‚Ù‚¤‚ª‚¢‚¢
-;   ‚©‚à‚µ‚ê‚È‚¢EEE
+; â€»ãƒªãƒœãƒ³ã®çµµã®ãƒ‘ãƒ¬ãƒƒãƒˆãŒåŒ–ã‘ã‚‹ã®ã§ã€ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå›ºå®šã«ã—ãŸã»ã†ãŒã„ã„
+;   ã‹ã‚‚ã—ã‚Œãªã„ãƒ»ãƒ»ãƒ»
 
 pm_setpalette:
 	mov	esi,LOGO_PAL_ADDRESS
-	cmp	dword [esi], 0ffffffffh ; ‚¤‚ñ‚Ã“Á—L‚ÌƒpƒŒƒbƒg‚ª‚ ‚é‚©H
+	cmp	dword [esi], 0ffffffffh ; ã†ã‚“ã¥ç‰¹æœ‰ã®ãƒ‘ãƒ¬ãƒƒãƒˆãŒã‚ã‚‹ã‹ï¼Ÿ
 	jnz	.palexist
 	mov	esi,pm_def_palette+BOOTCODE_BASE
 .palexist:
@@ -256,9 +257,9 @@ pm_def_palette: ; B  - R  - G      B  - R  - G
 
 
 ;---------------------------------------------------------------------
-; ƒƒ‚ƒŠŠÔ“]‘—(sys_osr.asm‚©‚çŒÄ‚Î‚ê‚é)
+; ãƒ¡ãƒ¢ãƒªé–“è»¢é€(sys_osr.asmã‹ã‚‰å‘¼ã°ã‚Œã‚‹)
 pm_transfermemory:
-	movzx	ebp, byte [esi+1] ; ah‚Ì’lB“]‘—•ûŒü‚ð‚±‚ê‚Å”»’è‚·‚é
+	movzx	ebp, byte [esi+1] ; ahã®å€¤ã€‚è»¢é€æ–¹å‘ã‚’ã“ã‚Œã§åˆ¤å®šã™ã‚‹
 
 	movzx	ebx,word [edi+4]
 	shl	ebx,16
@@ -283,10 +284,10 @@ pm_transfermemory:
 
 	cmp	ebp,5
 	jz	.noxchg
-	xchg	esi,edi ; ‘‚«ž‚ÝƒRƒ}ƒ“ƒh‚È‚ç“]‘—Œ³‚Æ“]‘—æ‚ð“ü‚ê‘Ö‚¦‚é
+	xchg	esi,edi ; æ›¸ãè¾¼ã¿ã‚³ãƒžãƒ³ãƒ‰ãªã‚‰è»¢é€å…ƒã¨è»¢é€å…ˆã‚’å…¥ã‚Œæ›¿ãˆã‚‹
 .noxchg:
 
-	; “]‘—‚·‚éÛ‚ÍAƒoƒCƒgƒAƒNƒZƒX‚Ì‚Ý‰Â”\‚È—Ìˆæ‚ðl—¶‚·‚é‚±‚Æ
+	; è»¢é€ã™ã‚‹éš›ã¯ã€ãƒã‚¤ãƒˆã‚¢ã‚¯ã‚»ã‚¹ã®ã¿å¯èƒ½ãªé ˜åŸŸã‚’è€ƒæ…®ã™ã‚‹ã“ã¨
 	rep movsb
 
 	pop	edi

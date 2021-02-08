@@ -1,53 +1,53 @@
 ; version 2003.03.04.1
 ;---------------------------------------------------------------------
 ;
-; FM TOWNS ŒÝŠ· ROM ƒVƒŠ[ƒY
+; FM TOWNS äº’æ› ROM ã‚·ãƒªãƒ¼ã‚º
 ;
-; FMT_SYS.ROM : RAM/ROMƒhƒ‰ƒCƒuƒAƒNƒZƒX
+; FMT_SYS.ROM : RAM/ROMãƒ‰ãƒ©ã‚¤ãƒ–ã‚¢ã‚¯ã‚»ã‚¹
 ;
 ; by Kasanova
 ;
 ;---------------------------------------------------------------------
-; ¦’P“Æ‚Å‚ÍƒAƒZƒ“ƒuƒ‹‚µ‚Ü‚¹‚ñ
+; â€»å˜ç‹¬ã§ã¯ã‚¢ã‚»ãƒ³ãƒ–ãƒ«ã—ã¾ã›ã‚“
 
 ;---------------------------------------------------------------------
-;¡”õl¡
-; EƒƒfƒBƒA”Ô† 0x40 ‚ÍRAM‚ ‚é‚¢‚ÍROM‚ÉU‚ç‚ê‚½ƒƒfƒBƒA”Ô†‚Å‚ ‚é
-; EƒAƒNƒZƒXæ‚Ì•¨—ƒAƒhƒŒƒX‚ÍAƒƒfƒBƒA”Ô†‚Ì‰ºˆÊ4ƒrƒbƒg‚É‚æ‚Á‚ÄŒˆ‚Ü‚é
-; E«—ˆ“I‚É‚Í386SXŒn‚Ìƒƒ‚ƒŠƒ}ƒbƒv‚àl—¶‚·‚é‚±‚Æ
+;â– å‚™è€ƒâ– 
+; ãƒ»ãƒ¡ãƒ‡ã‚£ã‚¢ç•ªå· 0x40 ã¯RAMã‚ã‚‹ã„ã¯ROMã«æŒ¯ã‚‰ã‚ŒãŸãƒ¡ãƒ‡ã‚£ã‚¢ç•ªå·ã§ã‚ã‚‹
+; ãƒ»ã‚¢ã‚¯ã‚»ã‚¹å…ˆã®ç‰©ç†ã‚¢ãƒ‰ãƒ¬ã‚¹ã¯ã€ãƒ¡ãƒ‡ã‚£ã‚¢ç•ªå·ã®ä¸‹ä½4ãƒ“ãƒƒãƒˆã«ã‚ˆã£ã¦æ±ºã¾ã‚‹
+; ãƒ»å°†æ¥çš„ã«ã¯386SXç³»ã®ãƒ¡ãƒ¢ãƒªãƒžãƒƒãƒ—ã‚‚è€ƒæ…®ã™ã‚‹ã“ã¨
 ;
 ;   0: 00000000h- 7fffffffh
-;   1: –³Œø
-;   2: c2000000h- c207ffffh (‘‚«ž‚Ý‹ÖŽ~)
-;   3: –³Œø
-;   4: –³Œø
-;   5: –³Œø
-;   6: –³Œø
-;   7: 00000000h- ffffffffh (BYTEƒAƒNƒZƒX)
-;   8: 00000000h- ffffffffh (DWORDƒAƒNƒZƒX)
-;   9: c2000000h- c207ffffh (‘‚«ž‚Ý‹ÖŽ~)
-;   a: c0000000h- c007ffffh ICƒƒ‚ƒŠ‘¶Ýƒ`ƒFƒbƒN‚ ‚è
-;   b: fffc0000h- ffffffffh (‘‚«ž‚Ý‹ÖŽ~)
+;   1: ç„¡åŠ¹
+;   2: c2000000h- c207ffffh (æ›¸ãè¾¼ã¿ç¦æ­¢)
+;   3: ç„¡åŠ¹
+;   4: ç„¡åŠ¹
+;   5: ç„¡åŠ¹
+;   6: ç„¡åŠ¹
+;   7: 00000000h- ffffffffh (BYTEã‚¢ã‚¯ã‚»ã‚¹)
+;   8: 00000000h- ffffffffh (DWORDã‚¢ã‚¯ã‚»ã‚¹)
+;   9: c2000000h- c207ffffh (æ›¸ãè¾¼ã¿ç¦æ­¢)
+;   a: c0000000h- c007ffffh ICãƒ¡ãƒ¢ãƒªå­˜åœ¨ãƒã‚§ãƒƒã‚¯ã‚ã‚Š
+;   b: fffc0000h- ffffffffh (æ›¸ãè¾¼ã¿ç¦æ­¢)
 ;   c: 80000000h- 8007ffffh
 ;   d: 80100000h- 8017ffffh
 ;   e: c2140000h- c2141fffh
-;   f: –³Œø
+;   f: ç„¡åŠ¹
 ;
 ;---------------------------------------------------------------------
 
 ;---------------------------------------------------------------------
-; “Ç‚Ýž‚Ý•‘‚«ž‚Ý
+; èª­ã¿è¾¼ã¿ï¼†æ›¸ãè¾¼ã¿
 
 osrom_command_05:
 osrom_command_06:
 	mov	al,[si]
 	and	al,0fh
 
-	cmp	al,8 ; ‚Æ‚è‚ ‚¦‚¸A‚±‚ê‚¾‚¯‘Î‰ž
+	cmp	al,8 ; ã¨ã‚Šã‚ãˆãšã€ã“ã‚Œã ã‘å¯¾å¿œ
 	jz	.ok
 	jmp $
 .ok:
-	; ƒŒƒWƒXƒ^‚ÌãˆÊ16ƒrƒbƒg‚ð•ÏX‚µ‚Ä‚Í‚¢‚¯‚È‚¢
+	; ãƒ¬ã‚¸ã‚¹ã‚¿ã®ä¸Šä½16ãƒ“ãƒƒãƒˆã‚’å¤‰æ›´ã—ã¦ã¯ã„ã‘ãªã„
 	pushad
 
 	xor	edx,edx
@@ -62,7 +62,7 @@ osrom_command_06:
 	shl	edx,4
 	add	edi,edx
 
-	; ‚à‚¤­‚µƒXƒ}[ƒg‚È•û–@‚ðl‚¦‚Ü‚µ‚å‚¤
+	; ã‚‚ã†å°‘ã—ã‚¹ãƒžãƒ¼ãƒˆãªæ–¹æ³•ã‚’è€ƒãˆã¾ã—ã‚‡ã†
 	mov	ax,PMODE_TRANSFERMEM
 	sub	sp,6
 	mov	bp,sp
