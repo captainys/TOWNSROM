@@ -229,14 +229,27 @@ startall:
 	; 死
 	jmp	$
 
+; CaptainYS: Since NASM doesn't seem to understand Shift-JIS, 
+;            I've pasted shift-jis code directly.
 mes_reading:
-	db	'システム読み込み中です　　　　',0
+	; 	'システム読み込み中です　　　　',0
+	db 083h,056h,083h,058h,083h,065h,083h,080h,093h,0C7h,082h,0DDh,08Dh,09Eh,082h,0DDh
+	db 092h,086h,082h,0C5h,082h,0B7h,081h,040h,081h,040h,081h,040h,081h,040h,000h
+
 mes_wrongipl:
-	db	'システムが違います　　　　　　',0
+	; db	'システムが違います　　　　　　',00
+	db 083h,056h,083h,058h,083h,065h,083h,080h,082h,0AAh,088h,0E1h,082h,0A2h,082h,0DCh
+	db 082h,0B7h,081h,040h,081h,040h,081h,040h,081h,040h,081h,040h,081h,040h,000h
+
 mes_setsys:
-	db	'システムをセットしてください　',0
+	; db	'システムをセットしてください　',00
+	db 083h,056h,083h,058h,083h,065h,083h,080h,082h,0F0h,083h,05Ah,083h,062h,083h,067h
+	db 082h,0B5h,082h,0C4h,082h,0ADh,082h,0BEh,082h,0B3h,082h,0A2h,081h,040h,000h
+
 mes_cantboot:
-	db	'ＣＤをセットしてリセットしてね',0
+	; db	'ＣＤをセットしてリセットしてね',00
+	db 082h,062h,082h,063h,082h,0F0h,083h,05Ah,083h,062h,083h,067h,082h,0B5h,082h,0C4h
+	db 083h,08Ah,083h,05Ah,083h,062h,083h,067h,082h,0B5h,082h,0C4h,082h,0CBh,000h
 
 ;---------------------------------------------------------------------
 ; IPLのバージョンをチェック
