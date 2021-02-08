@@ -425,7 +425,7 @@ crtcinitdata:
 	dw	0040h, 0320h, 0000h, 0000h, 035fh, 0000h, 0010h, 0000h
 	dw	036fh, 009ch, 031ch, 009ch, 031ch, 0040h, 0360h, 0040h
 	dw	0360h, 0000h, 009ch, 0000h, 0050h, 0000h, 009ch, 0000h
-	dw	0050h, 004ah, 0001h, 0000h, 003fh, 0003h, 0000h, 0150h
+	dw	0050h, 004ah, 0001h, 0000h, 803fh, 0003h, 0000h, 0150h ; CaptainYS: Register 1C 003fh->803fh not to accidentally enable High-Res CRTC.
 
 ;---------------------------------------------------------------------
 ; 文字列表示
