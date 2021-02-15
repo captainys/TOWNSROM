@@ -87,8 +87,14 @@ cd_command_05:
 .transfer:
 	; CaptainYS >>
 	; The original implementaiton is expecting DMA address be incremented automatically with AUTOI flag.
-	; However, Shadow of the Beast demands DMA address not incremented automatically even with AUTOI flag set.
-	; To compromise, I get DMA address in DX|AX, push to stack, pop, and then increment.
+	;
+	; Is AUTOI auto-increment or auto-initialize?  That's a good question, isn't it?
+	; NED uPD71071 data sheet (English) page 19 top-right paragraph tells it is 'Autoinitialize'.
+	; The correct behavior is resetting both address and counter at DMA END.  Not just counter.
+	;
+	; In fact, Shadow of the Beast demands DMA address not incremented automatically with AUTOI flag set.
+	;
+	; I have corrected by (1) get DMA address in DX|AX, (2) push to stack, pop, and (3) then increment.
 	call	cd_dma_getaddress
 	PUSH	DX
 	PUSH	AX
