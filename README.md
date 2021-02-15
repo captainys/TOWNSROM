@@ -19,6 +19,8 @@ FMT_SYS互換ROMは、FM TOWNSエミュレータUNZ開発者のKasanovaさんが
 ### コメントにない修正点
 - nasmがShift-JISを認識できなくて、一部のインストラクションが前の行のコメントの続きと思って無視してしまうようなので、すべてのソースをUTF-8エンコーディングにした。
 
+- ロゴを津軽用とUNZ用に分けて、FMT_SYS.ROMも2バージョン作るようにした。
+
 
 ## About FMT_SYS
 
@@ -34,3 +36,5 @@ If you have questions or comments on this modified version, please contact me (P
 
 ### Changes Not Described in Inline Comments
 - nasm apparently cannot deal with Shift-JIS encoding, and thinks some instructions are part of the comment in the previous line.  I've saved all .ASM files in UTF-8 encoding.
+
+- Added a logo for Tsugaru.  
