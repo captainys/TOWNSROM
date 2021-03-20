@@ -208,13 +208,13 @@ DEVCALL_MEDIACHECK_RET:
 ; Input
 ;   AL     Unit
 ;   AH     Media Desc
-;   CX     Length in bytes? (Prob number of sectors)
+;   CX     Length.  For BLOCKDEV number of sectors, for CHARDEV number of bytes
 ;   DX     LBA
 ;   ESI    Device Driver Pointer (Hiword=SEG, Loword=OFFSET)
 ;   EDI    Data Buffer (Hiword=SEG, Loword=OFFSET)
 ; Return
-;   AX     Status Code
-;   CF=1   If AX&0x8000  CF=0   Otherwise
+;   CF=0   AX=Length Written
+;   CF=1   Error AX=Status Code
 DEVCALL_READ_SECTOR		PROC
 						PUSH	DS
 						PUSH	ES

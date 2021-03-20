@@ -1360,10 +1360,28 @@ FREAD_BREAK_CLUSTER_LOOP:
 
 
 FREAD_FROM_CHARDEV:
-						TSUGARU_DEBUG_BREAK YSDOS_FREAD_FROM_CHARDEV_NOT_IMPLEMENTED_YET	
-						JMP		YSDOS_INFINITE_LOOP
+						;  FS:DI  SF_ENTRY
+						;  ECX    Bytes to read (CAUTION! Hiword Valid! Can read more than 64KB!  Mask ECX if not intended!)
+						;  EDX    Data Pointer (Hiword is SEG, and Loword is OFFSET)
+						CMP		ECX,010000h
+						JA		FREAD_FROM_CHARDEV	; Not supported yet.
 
+						MOV		ESI,FS:[DI+SF_DRIVER_POINTER]
+						XOR		AX,AX
+						MOV		EDI,EDX
+						XOR		DX,DX
+						;   ESI    Device Driver Pointer (Hiword=SEG, Loword=OFFSET)
+						;   AL     Unit
+						;   AH     Media Desc
+						;   EDI    Data Buffer (Hiword=SEG, Loword=OFFSET)
+						;   DX     LBA
+						;   CX     Length in bytes? (Prob number of sectors)
+						CALL	DEVCALL_READ_SECTOR
+						;   CF=0   AX=Length read
+						;   CF=1   AX=Status Code
 
+						MOVZX	ECX,AX
+						JC		FREAD_ERROR_END
 
 FREAD_END:
 						MOV		ECX,CS:[FILE_BYTES_DID_READ_WRITE]
