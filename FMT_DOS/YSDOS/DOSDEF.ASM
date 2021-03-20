@@ -13,10 +13,21 @@ YSDOS_VERSION_WORD_SHSUCDX		EQU			((YSDOS_VERSION_MINOR_SHSUCDX*0100h)+YSDOS_VER
 
 ASCII_BACKSPACE			EQU		8
 ASCII_TAB				EQU		9
-ASCII_RETURN			EQU		13
+ASCII_CR				EQU		13
 ASCII_EOF				EQU		01Ah
 ASCII_DOUBLEQUOTE		EQU		022h
 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+GETS_BUFFER				STRUC
+GETS_BUF_LEN			DB		0
+GETS_BUF_FILLED			DB		0
+GETS_BUF_DATA			DB		0
+GETS_BUFFER				ENDS
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

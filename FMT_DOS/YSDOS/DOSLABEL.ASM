@@ -111,6 +111,8 @@ PROB_SF_ENTRY_NUL_DEVICE	DB	0
 
 						ORG		01A7H
 CARPOS					DB		0			; Used from CONOUT
+STARTPOS				DB		0			; Used in Buffered Input AH=0Ah
+INBUF					DB		0			; Input Buffer
 
 						ORG		02ACH
 PROB_COUT_SIMUL_PRN		DB		0			; Non-Zero->Simultaneous printer output.
@@ -368,6 +370,9 @@ PROB_NUM_DIR_SECTORS:
 ; Set in Proc 1679:4397
 ; as a sectors per cluster.
 
+						ORG		0514h
+INSMODE					DB		0ffh	; Used in string input (AH=0Ah)
+
 						ORG		0515h
 UNKNOWN_FLAG_0515h		DB		0ffh	; Unknown flag.  If it is not 0ffh, INT 21H returns error.
 
@@ -512,6 +517,9 @@ INT_21H_FUNC_JUMP_TABLE	DW		07777h
 
 						ORG		0EB7h
 UNKNOWN_VAR_IN_INT24H_HANDLER_USES:		; INT 24H Handler pushes these valures in stack at CS:1495
+
+						ORG		0FD0h
+ESCCHAR					DB		01Bh	; Used for identifying ESC key.
 
 						ORG		1111h
 EXE_INITIAL_SP			DD		0

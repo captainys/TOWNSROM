@@ -115,6 +115,7 @@ GET_COUT_SF_ENTRY		PROC
 						RET
 
 GET_COUT_SF_ENTRY_REDIR:
+						; Shouldn't it just be File Handle 0?
 						LFS		DI,CS:[PROB_COUT_SF_ENTRY_PTR]
 						CLC
 						RET
@@ -137,7 +138,7 @@ PUTC_TAB_LOOP:
 						JNE		PUTC_TAB_LOOP
 						RET
 PUTC_NOT_TAB:
-						CMP		AL,ASCII_RETURN
+						CMP		AL,ASCII_CR
 						JNE		PUTC_NOT_RETURN
 						MOV		BYTE PTR CS:[CARPOS],0
 PUTC_NOT_RETURN:
@@ -274,3 +275,101 @@ PUTS:
 						JMP		PUTS
 PUTS_END:
 						RET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; Read 1 byte from STDIN and return in AL
+GETC:
+						;     AX     JFN
+						;     ECX    Bytes to read (CAUTION! Hiword Valid! Can read more than 64KB!  Mask ECX if not intended!)
+						;     EDX    Data Pointer (Hiword is SEG, and Loword is OFFSET)
+						XOR		AX,AX
+						PUSH	AX
+						MOV		DX,SS
+						SHL		EDX,16
+						MOV		DX,SP
+						MOV		AX,FILE_STDIN
+						MOV		ECX,1
+						CALL	FREAD
+						POP		AX
+						RET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; Input
+;   DS:SI  GETS_BUFFER
+GETS:
+						CMP		BYTE PTR DS:[SI+GETS_BUF_LEN],0
+						JE		GETS_EXIT
+
+						XOR		DX,DX		; Temporarily start of the buffer.
+
+						MOV		AX,DS:[SI]	; AL=Buffer Length, AH=Recall Length
+						CMP		AH,AL
+						JAE		GETS_RECALL_SET	; Recall Length must be less than buffer length
+
+						; If RECALL_LEN is non zero, the last byte must be CR.
+						MOVZX	BX,AH
+						CMP		DS:[SI+BX+GETS_BUF_DATA],ASCII_CR
+						JNE		GETS_RECALL_SET
+
+						MOV		DX,BX
+
+GETS_RECALL_SET:
+						PUSH	DX		; Remember first DX.  May be unnecessary.
+						MOV		BYTE PTR DS:[SI+GETS_BUF_FILLED],DL
+
+GETS_LOOP:
+						PUSH	DS
+						PUSH	SI
+						CALL	GETC
+						POP		SI
+						POP		DS
+
+						CMP		AL,' '
+						JAE		GETS_PRINTABLE
+
+GETS_PRINTABLE:
+						CALL	GETS_ADDCHAR
+						JC		GETS_LOOP
+						PUSH	DS
+						PUSH	SI
+						CALL	PUTC
+						POP		SI
+						POP		DS
+						JMP		GETS_LOOP
+
+GETS_EXIT:
+						RET
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; Subroutine used from GETS
+;   DS:SI GETS_BUFFER
+;   AL CHAR to Add
+GETS_ADDCHAR:
+						MOVZX	CX,BYTE PTR DS:[SI+GETS_BUF_LEN]
+						MOVZX	BX,BYTE PTR DS:[SI+GETS_BUF_FILLED]
+						INC		BX	; Need to leave one byte for CR
+						CMP		BX,CX
+						JAE		GETS_ADDCHAR_EXIT
+
+						MOV		DS:[SI+GETS_BUF_FILLED],BL
+						DEC		BX
+						MOV		DS:[SI+BX+GETS_BUF_DATA],AL
+
+GETS_ADDCHAR_EXIT:
+						RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

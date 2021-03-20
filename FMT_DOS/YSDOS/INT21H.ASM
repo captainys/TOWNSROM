@@ -126,6 +126,8 @@ INT_21H_REGISTERS_SAVED:
 						JE		INT_21H_06H_DIRECT_CONOUT
 						CMP		AH,09H
 						JE		INT_21H_09H_PUTS
+						CMP		AH,0AH
+						JE		INT_21H_0AH_GETS
 						CMP		AH,0DH
 						JE		INT_21H_0DH_FLUSH_BUFFERS
 						CMP		AH,0EH
@@ -257,6 +259,18 @@ INT_21H_06H_DIRECT_CONOUT:
 INT_21H_09H_PUTS:
 						MOV		SI,DX
 						CALL	PUTS
+						JMP		INT_RESTORE_AND_IRET
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+INT_21H_0AH_GETS:
+						MOV		SI,DX
+						CALL	GETS
 						JMP		INT_RESTORE_AND_IRET
 
 
