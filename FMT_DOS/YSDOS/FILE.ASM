@@ -3160,3 +3160,32 @@ SET_GET_FILE_ATTRIB_INVALID_FUNC:
 						MOV		AX,DOSERR_INVALID_FUNC
 						STC
 						RET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+FCB_MESSAGE				DB		"FCB access not supported."
+						DB		0Dh,0Ah,0
+
+FCB_NOT_SUPPORTED:
+						MOV		SI,OFFSET FCB_MESSAGE
+						PUSH	CS
+						POP		DS
+
+						; Have I written PUTS already?
+FCB_NOT_SUPPORTED_LOOP:
+						LODSB
+						OR		AL,AL
+						JE		FCB_NOT_SUPPORTED_BREAK
+
+						PUSH	DS
+						PUSH	SI
+						CALL	PUTC
+						POP		SI
+						POP		DS
+						JMP		FCB_NOT_SUPPORTED_LOOP
+
+FCB_NOT_SUPPORTED_BREAK:
+						RET
