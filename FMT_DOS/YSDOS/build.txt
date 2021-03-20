@@ -1,0 +1,7 @@
+With MASM:
+   make makefile
+
+With NASM:
+   nasm.py
+
+The source code is written in MASM format.  To assemble with NASM, it needs to be converted to .NSM and then assemble.

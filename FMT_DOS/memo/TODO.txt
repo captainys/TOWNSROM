@@ -1,0 +1,44 @@
+- What makes (sf.SF_MODE & 0xF0)==0x70?  It is checked during DOSINIT, also during FCLOSE
+
+During DOSINIT (Won't call DEVCALL Open if 070H)
+1679:00001961 268A6502                  MOV     AH,ES:[DI+02H]        DI.SF_MODE
+1679:00001965 80E4F0                    AND     AH,F0H
+1679:00001968 80FC70                    CMP     AH,70H
+
+During Fclose (Won't make JFN=Unused if 070H)
+1679:00006612 268A4502                  MOV     AL,ES:[DI+02H]
+1679:00006616 24F0                      AND     AL,F0H
+1679:00006618 3C70                      CMP     AL,70H
+
+During Fread
+1679:00003CC4 268A4D02                  MOV     CL,ES:[DI+02H]
+1679:00003CC8 80E1F0                    AND     CL,F0H
+1679:00003CCB 80F900                    CMP     CL,00H
+
+
+- INT 21H AH=06h DL=0FFhのとき何をすればいいのか？
+
+
+- TOWNS OS V2.1 L51はまだ起動しない。
+
+
+- UTIL_REP_MOVS  高速バージョンにする。
+
+
+- GET_NEXT_CLUSTERで、実は一度もセクタ境界を超えるケースが試せて無い件。
+
+
+
+- WRITE_ONE_BYTE in STDIO.ASM
+  Should I take FS:[SF_DRIVER_POINTER] as DRIVE_PARAM_BLOCK if it is not a CHARDEV?
+
+
+- DEVCALL内の BX の値を、スタックフレーム内に作るように変える。今だとDOSのスタックがどのぐらいあるかわからんからできん。
+
+
+
+- FOPENでCドライブ限定で、"MSCDEX.EXE"が出たら、"SHSUCDX.COM"に翻訳する。"MSCDEX"でEXT無しの場合は"SHSUCDX"に翻訳する。MSDOS.SYSが出たらYSDOS.SYSに翻訳する。
+
+
+-CLOSE_SF内、
+ There is a possibility that the disk was removed for short time and then put back in.

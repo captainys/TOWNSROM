@@ -1,0 +1,819 @@
+YSDOS_VERSION_MAJOR		EQU			03h
+YSDOS_VERSION_MINOR		EQU			10
+YSDOS_VERSION_WORD		EQU			((YSDOS_VERSION_MINOR*0100h)+YSDOS_VERSION_MAJOR)
+
+YSDOS_VERSION_MINOR_SHSUCDX		EQU			31
+YSDOS_VERSION_WORD_SHSUCDX		EQU			((YSDOS_VERSION_MINOR_SHSUCDX*0100h)+YSDOS_VERSION_MAJOR)
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+ASCII_BACKSPACE			EQU		8
+ASCII_TAB				EQU		9
+ASCII_RETURN			EQU		13
+ASCII_EOF				EQU		01Ah
+ASCII_DOUBLEQUOTE		EQU		022h
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+DELETED_FILE_FIRST_BYTE	EQU		0E5h
+FAT_FIRST_CLUSTER		EQU		2
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+PROC_RETTYPE_NORMAL		EQU		00h		; INT 20h, INT 21h AH=00h, or INT 21h AH=4Ch
+PROC_RETTYPE_CTRLC		EQU		01h
+PROC_RETTYPE_ERRA_BORT	EQU		02h
+PROC_RETTYPE_RESIDENT	EQU		03h
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+RESTORE_POINT			STRUC
+SAVED_EAX				DD		?
+SAVED_EBX				DD		?
+SAVED_ECX				DD		?
+SAVED_EDX				DD		?
+SAVED_ESI				DD		?
+SAVED_EDI				DD		?
+SAVED_EBP				DD		?
+SAVED_DS				DD		?
+SAVED_ES				DD		?
+SAVED_FS				DD		?
+SAVED_GS				DD		?
+RESTORE_POINT			ENDS
+
+SAVE_REGISTERS_STACK_LEN	EQU		40
+
+SAVE_REGISTERS			MACRO	; Pushes 40 bytes
+						PUSH	WORD PTR CS:[SS_RESTORE_POINT]	; 4 bytes for previous SSSP
+						PUSH	WORD PTR CS:[SP_RESTORE_POINT]
+
+						PUSH	GS	; 8 bytes for segment selectors
+						PUSH	FS
+						PUSH	ES
+						PUSH	DS
+						PUSH	EBP	; 28 bytes for 32-bit regs except ESP
+						PUSH	EDI
+						PUSH	ESI
+						PUSH	EDX
+						PUSH	ECX
+						PUSH	EBX
+						PUSH	EAX
+
+						MOV		CS:[SS_RESTORE_POINT],SS
+						MOV		CS:[SP_RESTORE_POINT],SP
+						ENDM
+
+RESTORE_REGISTERS		MACRO
+						; Do not change CF in this macro.
+						LSS		SP,DWORD PTR CS:[SP_RESTORE_POINT]	; --NOT_IN_NASM--
+;						LSS		SP,CS:[SP_RESTORE_POINT]			; --USE_IN_NASM--
+
+						POP		EAX
+						POP		EBX
+						POP		ECX
+						POP		EDX
+						POP		ESI
+						POP		EDI
+						POP		EBP
+						POP		DS
+						POP		ES
+						POP		FS
+						POP		GS
+
+						POP		WORD PTR CS:[SP_RESTORE_POINT]
+						POP		WORD PTR CS:[SS_RESTORE_POINT]
+
+						ENDM
+
+
+
+; Call RETURN_REGISTERW with SS:BP points to a restore point.
+RETURN_REGISTERW		MACRO	REG									; --NOT_IN_NASM--
+						MOV		WORD PTR SS:[BP+SAVED_E&REG],REG    ; --NOT_IN_NASM--
+						ENDM                                        ; --NOT_IN_NASM--
+
+;%MACRO					RETURN_REGISTERW	1						; --USE_IN_NASM--
+;						MOV		WORD SS:[BP+SAVED_E%1],%1 		   	; --USE_IN_NASM--
+;						%ENDMACRO                                   ; --USE_IN_NASM--
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+PUSHHI_EAX				MACRO
+						ROL		EAX,16
+						PUSH	AX
+						ROR		EAX,16
+						ENDM
+
+POPHI_EAX				MACRO
+						ROL		EAX,16
+						POP	AX
+						ROR		EAX,16
+						ENDM
+
+PUSHHI_EBX				MACRO
+						ROL		EBX,16
+						PUSH	BX
+						ROR		EBX,16
+						ENDM
+
+POPHI_EBX				MACRO
+						ROL		EBX,16
+						POP	BX
+						ROR		EBX,16
+						ENDM
+
+PUSHHI_ECX				MACRO
+						ROL		ECX,16
+						PUSH	CX
+						ROR		ECX,16
+						ENDM
+
+POPHI_ECX				MACRO
+						ROL		ECX,16
+						POP	CX
+						ROR		ECX,16
+						ENDM
+
+PUSHHI_EDX				MACRO
+						ROL		EDX,16
+						PUSH	DX
+						ROR		EDX,16
+						ENDM
+
+POPHI_EDX				MACRO
+						ROL		EDX,16
+						POP	DX
+						ROR		EDX,16
+						ENDM
+
+PUSHHI_ESI				MACRO
+						ROL		ESI,16
+						PUSH	SI
+						ROR		ESI,16
+						ENDM
+
+POPHI_ESI				MACRO
+						ROL		ESI,16
+						POP	SI
+						ROR		ESI,16
+						ENDM
+
+PUSHHI_EDI				MACRO
+						ROL		EDI,16
+						PUSH	DI
+						ROR		EDI,16
+						ENDM
+
+POPHI_EDI				MACRO
+						ROL		EDI,16
+						POP	DI
+						ROR		EDI,16
+						ENDM
+
+PUSHHI_EBP				MACRO
+						ROL		EBP,16
+						PUSH	BP
+						ROR		EBP,16
+						ENDM
+
+POPHI_EBP				MACRO
+						ROL		EBP,16
+						POP	BP
+						ROR		EBP,16
+						ENDM
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+DOSERR_NO_ERROR				EQU			00h
+DOSERR_INVALID_FUNC			EQU			01h
+DOSERR_FILE_NOT_FOUND		EQU			02h
+DOSERR_DIR_NOT_FOUND		EQU			03h
+DOSERR_TOO_MANY_OPEN_FILES	EQU			04h
+DOSERR_ACCESS_DENIED		EQU			05h
+DOSERR_INVALID_HANDLE		EQU			06h
+DOSERR_MCB_BROKEN			EQU			07h
+DOSERR_OUT_OF_MEMORY		EQU			08h
+DOSERR_INVALID_MCB			EQU			09h
+DOSERR_BAD_ENV				EQU			0Ah
+DOSERR_BAD_FORMAT			EQU			0Bh
+DOSERR_INVALID_ACCESS		EQU			0Ch
+DOSERR_INVALID_DATA			EQU			0Dh
+DOSERR_UNUSED				EQU			0Eh
+DOSERR_INVALID_DRIVE		EQU			0Fh
+DOSERR_CANNOT_DEL_CUR_DIR	EQU			10h
+DOSERR_NOT_SAME_DRIVE		EQU			11h	; ?
+DOSERR_NO_MORE_FILES		EQU			12h
+DOSERR_WRITE_PROTEDTED		EQU			13h
+DOSERR_UNKNOWN_UNIT			EQU			14h
+DOSERR_DRIVE_NOT_READY		EQU			15h
+DOSERR_UNKNOWN_COMMAND		EQU			16h
+DOSERR_CRC_ERROR			EQU			17h
+DOSERR_BAD_REQ_LEN			EQU			18h
+DOSERR_SEEK_ERROR			EQU			19h
+DOSERR_UNKNOWN_MEDIUM		EQU			1Ah
+DOSERR_SECTOR_NOT_FOUND		EQU			1Bh
+DOSERR_OUT_OT_PAPER			EQU			1Ch
+DOSERR_WRITE_FAULT			EQU			1Dh
+DOSERR_READ_FAULT			EQU			1Eh
+DOSERR_GENERAL_FAULT		EQU			1Fh
+DOSERR_INVALID_DISK_CHANGE	EQU			22h
+
+DOSERR_DISK_FULL			EQU			DOSERR_GENERAL_FAULT	; What?  DOS 3.0 doesn't define Disk Full error code?  Seriously?
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; BIOS Parameter Block (BPB)
+; First sector of floppy disk. (+0Bh to +23h)
+; First sector of hard-disk partition (+0Bh to +23h)
+BIOS_PARAMETER_BLOCK	STRUC
+BPB_BYTES_PER_SECTOR	DW		?	; +00h=+0Bh-0bh
+BPB_SECTORS_PER_CLUSTER	DB		?	; +02h=+0Dh-0bh
+BPB_NUM_RESERVE_SECTORS	DW		?	; +03h=+0Eh-0bh
+BPB_NUM_FATS			DB		?	; +05h=+10h-0bh   1 byte?
+BPB_NUM_ROOTDIR_ENTS	DW		?	; +06h=+11h-0bh
+BPB_TOTAL_NUM_SECTORS	DW		?	; +08h=+13h-0bh
+BPB_MEDIA_DESC_TYPE		DB		?	; +0Ah=+15h-0bh
+BPB_SECTORS_PER_FAT		DW		?	; +0Bh=+16h-0bh
+BPB_SECTORS_PER_TRACK	DW		?	; +0Dh=+18h-0bh
+BPB_NUM_OF_HEADS		DW		?	; +0Fh=+1Ah-0bh
+BPB_NUM_OF_HIDDEN_SECTORS	DD	?	; +11h=+1Ch-0bh
+BPB_TOTAL_NUM_SECTORS32	DD		?	; +15h=+20h-0bh  (Total number of sectors if [BPB_TOTAL_NUM_SECTORS]==0.)
+BIOS_PARAMETER_BLOCK	ENDS
+
+BPB_MEDIA_DESC_1440KB	EQU		0F0h	; 1.44MB or 2.88MB   Confirmed with 1440KB disk image.
+BPB_MEDIA_DESC_HDD		EQU		0F8h
+BPB_MEDIA_DESC_720KB	EQU		0F9h	; 720KB or 1.2MB (Not 1232KB)    Confirmed with 720KB disk image.
+BPB_MEDIA_DESC_640KB	EQU		0FBh	; Observed in 640KB disk image.
+BPB_MEDIA_DESC_180KB	EQU		0FCh
+BPB_MEDIA_DESC_360KB	EQU		0FDh
+BPB_MEDIA_DESC_160KB	EQU		0FEh	; 1232KB disk uses 0FEh,  FM TOWNS hard-disk uses 0FEh
+BPB_MEDIA_DESC_320KB	EQU		0FFh
+
+BYTES_PER_DIRENT		EQU		020h	; 32 bytes per directory entry
+DIRENT_SHIFT			EQU		5		; Bit-shift for directory entry
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; Probably size of BUFFINFO structure in DOSSYM.ASM (MS-DOS V2.0 source)
+; Changed in V3.0
+IO_BUF_INFO_size		EQU		(SIZE IO_BUF_INFO)	; --NOT_IN_NASM--
+
+IO_BUF_FLAG_IS_FAT		EQU		02h
+IO_BUF_FLAG_IS_DIR		EQU		04h
+IO_BUF_FLAG_IS_DATA		EQU		08h
+IO_BUF_FLAG_READ		EQU		20h
+IO_BUF_FLAG_WRITTEN		EQU		40h
+IO_BUF_FLAG_DIRTY		EQU		IO_BUF_FLAG_WRITTEN
+
+IO_BUF_DRV_UNUSED		EQU		00ffh
+
+IO_BUF_INFO				STRUC
+IO_BUF_NEXT				DD		?	; +00h
+IO_BUF_DRV_LOGICAL		DB		?	; +04h  Maybe 40h bit is used for marking it dirty. (BUFWRITE 1679:575E)
+IO_BUF_FLAGS			DB		?	; +05h	b0:Reserved  b1:FAT sector  b2:DIR sector  b3:Data sector  b4:Reserved  b5:Buffer Read  b6:Buffer Written?
+IO_BUF_SECTOR_NUM		DW		?	; +06h
+IO_BUF_WRITE_COUNT		DB		?	; +07h  For FAT can be non-1, Others should be 1.
+IO_BUF_WRITE_INC		DB		?	; +08h
+IO_BUF_DRV_PARAM		DD		?	; +0Ah
+IO_BUF_UNUSED			DW		?	; +0Eh
+IO_BUF_INFO				ENDS
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; Must be part of SYSDEV struct, but may be different in DOS 3.x
+SYSDEV_DEVFLAG_CONS_IN						EQU		001h	; (Common with SF_DEVFLAGS)
+SYSDEV_DEVFLAG_CONS_OUT						EQU		002h	; If CHARDEV (Common with SF_DEVFLAGS)
+SYSDEV_DEVFLAG_32BIT						EQU		002h	; If BLOCKDEV DOS 3.31+
+SYSDEV_DEVFLAG_NUL							EQU		004h	; (Common with SF_DEVFLAGS)
+SYSDEV_DEVFLAG_CLOCK						EQU		008h	; (Common with SF_DEVFLAGS)
+SYSDEV_DEVFLAG_INT_29H_OUT					EQU		010h	; (Common with SF_DEVFLAGS)
+; bit5 unused 0020h
+SYSDEV_DEVFLAG_EXTFUNC_SUPPORTED			EQU		040h	; DOS 3.2+
+SYSDEV_DEVFLAG_IOCTL_QUERY_SUPPORTED		EQU		080h	; DOS 5.0+
+; bit8 unused 0100h
+; bit9 unused 0200h
+; bit10 unused 0400h
+SYSDEV_DEVFLAG_OPEN_CLOSE_SUPPORTED			EQU		0800h	; DOS 3.0+
+; bit 12 unused 1000h
+SYSDEV_DEVFLAG_OUT_UNTIL_BUSY_SUPPORTED		EQU		2000h	; If CHARDEV  DOS 3.0+ 
+SYSDEV_DEVFLAG_MEDIA_DESC_IN_FAT_REQUIRED	EQU		2000h	; IF BLOCKDEV
+SYSDEV_DEVFLAG_IOCTL_SUPPORTED				EQU		4000h
+SYSDEV_DEVFLAG_IS_CHARDEV					EQU		8000h	; IS_BLOCKDEV if 0.
+
+SYSDEV					STRUC
+SYSDEV_NEXT				DD      ?			;+00h
+SYSDEV_DEVFLAGS			DW      ?			;+04h
+SYSDEV_STRATEGY			DW      ?			;+06h
+SYSDEV_INTERRUPT		DW      ?			;+08h
+SYSDEV_NAME        		DB      8 DUP (?)	;+0Ah
+SYSDEV					ENDS
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; Memory Control Block
+; See https://www.drdobbs.com/architecture-and-design/mapping-dos-memory-allocation/184408026
+MEM_CTL_BLOCK			STRUC
+MCB_CHAIN_ID			DB		?		; MS-DOS 2.0 source calls it as ARENA_SIGNATURE
+MCB_PID					DW		?
+MCB_BLOCK_SIZE			DW		?
+						DB		11 DUP (?)
+MEM_CTL_BLOCK			ENDS
+
+MCB_CHAIN_ID_NORMAL		EQU		04DH
+MCB_CHAIN_ID_LAST		EQU		05AH
+
+MCB_PID_SYSTEM			EQU		0
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; System File Table
+; MS-DOS V2.0 Source suggests that the entry includes a file control block (FCB).
+; However, https://sites.google.com/site/pcdosretro/dostables suggests different.
+; Probably V3.0 made a big change in system file table.
+
+SF_MODE_READ			EQU		0
+SF_MODE_WRITE			EQU		1
+SF_MODE_READ_WRITE		EQU		2
+
+SF_MODE_SHARE_DENY_RW	EQU		010h
+SF_MODE_SHARE_DENY_W	EQU		020h
+SF_MODE_SHARE_DENY_R	EQU		030h
+SF_MODE_SHARE_ALLOW		EQU		040h
+SF_MODE_SHARE_UNDEFINED	EQU		070h	; Used!  What does it mean!
+
+SF_DEVFLAG_CHAR_CONS_IN		EQU		1		; Common with SYSDEV_DEVFLAGS
+SF_DEVFLAG_CHAR_CONS_OUT	EQU		2		; Common with SYSDEV_DEVFLAGS
+SF_DEVFLAG_CHAR_NUL			EQU		4		; Common with SYSDEV_DEVFLAGS
+SF_DEVFLAG_CHAR_CLOCK		EQU		8		; Common with SYSDEV_DEVFLAGS
+SF_DEVFLAG_CHAR_INT_29H_OUT	EQU		16		; Common with SYSDEV_DEVFLAGS
+SF_DEVFLAG_CHAR_BINARY		EQU		32
+SF_DEVFLAG_CHAR_NOT_EOF		EQU		64		; Prob if EOF (this bit is 0), return EOF upon read.  Essentially a NUL device.
+SF_DEVFLAG_CHAR_NET_SPOIL	EQU		2048
+
+SF_DEVFLAG_BLOCK_DRIVECODE		EQU		03Fh
+SF_DEVFLAG_BLOCK_NOT_WRITTEN	EQU		040h
+SF_DEVFLAG_BLOCK_TIME_SET		EQU		04000h
+
+SF_DEVFLAG_IS_CHARDEV		EQU		080h
+SF_DEVFLAG_NO_INHERIT		EQU		01000h
+SF_DEVFLAG_NO_INHERIT_SHIFT	EQU		12
+SF_DEVFLAG_NAMED_PIPE		EQU		02000h
+SF_DEVFLAG_REDIRECTED		EQU		08000h	; INT 2F Device
+
+
+
+SFT						STRUC
+SFT_NEXT				DD		?
+SFT_COUNT				DW		?
+SFT						ENDS
+
+SFT_size				EQU		(SIZE SFT)	; --NOT_IN_NASM--
+
+
+
+SF_MODE_CRITICAL		EQU		02000h	; If 0, INT 24 on critical error, or return error code.
+SF_MODE_NO_BUFFERING	EQU		04000h	; If 0, buffered write.  1 no buffered write.
+SF_MODE_FCB_SET			EQU		08000h	; What does it mean?
+
+
+SF_ENTRY				STRUC
+SF_REFCOUNT				DW		?	; + 0
+SF_MODE					DW		?	; + 2; 0:Read, 1:Write, 2:Read/Write
+SF_ATTR					DB		?	; + 4  Same as DIRENT_ATTR?
+SF_DEVFLAGS				DW		?	; + 5; Combination of SF_DEVFLAGs  (It was not 'DEV' flags after all....)
+SF_DRIVER_POINTER		DD		?	; + 7  If SF_DEVFLAG_IS_CHARDEV it is SYSDEV, else DRIVE_PARAM_BLOCK
+SF_FIRST_CLUSTER_NUM	DW		?	; +11 (0Bh)
+SF_TIME					DW		?	; +13 (0Dh)
+SF_DATE					DW		?	; +15 (0Fh)
+SF_FILE_SIZE			DD		?	; +17 (11h)
+SF_FILE_POINTER			DD		?	; +21 (15h)
+SF_CUR_REL_CLUSTER_NUM	DW		?	; +25 (19h)
+SF_CUR_ABS_CLUSTER_NUM	DW		?	; +27 (1Bh)
+SF_DIR_ENT_SECTOR		DW		?	; +29 (1Dh)  LBA that the file info is stored.  Not the top of the DIRENT.
+SF_DIR_ENT_POS_IN_SECTOR	DB		?	; +31 (1Fh)  Nth entry in the sector.
+SF_FILENAME				DB		8 DUP(?)	; +32 (20h)
+SF_FILE_EXT				DB		3 DUP(?)	; +40 (28h)
+SF_NEXT_SHARED_SFT		DD		?	; +43 (2Bh)
+SF_MACHINE_NUMBER		DW		?	; +47 (2Fh)
+SF_PSP_OWNER			DW		?	; +49 (31h)
+SF_SHARE_FT_OFFSET		DW		?	; +51 (33h)
+									; Total 53(35h) bytes
+SF_ENTRY				ENDS
+
+SF_ENTRY_size			EQU		(SIZE SF_ENTRY) ; --NOT_IN_NASM--
+
+SF_DRIVE_PARAM_BLOCK	EQU		SF_DRIVER_POINTER
+SF_DEFAULT_NUMBER		EQU		05H
+
+
+
+FILE_STDIN				EQU		00h
+FILE_STDOUT				EQU		01h
+FILE_STDERR				EQU		02h
+FILE_STDAUX				EQU		03h
+FILE_STDPRN				EQU		04h
+FILE_NOT_OPEN			EQU		0ffh
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; Seriously!?  Doesn't it cache current cluster???
+; It's going to cause Order(N*N) problem while listing a directory
+; with large number of files.
+FINDSTRUC				STRUC
+FIND_DRIVE				DB		?			; +00h
+FIND_WILDCARD			DB		11 DUP(?)	; +01h
+FIND_ATTR_FILTER		DB		?			; +0Ch
+FIND_COUNT_IN_DIR		DW		?			; +0Dh
+FIND_DIR_CLUSTER		DW		?			; +0Fh Based on Disassembly
+FIND_UNUSED				DD		?			; +11h
+FIND_FOUND_ATTR			DB		?			; +15h
+FIND_FOUND_TIME			DW		?			; +16h
+FIND_FOUND_DATE			DW		?			; +18h
+FIND_FOUND_FILE_SIZE	DD		?			; +1Ah
+FIND_FOUND_FILENAME		DB		13 DUP(?)	; +1Eh Not 11-byte name.  It is a plain C-String.
+FINDSTRUC				ENDS
+
+FINDSTRUC_size			EQU		(SIZE FINDSTRUC)	; --NOT_IN_NASM--
+
+; DOS 3.1 usage looks to be same as 3.2 usage in:
+;   http://www.ctyme.com/intr/rb-2977.htm
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+DIRENT_ATTR_READONLY	EQU		01h
+DIRENT_ATTR_HIDDEN		EQU		02h
+DIRENT_ATTR_SYSTEM		EQU		04h
+DIRENT_ATTR_VOLLABEL	EQU		08h
+DIRENT_ATTR_DIRECTORY	EQU		10h
+DIRENT_ATTR_ARCHIVE		EQU		20h
+
+DIRECTORY_ENTRY			STRUC
+DIRENT_FILENAME			DB		8 dup (?)	; +00h
+DIRENT_EXT				DB		3 dup (?)	; +08h
+DIRENT_ATTR				DB		?			; +0Bh b0=ReadOnly  b1=Hidden  b2=System  b3=VolumeLabel  b4=Directory  b5=Archive
+DIRENT_UNUSED			DB		10 dup (?)	; +0Ch
+DIRENT_TIME				DW		?			; +16h HHHHHMMMMMMSSSSS (SSSSS=seconds/2)
+DIRENT_DATE				DW		?			; +18h YYYYYYYMMMMDDDDD (D=1 to 31, M=1 to 12, Y=Year-1980)
+DIRENT_FIRST_CLUSTER	DW		?			; +1Ah
+DIRENT_FILE_SIZE		DD		?			; +1Ch
+											; 20h bytes total
+DIRECTORY_ENTRY			ENDS
+
+DIRECTORY_ENTRY_size	EQU		(SIZE DIRECTORY_ENTRY)	; --NOT_IN_NASM--
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+;https://sites.google.com/site/pcdosretro/dostables
+; Process Segment Prefix (PSP) aka Process Data Block (PDB) aka Program Header.  (WTF!)
+; JFN used in MS-DOS V2.0 source is a local serial number in the process.
+; PSP_TABLE[JFN] gives a 0FFH (not open) or otherwise system-wide serial number of the file.
+;
+;                JFN=  0    1    2    3    4    5    6    7...13h
+; PSP_FILE_TABLE[JFN]= SFN0 SFN1 SFN2 SFN3 ....
+;
+PSP_FILE_LEN			EQU		20
+
+PROG_SEG_PREFIX			STRUC
+PSP_INT20H				DW		?			; +00h
+PSP_ENDMEM				DW		?			; +02h
+						DB		?			; +04h
+PSP_CALLF_TO_DOS		DB		5 dup(?)	; +05h
+PSP_INT22H				DD		?			; +0Ah (SETMEM copies from Real-Mode IDT)
+PSP_INT23H				DD		?			; +0Eh (SETMEM copies from Real-Mode IDT)
+PSP_INT24H				DD		?			; +12h (SETMEM copies from Real-Mode IDT)
+PSP_CALLER_PSP_SEG		DW		?			; +16h
+PSP_FILE_TABLE			DB		PSP_FILE_LEN dup (?)	; +18h PDB_JFN_Table in MS-DOS 2.0
+PSP_ENV_SEG				DW		?			; +2Ch
+PSP_STACK_PTR			DD		?			; +2Eh (Stack Pointer after DOS Call?)
+PSP_FILE_TABLE_SIZE		DW		?			; +32h
+PSP_FILE_TABLE_POINTER	DD		?			; +34h
+PSP_NEXT_PSP			DD		?			; +38h
+						DD		?			; +3Ch
+PSP_DOS_VERSION			DW		?			; +40h
+						DB		0Eh dup (?)	; +42h
+PSP_INT21H_RETF			DB		3 dup(?)	; +50h
+						DB		9 dup(?)	; +53h
+PSP_FCB_1				DB		16 dup(?)	; +5Ch
+PSP_FCB_2				DB		16 dup(?)	; +6Ch
+						DD		?			; +7Ch
+PSP_COMMAND_LINE		DB		128 dup(?)	; +80h
+PROG_SEG_PREFIX			ENDS
+
+PSP_COMMAND_LINE_LEN	EQU		128
+PROG_SEG_PREFIX_size	EQU		(SIZE PROG_SEG_PREFIX)	; --NOT_IN_NASM--
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+DRIVE_PARAM_BLOCK		STRUC
+DPB_DRIVE_CODE			DB		? 		; 0=A drive
+DPB_UNIT_CODE			DB		?		; +01h
+DPB_BYTES_PER_SECTOR	DW		?		; +02h
+DPB_CLUSTER_MASK		DB		?		; +04h
+DPB_CLUSTER_SHIFT		DB		?		; +05h  SHL CLUSTER to get to SECTOR from the top of Data Sector
+DPB_FIRST_FAT_SECTOR	DW		?		; +06h
+DPB_NUM_FATS			DB		?		; +08h
+DPB_NUM_DIRENTS			DW		?		; +09h
+DPB_FIRST_DATA_SECTOR	DW		?		; +0bh
+DPB_MAX_CLUSTER_NUM		DW		?		; +0dh
+DPB_SECTORS_PER_FAT		DB		?		; +0fh  1 byte in DOS V3.x  2 bytes V4.x and later  How many sectors to skip to get to the root dir.
+DPB_FIRST_DIR_SECTOR	DW		?		; +10h
+DPB_PTR_TO_DEV_DRIVER	DD		?		; +12h
+DPB_MEDIA_DESC_TYPE		DB		?		; +16h  See BPB_MEDIA_DESC_TYPE
+DPB_ACCESS_FLAG			DB		?		; +17h
+DPB_PTR_TO_NEXT_DPB		DW		?		; +18h
+						DW		?		; +1Ah  Set in Finalize_DPB_Loop in MSINIT.ASM(MS-DOS V2.0 soruce)
+DPB_LAST_CLUSTER_ALLOC	DW		?		; +1Ch  Is this LAST_CLUSTER_ALLOC?  Or is this current working directory.
+DPB_NUM_FREE_CLUSTERS	DW		?		; +1Eh
+										; 20h bytes total
+DRIVE_PARAM_BLOCK		ENDS
+
+DRIVE_PARAM_BLOCK_size	EQU		(SIZE DRIVE_PARAM_BLOCK) ; --NOT_IN_NASM--
+
+
+DPB_ACCESS_FLAG_ACCESSED	EQU			000h
+DPB_ACCESS_FLAG_UNACCESSED	EQU			0ffh
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+DEVREQ_CMD_INIT					EQU		00h
+DEVREQ_CMD_MEDIA_CHECK			EQU		01h
+DEVREQ_CMD_BUILD_BPB			EQU		02h
+DEVREQ_CMD_IOCTL_READ			EQU		03h
+DEVREQ_CMD_READ					EQU		04h
+DEVREQ_CMD_NON_DEST_READ		EQU		05h
+DEVREQ_CMD_INPUT_STATUS			EQU		06h
+DEVREQ_CMD_FLUSH_INPUT			EQU		07h
+DEVREQ_CMD_WRITE				EQU		08h
+DEVREQ_CMD_WRITE_VERIFY			EQU		09h
+DEVREQ_CMD_OUTPUT_STATUS		EQU		0Ah
+DEVREQ_CMD_FLUSH_OUTPUT			EQU		0Bh
+DEVREQ_CMD_IOCTL_WRITE			EQU		0Ch
+DEVREQ_CMD_OPEN					EQU		0Dh
+DEVREQ_CMD_CLOSE				EQU		0Eh
+DEVREQ_CMD_CHECK_RMV_MEDIA		EQU		0Fh
+DEVREQ_CMD_OUTPUT_UNTIL_BUSY	EQU		10h
+DEVREQ_CMD_GENERIC_IOCTL		EQU		13h	; V3.2+?
+DEVREQ_CMD_GET_DRIVE_MAP		EQU		17h	; V3.2+?
+DEVREQ_CMD_SET_DRIVE_MAP		EQU		18h	; V3.2+?
+DEVREQ_CMD_QUERY_IOCTL			EQU		19h	; V5.0+?
+
+DEVREQ_STATUS_ERROR				EQU		8000h
+DEVREQ_STATUS_NOERROR			EQU		0100h
+
+DEVERR_WRITE_PROTECTED	EQU		00h
+DEVERR_UNKNOWN_UNIT		EQU		01h
+DEVERR_DRIVE_NOT_READY	EQU		02h
+DEVERR_UNKNOWN_COMMAND	EQU		03h
+DEVERR_CRC_ERROR		EQU		04h
+DEVERR_BAD_REQ_LEN		EQU		05h
+DEVERR_SEEK_ERROR		EQU		06h
+DEVERR_UNKNOWN_MEDIUM	EQU		07h
+DEVERR_SECTOR_NOT_FOUND	EQU		08h
+DEVERR_OUT_OF_PAPER		EQU		09h
+DEVERR_WRITE_FAULT		EQU		0ah
+DEVERR_READ_FAULT		EQU		0bh
+DEVERR_GENERAL_FAULT	EQU		0ch
+DEVERR_UNDEFINED		EQU		0dh
+DEVERR_DISK_CHANGED		EQU		0fh
+
+
+
+; Device Driver Request Header
+; See https://sites.google.com/site/pcdosretro/dostables
+DRIVER_REQ_HEADER		STRUC
+REQ_LEN					DB		?
+REQ_UNIT				DB		?
+REQ_COMMAND				DB		?
+REQ_STATUS				DW		?
+						DB		8 dup (?)
+DRIVER_REQ_HEADER		ENDS
+
+; For Init
+REQ_INIT_LEN							EQU		1AH
+REQ_INIT_CMD							EQU		00H
+
+REQ_INIT_NUM_UNIT_RETURN				EQU		0Dh
+REQ_INIT_END_OF_RESIDENT_CODE_RETURN	EQU		0Eh
+REQ_INIT_BPB_ARRAY_RETURN				EQU		12h		; In:"DEVICE="  Out:BPB array pointer
+REQ_INIT_DRIVE_CODE_FIRST_UNIT			EQU		16h		; 0=A drive
+
+REQ_READ_WRITE_MEDIA_DESC				EQU		0Dh		; Also used from DEVREQ_CMD_MEDIA_CHECK
+REQ_READ_WRITE_BUFFER_PTR				EQU		0Eh
+REQ_READ_WRITE_BUFFER_SEG				EQU		10h
+REQ_READ_WRITE_SECTOR_COUNT				EQU		12h
+REQ_READ_WRITE_LBA						EQU		14h
+REQ_READ_POINTER_TO_DISK_LABEL			EQU		16h
+REQ_READ_WRITE_LBA32					EQU		1Ah
+
+REQ_READ_WRITE_LENGTH					EQU		REQ_READ_WRITE_SECTOR_COUNT
+
+REQ_MEDIACHECK_CODE_RETURN				EQU		0Eh
+
+REQ_BUILDBPB_LEN						EQU		16h
+REQ_BUILDBPB_PTR_RETURN					EQU		12h
+
+
+CONSDEV_FLAG_BUSY		EQU		0200h
+
+CONSDEV_REQ_HEADER		STRUC
+						DB		?
+						DB		?
+						DB		?
+						DW		?
+						DB		8 dup(?)
+CONSDEV_REQ_CHR			DB		?	; +0dh
+CONSDEV_REQ_HEADER		ENDS
+
+CONSDEV_REQ_HEADER_size	EQU		(SIZE CONSDEV_REQ_HEADER) ; --NOT_IN_NASM--
+
+
+
+RW_REQ_HEADER			STRUC
+						DB		?
+						DB		?
+						DB		?
+						DW		?
+						DB		8 dup(?)
+RW_REQ_MEDIA_DESC		DB		?	; +0dh
+RW_REQ_DATABUF_PTR		DD		?
+RW_REQ_SECTOR_COUNT		DW		?
+RW_REQ_START_SECTOR		DW		?
+RW_REQ_HEADER			ENDS
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+CDS_TYPE_SUBSTED		EQU		01000h
+CDS_TYPE_JOINED			EQU		02000h
+CDS_TYPE_VALID			EQU		04000h
+CDS_TYPE_REDIRECTED		EQU		08000h
+
+CURRENT_DIR_STRUCT		STRUC	; CDS
+CDS_CURDIR				DB		043h dup(?)
+CDS_DRIVE_TYPE			DW		?	; +43h
+CDS_DRIVE_PARAM_BLOCK	DD		?	; +45h
+CDS_CURDIR_CLUSTER		DW		?	; +49h 0=root dir, 0ffffh unavailable?
+CDS_UNUSED				DD		?	; +4bh
+CDS_CURDIR_ROOTLEN		DW		?	; +4fh Skipping this number of bytes skips drive letter part.
+CURRENT_DIR_STRUCT		ENDS
+
+CDS_CURDIR_LEN_MAX		EQU		042h
+CURRENT_DIR_STRUCT_size	EQU		(SIZE CURRENT_DIR_STRUCT)	; --NOT_IN_NASM--
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+EXEC_PARAM_NORMAL		STRUC
+EXEC_NORMAL_SRC_ENVSEG	DW		? ; +00h
+EXEC_NORMAL_COMMANDARG	DD		? ; +02h
+EXEC_NORMAL_FIRSTFCB	DD		? ; +06h
+EXEC_NORMAL_SECONDFCB	DD		? ; +0Ah
+EXEC_NORMAL_INIT_SSSP	DD		? ; +0Eh
+EXEC_NORMAL_INIT_CSIP	DD		? ; +12h
+EXEC_PARAM_NORMAL		ENDS
+
+EXEC_PARAM_NORMAL_size	EQU		(SIZE EXEC_PARAM_NORMAL)	; --NOT_IN_NASM--
+
+
+
+EXEC_PARAM_OVERLAY		STRUC
+EXEC_OVERLAY_LOADPOINT	DW		?
+EXEC_OVERLAY_RELOCATION	DW		?
+EXEC_PARAM_OVERLAY		ENDS
+
+EXEC_PARAM_OVERLAY_size	EQU		(SIZE EXEC_PARAM_OVERLAY)	; --NOT_IN_NASM--
+
+
+
+EXEHEADER				STRUC
+EXE_SIGNATURE			DW		?	; +00h "MZ" or "ZM"
+EXE_SIZE_LAST_PAGE		DW		?	; +02h I don't think MS-DOS V3.1 is using this.
+EXE_FILE_SIZE_DIV_512	DW		?	; +04h 
+EXE_RELOC_TABLE_COUNT	DW		?	; +06h 
+EXE_HEADER_SIZE			DW		?	; +08h In number of paragraphs
+EXE_MIN_ALLOC_PAGE		DW		?	; +0Ah 
+EXE_MAX_ALLOC_PAGE		DW		?	; +0Ch 
+EXE_INIT_SS				DW		?	; +0Eh 
+EXE_INIT_SP				DW		?	; +10h 
+EXE_CHECKSUM			DW		?	; +12h 
+EXE_INIT_IP				DW		?	; +14h 
+EXE_INIT_CS				DW		?	; +16h 
+EXE_RELOC_TABLE_OFFSET	DW		?	; +18h Relative to the top of the file.
+									; Total Size=01Ah
+EXEHEADER				ENDS
+
+EXEHEADER_size			EQU		(SIZE EXEHEADER)	; --NOT_IN_NASM--
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+INT2FH_CHDIR			EQU		1105h	; It checks the path name is directory.  It does NOT update CDS.
+INT2F_CLOSE				EQU		1106h
+INT2FH_FREAD			EQU		1108H
+INT2FH_FWRITE			EQU		1109h
+INT2FH_GET_DISK_INFO	EQU		110Ch
+INT2FH_SET_FILE_ATTRIB	EQU		110Eh
+INT2FH_GET_FILE_ATTRIB	EQU		110Fh
+INT2FH_DELETE			EQU		1113h
+INT2FH_OPEN				EQU		1116h
+INT2FH_FCREATE			EQU		1117h
+INT2FH_FIND_FIRST_NO_CDS	EQU		1119h
+INT2FH_FIND_NEXT_NO_CDS		EQU		111Ah
+INT2FH_FIND_FIRST		EQU		111Bh
+INT2FH_FIND_NEXT		EQU		111Ch
+INT2FH_CLOSE_ALL_FILES_CURRENTPSP	EQU		111Dh
+INT2FH_TUNNEL_FROM_21H	EQU		111Eh
+INT2FH_SEEK_FROM_END	EQU		1121h
+INT2FH_PROC_TERM_HOOK	EQU		1122H
+INT2FH_QUALIFY_FILENAME	EQU		1123h
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+COUNTRY_INFO			STRUC
+COUNTRY_DATEFOM			DW		?			;+00h
+COUNTRY_CURRENCY		DB		5 dup(?)	;+02h
+COUNTRY_THOUSANDSEP		DB		2 dup(?)	;+07h
+COUNTRY_DECIMALSEP		DB		2 dup(?)	;+09h
+COUNTRY_DATESEP			DB		2 dup(?)	;+0Bh
+COUNTRY_TIMESEP			DB		2 dup(?)	;+0Dh
+COUNTRY_CURRENCYFOM		DB		?			;+0Fh
+COUNTRY_CURRENCY_BELOWDECIMAL	DB		?	;+10h
+COUNTRY_TIMEFOM			DB		?			;+11h
+COUNTRY_CASE_ROUTINE	DD		?			;+12h
+COUNTRY_DATASEP			DB		2 dup(?)	;+16h
+COUNTRY_UNUSED			DB		10 dup(?)	;+18h
+COUNTRY_INFO			ENDS

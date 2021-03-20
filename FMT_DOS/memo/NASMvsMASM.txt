@@ -1,0 +1,18 @@
+MASM
+Pros
+- Intel Official Format (I suppose).
+- At least gives a line where error takes place.
+Cons
+- Need to run from DOS emulator.
+- Sometimes secretly one-pass assemble (MACRO)
+
+
+
+NASM
+Pros
+- Don't need a DOS emulator ->  Can streamline build to run.
+- Usage of LOCAL labels are more stable.
+- .LST file is much more readable than MASM
+Cons
+- Lines of errors and in which file error occured is meaningless.
+- Open source but, will it last long?  Or will it suddenly disappear like other open-source projects?
