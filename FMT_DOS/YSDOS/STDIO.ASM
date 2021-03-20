@@ -294,7 +294,7 @@ GETC:
 						MOV		DX,SP
 						MOV		AX,FILE_STDIN
 						MOV		ECX,1
-						CALL	FREAD
+						CALL	FREAD_FROM_JFN
 						POP		AX
 						RET
 
@@ -310,22 +310,11 @@ GETS:
 						CMP		BYTE PTR DS:[SI+GETS_BUF_LEN],0
 						JE		GETS_EXIT
 
-						XOR		DX,DX		; Temporarily start of the buffer.
+						; Original MS-DOS V3.0 source checks the validity of the recall length,
+						; but anyway resetting the counter by MOV DH,CH at CS:1B57.
+						; So, my guess is recall length is remains from CP/M and does nothing.
 
-						MOV		AX,DS:[SI]	; AL=Buffer Length, AH=Recall Length
-						CMP		AH,AL
-						JAE		GETS_RECALL_SET	; Recall Length must be less than buffer length
-
-						; If RECALL_LEN is non zero, the last byte must be CR.
-						MOVZX	BX,AH
-						CMP		DS:[SI+BX+GETS_BUF_DATA],ASCII_CR
-						JNE		GETS_RECALL_SET
-
-						MOV		DX,BX
-
-GETS_RECALL_SET:
-						PUSH	DX		; Remember first DX.  May be unnecessary.
-						MOV		BYTE PTR DS:[SI+GETS_BUF_FILLED],DL
+						MOV		BYTE PTR DS:[SI+GETS_BUF_FILLED],0
 
 GETS_LOOP:
 						PUSH	DS
@@ -336,6 +325,9 @@ GETS_LOOP:
 
 						CMP		AL,' '
 						JAE		GETS_PRINTABLE
+						CMP		AL,ASCII_CR
+						JE		GETS_DONE
+						JMP		GETS_LOOP
 
 GETS_PRINTABLE:
 						CALL	GETS_ADDCHAR
@@ -346,6 +338,14 @@ GETS_PRINTABLE:
 						POP		SI
 						POP		DS
 						JMP		GETS_LOOP
+
+GETS_DONE:
+						MOVZX	CX,BYTE PTR DS:[SI+GETS_BUF_LEN]
+						MOVZX	BX,BYTE PTR DS:[SI+GETS_BUF_FILLED]
+						CMP		BX,CX
+						JAE		GETS_EXIT
+						MOV		DS:[SI+BX+GETS_BUF_DATA],AL
+
 
 GETS_EXIT:
 						RET
@@ -362,6 +362,7 @@ GETS_ADDCHAR:
 						MOVZX	CX,BYTE PTR DS:[SI+GETS_BUF_LEN]
 						MOVZX	BX,BYTE PTR DS:[SI+GETS_BUF_FILLED]
 						INC		BX	; Need to leave one byte for CR
+						; Need FILLED+1(BX)<BUFLEN(CX) to leave one byte for CR
 						CMP		BX,CX
 						JAE		GETS_ADDCHAR_EXIT
 
@@ -370,6 +371,7 @@ GETS_ADDCHAR:
 						MOV		DS:[SI+BX+GETS_BUF_DATA],AL
 
 GETS_ADDCHAR_EXIT:
+						CMC
 						RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
