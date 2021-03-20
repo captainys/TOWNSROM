@@ -91,6 +91,8 @@ INT_21H_ALREADY_INDOS:
 						JE		INT_21H_52H_GET_SYSVARS
 						CMP		AH,58H
 						JE		INT_21H_58H_GET_SET_MALLOC_STRATEGY
+						CMP		AH,5Dh
+						JE		INT_21H_5DH_INTERNAL
 						CMP		AH,5Fh
 						JE		INT_21H_5FH_INT_2FH_TUNNEL
 						CMP		AH,62H
@@ -1184,6 +1186,31 @@ INT_21H_58H_SET_MALLOC_STRATEGY:
 						POP		BP
 						IRET
 
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; This INT is supposed to be internal use only.
+; Or, AL=07,08,09
+; can be used for redirected printer mode.
+; Or, AL=0Ah
+; can be used for setting extended error information.
+; according to http://www.ctyme.com/intr/int-21.htm.
+; If it is redirected-printer mode, just ignore.
+; If not, trap it so that I know the function is actually used.
+INT_21H_5DH_INTERNAL:
+						CMP		AL,7
+						JE		INT_21H_5DH_IGNORE
+						CMP		AL,8
+						JE		INT_21H_5DH_IGNORE
+						CMP		AL,9
+						JE		INT_21H_5DH_IGNORE
+INT_21H_5DH_STOP:		JMP		INT_21H_5DH_STOP
+
+INT_21H_5DH_IGNORE:		IRET
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
