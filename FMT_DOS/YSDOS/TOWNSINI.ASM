@@ -19,11 +19,71 @@ DOSINIT_TOWNS_NOTIFY_CS:
 
 
 
-; Open Version of FMT_SYS alters the palette.
-;16-Color Palette
+; Kasanova's Compatible FMT_SYS changes the system palette.
+; This function will reset.
+TOWNS_DEF_PALETTE:
+;In      Out
+		;112233->223311
+		;aabbcc->bbccaa
+		; Page 0
+				;In             ; Out
+				;aa   bb   cc   ; bbccaa
+		DB		000h,000h,000h  ; 000000
+		DB		088h,000h,000h  ; 000088
+		DB		000h,088h,000h  ; 880000
+		DB		088h,088h,000h  ; 880088
+		DB		000h,000h,088h  ; 008800
+		DB		088h,000h,088h  ; 008888
+		DB		000h,088h,088h  ; 888800
+		DB		088h,088h,088h  ; 888888
+		DB		044h,044h,044h  ; 444444
+		DB		0FFh,000h,000h  ; 0000FF
+		DB		000h,0FFh,000h  ; FF0000
+		DB		0FFh,0FFh,000h  ; FF00FF
+		DB		000h,000h,0FFh  ; 00FF00
+		DB		0FFh,000h,0FFh  ; 00FFFF
+		DB		000h,0FFh,0FFh  ; FFFF00
+		DB		0FFh,0FFh,0FFh  ; FFFFFF
+
+;16-Color Palette (I don't care about Page 1)
 ;Page0:000000 000088 880000 880088 008800 008888 888800 888888 444444 0000FF FF0000 FF00FF 00FF00 00FFFF FFFF00 FFFFFF
 ;Page1:000000 0000BB BB0000 BB00BB 00BB00 00BBBB BBBB00 BBBBBB 000000 0000FF FF0000 FF00FF 00FF00 00FFFF FFFF00 FFFFFF
 DOSINIT_TOWNS_PALETTE:
+					PUSH	SI
+					PUSH	AX
+					PUSH	BX
+					PUSH	DX
+
+					MOV		SI,OFFSET TOWNS_DEF_PALETTE
+					MOV		BL,0
+DOSINIT_TOWNS_PALETTE_LOOP:
+					MOV		DX,TOWNS_IO_PALETTE
+					MOV		AL,BL
+					OUT		DX,AL
+
+					ADD		DX,2
+					MOV		AL,CS:[SI]
+					INC		SI
+					OUT		DX,AL
+
+					ADD		DX,2
+					MOV		AL,CS:[SI]
+					INC		SI
+					OUT		DX,AL
+
+					ADD		DX,2
+					MOV		AL,CS:[SI]
+					INC		SI
+					OUT		DX,AL
+
+					INC		BL
+					CMP		BL,16
+					JNE		DOSINIT_TOWNS_PALETTE_LOOP
+
+					POP		DX
+					POP		BX
+					POP		AX
+					POP		SI
 					RET
 
 
