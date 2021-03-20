@@ -57,3 +57,4 @@ jadoxa@yahoo.com.au
 
 
 ## COMMAND.COM
+(I'm still working on compatible COMMAND.COM)
