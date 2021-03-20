@@ -10,7 +10,7 @@ TOWNSTYPE="DEV"
 
 THISFILE=os.path.realpath(__file__)
 THISDIR=os.path.dirname(THISFILE)
-TSUGARUDIR=os.path.join(THISDIR,"..","..","..","TOWNSEMU")
+TSUGARUDIR=os.path.join(THISDIR,"..","..","TOWNSEMU")
 
 BUILDDIR=os.path.join(TSUGARUDIR,"build")
 SRCDIR=os.path.join(TSUGARUDIR,"src")
@@ -94,26 +94,25 @@ def Prep():
 	cwd=os.getcwd();
 	os.chdir(THISDIR)
 
-	#copy YSDOS\LOADER.SYS make\files\.
-	shutil.copyfile(
-		os.path.join(THISDIR,"YSDOS","LOADER.SYS"),
-		os.path.join(THISDIR,"make","files","LOADER.SYS"))
+	if not os.path.isfile(os.path.join(THISDIR,"CDRIVE","COMMAND.COM")):
+		print("It still requires COMMAND.COM from the original TOWNS C-Drive.")
+		quit()
+
+	if not os.path.isfile(os.path.join(THISDIR,"YSDOS","YSDOS.SYS")):
+		print("Assemble YSDOS.")
+		quit()
+
 
 	shutil.copyfile(
 		os.path.join(THISDIR,"YSDOS","YSDOS.SYS"),
-		os.path.join(THISDIR,"make","files","YSDOS.SYS"))
-
-	# Version 3.08 of SHSUCDX.COM converted to EXE using COMTOEXE.
-	shutil.copyfile(
-		os.path.join(THISDIR,"..","SHSUCDX","V3.08","BIN","SHSUCDX.COM"),
-		os.path.join(THISDIR,"make","files","SHSUCDX.COM"))
+		os.path.join(THISDIR,"makerom","files","YSDOS.SYS"))
 
 	# COMMAND.COM
 	shutil.copyfile(
-		os.path.join(THISDIR,"MX","COMMAND.COM"),
-		os.path.join(THISDIR,"make","files","COMMAND.COM"))
+		os.path.join(THISDIR,"CDRIVE","COMMAND.COM"),
+		os.path.join(THISDIR,"makerom","files","COMMAND.COM"))
 
-	os.chdir("make")
+	os.chdir("makerom")
 	PrepRun([
 			"cl",
 			"make.cpp",
@@ -123,8 +122,8 @@ def Prep():
 	os.chdir(THISDIR)
 
 	shutil.copyfile(
-		os.path.join(THISDIR,"make","FMT_DOS.ROM"),
-		os.path.join(THISDIR,"..","..","..","TOWNSEMU_TEST","rom_dev","FMT_DOS.ROM"))
+		os.path.join(THISDIR,"makerom","FMT_DOS.ROM"),
+		os.path.join(THISDIR,"..","..","TOWNSEMU_TEST","rom_dev","FMT_DOS.ROM"))
 
 	shutil.copyfile(
 		os.path.join(THISDIR,"townstst","TESTHD.H0"),

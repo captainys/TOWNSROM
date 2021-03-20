@@ -1,0 +1,6 @@
+runtest
+scratch
+CDRIVE
+*.exe
+*.lst
+*.obj
