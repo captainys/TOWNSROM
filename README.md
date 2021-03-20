@@ -1,6 +1,13 @@
 
 # Free FM TOWNS Project
 
+## 注意
+FMT_DOSはまだまともに動きません。やっとTowns OSやいくつかのゲームが動くレベルになったばかりです。未対応の機能にヒットするといきなりフリーズします。もう少し自信をもって使えるバージョンになるまでもう少しお待ちください。
+
+## Disclaimer
+FMT_DOS is still under development.  All it can do is start some of the FM TOWNS games, and it freezes as soon as an app tries to use an unimplemented function.  Please wait a little more before this compatible DOS can be used with confidence.
+
+
 
 ## Free FM TOWNS Projectについて
 このプロジェクトは、完全自己完結型FM TOWNSエミュレータの実現を目指しています。
