@@ -196,6 +196,8 @@ INT_21H_REGISTERS_SAVED:
 						JE		INT_21H_4FH_FIND_NEXT
 						CMP		AH,55H
 						JE		INT_21H_55H_CREATE_CHILD_PSP
+						CMP		AH,60h
+						JE		INT_21H_60H_TRUENAME
 
 ; Not-so-simple Functions <<
 
@@ -1263,6 +1265,7 @@ INT_21H_5DH_STOP:		JMP		INT_21H_5DH_STOP
 INT_21H_5DH_IGNORE:		IRET
 
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -1290,6 +1293,16 @@ INT_21H_5FH_INT_2FH_TUNNEL_NOERR:
 						POP		BP
 						ADD		SP,2
 						IRET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+INT_21H_60H_TRUENAME:
+						CALL	TRUENAME
+						JMP		INT_RESTORE_AND_IRET_WITH_CF
 
 
 

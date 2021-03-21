@@ -109,8 +109,8 @@ def Prep():
 
 	# COMMAND.COM
 	shutil.copyfile(
-		#os.path.join(THISDIR,"COMMAND","COMMAND.EXE"),
-		os.path.join(THISDIR,"CDRIVE","COMMAND.COM"),
+		os.path.join(THISDIR,"COMMAND","COMMAND.EXE"),
+		#os.path.join(THISDIR,"CDRIVE","COMMAND.COM"),
 		os.path.join(THISDIR,"makerom","files","COMMAND.COM"))
 
 	os.chdir("makerom")

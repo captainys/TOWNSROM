@@ -187,17 +187,35 @@ MAKE_FULLPATH_DIR_NOT_FOUND:
 ;   DS:SI  File Name
 ; Output
 ;   CF=0  CS:[FILENAME_BUFFER] Full Path Name
-MAKE_FULLPATH_CRUNCH_LESSERWC:
+; Make full path name and crunch "." and "..", but not expand to lesser wildcard.
+MAKE_FULLPATH_CRUNCH:
 						PUSH	CS
 						POP		ES
 						MOV		DI,OFFSET FILENAME_BUFFER
 						CALL	MAKE_FULLPATH
-						JB		MAKE_FULLPATH_CRUNCH_LESSERWC_EXIT
+						JB		MAKE_FULLPATH_CRUNCH_EXIT
 
 						PUSH	CS
 						POP		DS
 						MOV		SI,OFFSET FILENAME_BUFFER
 						CALL	CRUNCH_FILEPATH
+
+MAKE_FULLPATH_CRUNCH_EXIT:
+						RET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; Input
+;   DS:SI  File Name
+; Output
+;   CF=0  CS:[FILENAME_BUFFER] Full Path Name
+MAKE_FULLPATH_CRUNCH_LESSERWC:
+						CALL	MAKE_FULLPATH_CRUNCH
+						JB		MAKE_FULLPATH_CRUNCH_LESSERWC_EXIT
 
 						CALL	FULLPATH_TO_LESSER_WILDCARD
 
@@ -3159,6 +3177,31 @@ SET_GET_FILE_ATTRIB_DIR_NOT_FOUND:
 SET_GET_FILE_ATTRIB_INVALID_FUNC:
 						MOV		AX,DOSERR_INVALID_FUNC
 						STC
+						RET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; Input
+;  DS:SI=Input file name
+;  ES:DI=True name
+TRUENAME:
+						PUSH	ES
+						PUSH	DI
+						CALL	MAKE_FULLPATH_CRUNCH
+						POP		DI
+						POP		ES
+						JC		TRUENAME_EXIT
+
+						PUSH	CS
+						POP		DS
+						MOV		SI,OFFSET FILENAME_BUFFER
+						CALL	STRCPY
+
+TRUENAME_EXIT:
 						RET
 
 

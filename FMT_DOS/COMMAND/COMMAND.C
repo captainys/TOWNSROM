@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "DOSLIB.H"
-#include "UTIL.h"
+#include "DOSCALL.H"
+#include "UTIL.H"
+#include "DEF.H"
 
 
 
@@ -12,11 +15,7 @@ unsigned int PSP=0,ENVSEG=0;
 unsigned int ENVSEGLEN=16;	/* Number of Paragraphs*/
 unsigned char far *PSPPtr=NULL;
 
-#define LINEBUFLEN 256
 char lineBuf[LINEBUFLEN];
-
-#define MAX_PATH 128
-char trueNameBuf[MAX_PATH];
 
 
 
@@ -77,25 +76,47 @@ unsigned char SetUp(int argc,char *argv[])
 	return argUsed;
 }
 
+int ExecBuiltInCommand(const char lineBuf[])
+{
+	return 0;
+}
+
+int IdentifyCommandType(char exeCmdLine[],const char lineBuf[])
+{
+	return COMTYPE_UNKNOWN;
+}
+
 int RunBatchFile(char cmd[])
 {
-	char *argv[1];
-	const char *fName;
+	static char batchCmdLine[LINEBUFLEN];
+	int argc=0;
+	static char *argv[MAX_ARG];
+	static char batchFileName[MAX_PATH];
+
 	size_t fPos=0;
 	int eof=0;
 
-	argv[0]=cmd; /* Should parse and break into args. */
+	strncpy(batchCmdLine,cmd,LINEBUFLEN-1);
+	batchCmdLine[LINEBUFLEN-1]=0;
 
-	DOSTRUENAME(trueNameBuf,argv[0]);
-	fName=trueNameBuf;
-
-	printf("BATCHFILE=%s\n",fName);
+	ExpandEnvVar(batchCmdLine,LINEBUFLEN);
+	ParseString(&argc,argv,batchCmdLine);
+	if(0==argc || FOUND!=FindExecutableFromPath(batchFileName,argv[0]))
+	{
+		return DOSERR_FILE_NOT_FOUND;
+	}
 
 	while(0==eof)
 	{
-		FILE *fp=fopen(fName,"r");
+		FILE *fp;
+
+		printf("BATCHFILE=%s\n",batchFileName);
+
+		fp=fopen(batchFileName,"r");
 		if(NULL==fp)
 		{
+			printf("File Not Found.\n");
+			printf("Filename=%s\n",batchFileName);
 			break;
 		}
 		fseek(fp,fPos,SEEK_SET);
@@ -119,7 +140,28 @@ int RunBatchFile(char cmd[])
 		{
 			printf("%s$\n",lineBuf);
 		}
-		/* ExecCommand(lineBuf); */
+
+		if(0==ExecBuiltInCommand(lineBuf))
+		{
+			static char exeCmdLine[MAX_PATH];
+			int comType=IdentifyCommandType(exeCmdLine,lineBuf);
+			switch(comType)
+			{
+			case COMTYPE_BATCH:
+				/*
+				DOS Batch File does not CALL another batch.
+				It does JMP to another batch unless it is invoked from COMMAND.COM.
+				*/
+				strncpy(batchCmdLine,lineBuf,LINEBUFLEN-1);
+				batchCmdLine[LINEBUFLEN-1]=0;
+				ExpandEnvVar(batchCmdLine,LINEBUFLEN);
+				fPos=0;
+				break;
+			default:
+				break;
+			}
+			for(;;);
+		}
 	}
 
 	for(;;);

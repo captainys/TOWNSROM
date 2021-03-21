@@ -4,4 +4,16 @@
 #define ASCII_CR 0x0D
 #define ASCII_LF 0x0A
 
+#define LINEBUFLEN 256
+#define MAX_PATH 128
+#define MAX_ARG 64
+
+enum
+{
+	COMTYPE_UNKNOWN,
+	COMTYPE_BINARY,
+	COMTYPE_BINARY32,
+	COMTYPE_BATCH
+};
+
 #endif
