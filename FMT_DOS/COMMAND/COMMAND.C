@@ -17,6 +17,14 @@ unsigned char far *PSPPtr=NULL;
 
 char lineBuf[LINEBUFLEN];
 
+struct BatchState
+{
+	char cmdLine[LINEBUFLEN];
+	char fName[MAX_PATH];
+	size_t fPos;
+	unsigned char eof;
+};
+
 
 
 void Test(int argc,char *argv[])
@@ -76,8 +84,71 @@ unsigned char SetUp(int argc,char *argv[])
 	return argUsed;
 }
 
-int ExecBuiltInCommand(const char lineBuf[])
+void ExecEcho(const char afterArgv0[])
 {
+	if(0==strcmp(afterArgv0,"OFF"))
+	{
+		/* echo=0; */
+	}
+	else if(0==strcmp(afterArgv0,"ON"))
+	{
+		echo=1;
+	}
+	else
+	{
+		puts(afterArgv0);
+	}
+}
+
+void ExecSet(char setParam[])
+{
+	char *var,*data;
+	int equal=0;
+	while(0!=setParam[equal] && '='!=setParam[equal])
+	{
+		++equal;
+	}
+	if(0==setParam[equal])
+	{
+		printf("Wrong Parameter");
+		/* Should I set errorlevel? */
+		return;
+	}
+	setParam[equal]=0;
+	var=setParam;
+	data=setParam+equal+1;
+	if(data[0]=='\"')
+	{
+		int i;
+		++data;
+		for(i=0; 0!=data[i]; ++i)
+		{
+			if('\"'==data[i] && 0==data[i+1])
+			{
+				data[i]=0;
+				break;
+			}
+		}
+	}
+	SetEnv(ENVSEG,var,data);
+}
+
+/*! Execute a built-in command.
+    Return 1 if it is a build-in command.  afterArgv0 may be altered.
+    Return 0 if it is not.  afterArgv0ineBuf unchanged.
+*/
+int ExecBuiltInCommand(const char argv0[],char afterArgv0[])
+{
+	if(0==strcmp(argv0,"ECHO"))
+	{
+		ExecEcho(afterArgv0);
+		return 1;
+	}
+	else if(0==strcmp(argv0,"SET"))
+	{
+		ExecSet(afterArgv0);
+		return 1;
+	}
 	return 0;
 }
 
@@ -88,43 +159,44 @@ int IdentifyCommandType(char exeCmdLine[],const char lineBuf[])
 
 int RunBatchFile(char cmd[])
 {
-	static char batchCmdLine[LINEBUFLEN];
-	int argc=0;
-	static char *argv[MAX_ARG];
-	static char batchFileName[MAX_PATH];
+	int batArgc=0;
+	static char *batArgv[MAX_ARG];
+	struct BatchState batState;
 
-	size_t fPos=0;
-	int eof=0;
+	strncpy(batState.cmdLine,cmd,LINEBUFLEN-1);
+	batState.cmdLine[LINEBUFLEN-1]=0;
+	batState.fPos=0;
+	batState.eof=0;
 
-	strncpy(batchCmdLine,cmd,LINEBUFLEN-1);
-	batchCmdLine[LINEBUFLEN-1]=0;
-
-	ExpandEnvVar(batchCmdLine,LINEBUFLEN);
-	ParseString(&argc,argv,batchCmdLine);
-	if(0==argc || FOUND!=FindExecutableFromPath(batchFileName,argv[0]))
+	ExpandEnvVar(batState.cmdLine,LINEBUFLEN);
+	ParseString(&batArgc,batArgv,batState.cmdLine);
+	if(0==batArgc || FOUND!=FindExecutableFromPath(batState.fName,batArgv[0]))
 	{
 		return DOSERR_FILE_NOT_FOUND;
 	}
 
-	while(0==eof)
+	printf("BATCHFILE=%s\n",batState.fName);
+
+	while(0==batState.eof)
 	{
 		FILE *fp;
+		int argv0Len=0;
+		static char argv0[MAX_PATH];
+		char *afterArgv0="";
 
-		printf("BATCHFILE=%s\n",batchFileName);
-
-		fp=fopen(batchFileName,"r");
+		fp=fopen(batState.fName,"r");
 		if(NULL==fp)
 		{
 			printf("File Not Found.\n");
-			printf("Filename=%s\n",batchFileName);
+			printf("Filename=%s\n",batState.fName);
 			break;
 		}
-		fseek(fp,fPos,SEEK_SET);
-		while(0==eof)
+		fseek(fp,batState.fPos,SEEK_SET);
+		while(0==batState.eof)
 		{
 			if(NULL==fgets(lineBuf,LINEBUFLEN-1,fp))
 			{
-				eof=1;
+				batState.eof=1;
 				break;
 			}
 			ClearTailSpace(lineBuf);
@@ -133,15 +205,35 @@ int RunBatchFile(char cmd[])
 				break;
 			}
 		}
-		fPos=ftell(fp);
+		batState.fPos=ftell(fp);
 		fclose(fp);
+
+		if(0!=batState.eof)
+		{
+			break;
+		}
+		if(0==lineBuf[0])
+		{
+			continue;
+		}
 
 		if(0!=echo)
 		{
 			printf("%s$\n",lineBuf);
 		}
 
-		if(0==ExecBuiltInCommand(lineBuf))
+		/*
+		The command line shouldn't be expanded by environment variables here.  Too early to do so.
+		Why?  Imagine SET PATH=%PATH%;C:\EXE
+		%PATH% may be much longer than LINEBUFLEN.
+		However, the first argument may include a variable.
+		*/
+		argv0Len=GetFirstArgument(argv0,lineBuf);
+		afterArgv0=GetAfterFirstArgument(lineBuf,argv0Len);
+		Capitalize(argv0);
+		/* ExpandBatchArg(argv0,LINEBUFLEN,batArgc,batArgv); */
+		ExpandEnvVar(argv0,LINEBUFLEN);
+		if(0==ExecBuiltInCommand(argv0,afterArgv0))
 		{
 			static char exeCmdLine[MAX_PATH];
 			int comType=IdentifyCommandType(exeCmdLine,lineBuf);
@@ -152,10 +244,27 @@ int RunBatchFile(char cmd[])
 				DOS Batch File does not CALL another batch.
 				It does JMP to another batch unless it is invoked from COMMAND.COM.
 				*/
-				strncpy(batchCmdLine,lineBuf,LINEBUFLEN-1);
-				batchCmdLine[LINEBUFLEN-1]=0;
-				ExpandEnvVar(batchCmdLine,LINEBUFLEN);
-				fPos=0;
+				{
+					struct BatchState nextBatch;
+					char argv0[MAX_PATH];
+
+					strncpy(nextBatch.cmdLine,lineBuf,LINEBUFLEN-1);
+					nextBatch.cmdLine[LINEBUFLEN-1]=0;
+					nextBatch.fPos=0;
+					nextBatch.eof=0;
+
+					GetFirstArgument(argv0,nextBatch.cmdLine);
+					Capitalize(argv0);
+					if(FOUND==FindExecutableFromPath(batState.fName,argv0))
+					{
+						ParseString(&batArgc,batArgv,batState.cmdLine);
+						batState=nextBatch;
+					}
+					else
+					{
+						/* ERRORLEVEL=DOSERR_FILE_NOT_FOUND; */
+					}
+				}
 				break;
 			default:
 				break;

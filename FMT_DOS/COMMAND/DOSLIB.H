@@ -9,6 +9,13 @@
 #define PSP_ENVSEG 0x2C
 #define PSP_COMMANDLINE 0x80
 
+#define MCB_CHAIN_ID	0
+#define MCB_PID			1
+#define MCB_BLOCK_SIZE	3
+
+#define FOUND 1
+#define NOTFOUND 0
+
 
 
 #define FARPTR2SEG(ptr) FP_SEG(ptr)
@@ -54,6 +61,25 @@
 /*! Initialize ENVSEG
 */
 void InitENVSEG(unsigned int ENVSEG,unsigned int len,const char path[]);
+
+
+
+/*!
+*/
+void SetEnv(unsigned int ENVSEG,const char var[],const char data[]);
+
+
+
+/*!
+*/
+const char *GetEnv(unsigned int ENVSEG,const char var[]);
+
+
+
+/*!
+*/
+long int GetArenaBytes(unsigned int SEG);
+
 
 
 #endif

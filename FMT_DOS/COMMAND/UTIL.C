@@ -4,6 +4,22 @@
 
 
 
+void Capitalize(char str[])
+{
+	int i;
+	for(i=0; 0!=str[i]; ++i)
+	{
+		if(IsKanji(str[i]) && 0!=str[i+1])
+		{
+			++i;
+		}
+		else if('a'<=str[i] && str[i]<='z')
+		{
+			str[i]+=('A'-'a');
+		}
+	}
+}
+
 void ClearTailSpace(char *str)
 {
 	int i;
@@ -38,6 +54,29 @@ int IsKanji(char c)
 int ExpandEnvVar(char lineBuf[],unsigned int lineBufLen)
 {
 	return 0;
+}
+
+int GetFirstArgument(char argv0[],const char cmdLine[])
+{
+	int i;
+	for(i=0; i+1<MAX_PATH && 0!=cmdLine[i] && ' '!=cmdLine[i] && '\t'!=cmdLine[i]; ++i)
+	{
+		argv0[i]=cmdLine[i];
+	}
+	argv0[i]=0;
+	return i;
+}
+
+char *GetAfterFirstArgument(char cmdLine[],int argv0Len)
+{
+	if(0==cmdLine[argv0Len])
+	{
+		return cmdLine+argv0Len;
+	}
+	else
+	{
+		return cmdLine+argv0Len+1;
+	}
 }
 
 int ParseString(int *argc,char *argv[],char cmdLine[])
@@ -81,26 +120,4 @@ int ParseString(int *argc,char *argv[],char cmdLine[])
 		}
 	}
 	return *argc;
-}
-
-int FindExecutableFromPath(char fName[],const char srcFName[])
-{
-	FILE *fp;
-
-	/* First try as is. */
-	DOSTRUENAME(fName,srcFName);
-	if(NULL!=(fp=fopen(fName,"rb")))
-	{
-		fclose(fp);
-		return FOUND;
-	}
-
-
-/*
-	if srcFName has an extension,
-		Try different paths.
-	else
-		Try different path for .BAT, .COM, .EXE, and .EXP
-*/
-	return NOTFOUND;
 }
