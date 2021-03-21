@@ -7,6 +7,7 @@
 #define LINEBUFLEN 256
 #define MAX_PATH 128
 #define MAX_ARG 64
+#define MAX_EXEPARAM 128
 
 enum
 {

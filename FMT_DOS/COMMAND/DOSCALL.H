@@ -23,4 +23,10 @@ int DOSTRUENAME(char fullpath[],const char src[]);
 
 
 
+/*! Execute a binary.
+*/
+int DOSEXEC(unsigned int PSP,unsigned int ENVSEG,const char exeFullPath[],const char commandArg[]);
+
+
+
 #endif

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "DOSCALL.H"
+#include "UTIL.H"
 
 
 
@@ -91,6 +92,57 @@ int DOSTRUENAME(char fullpath[],const char src[])
 		fullpath,	/* CX */
 		src			/* DX */
 	);
+
+	return err;
+}
+
+int DOSEXEC(unsigned int PSP,unsigned int ENVSEG,const char exeFullPath[],const char commandArg[])
+{
+	int _asm_exec();
+	int i,err=0;
+
+	/* 
+	EXEC_NORMAL_SRC_ENVSEG	DW		? ; +00h
+	EXEC_NORMAL_COMMANDARG	DD		? ; +02h
+	EXEC_NORMAL_FIRSTFCB	DD		? ; +06h
+	EXEC_NORMAL_SECONDFCB	DD		? ; +0Ah
+	EXEC_NORMAL_INIT_SSSP	DD		? ; +0Eh
+	EXEC_NORMAL_INIT_CSIP	DD		? ; +12h
+	*/
+
+	unsigned char paramBlock[0x16];
+	SetUint16(paramBlock,ENVSEG);
+	/* paramBlock+2 will be filled in the inline-assembly. */
+	/* paramBlock+4 will be filled in the inline-assembly. */
+	SetUint16(paramBlock+6,0x5C);
+	SetUint16(paramBlock+8,PSP);
+	SetUint16(paramBlock+0x0A,0x6C);
+	SetUint16(paramBlock+0x0C,PSP);
+
+	for(i=0x0E; i<0x16; ++i)
+	{
+		paramBlock[i]=0;
+	}
+
+	err=_asm_exec(
+		"PUSH	ES\n"
+		"PUSH	DS\n"
+		"POP	ES\n"
+		"MOV	DS:[BX+2],CX\n"
+		"MOV	DS:[BX+4],DS\n"
+		"MOV	AX,4B00h\n"
+		"INT	21h\n"
+		"RCL	AX,1\n"
+		"AND	AX,1\n"
+		"POP	ES\n",
+
+		_asm_exec,		/* AX (SKip) */
+		paramBlock,		/* ES:BX Param Block */
+		commandArg,		/* CX */
+		exeFullPath		/* DS:DX Exe Filename */
+	);
+
+	printf("Returned %d\n",err);
 
 	return err;
 }

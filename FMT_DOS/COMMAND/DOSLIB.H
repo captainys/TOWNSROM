@@ -72,13 +72,21 @@ void SetEnv(unsigned int ENVSEG,const char var[],const char data[]);
 
 /*!
 */
-const char *GetEnv(unsigned int ENVSEG,const char var[]);
+const char far *GetEnv(unsigned int ENVSEG,const char var[]);
 
 
 
 /*!
 */
 long int GetArenaBytes(unsigned int SEG);
+
+
+
+/*! Returns FOUND if found.
+    Returns NOTFOUND if not found.
+	fName must be long enoubh to hold MAX_PATH.
+*/
+int FindExecutableFromPath(char fName[],const char srcFName[]);
 
 
 

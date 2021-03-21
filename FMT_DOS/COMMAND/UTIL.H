@@ -1,10 +1,13 @@
 #ifndef UTIL_H_IS_INCLUDED
 #define UTIL_H_IS_INCLUDED
 
+#include "DEF.H"
 
 
 #define GetUint16(ptr) ((ptr)[0]|((ptr)[1]<<8))
 #define SetUint16(ptr,data) {(ptr)[0]=((data)&255);(ptr)[1]=(((data)>>8)&255);}
+
+extern char utilFNBuf[MAX_PATH];
 
 
 
@@ -46,10 +49,16 @@ char *GetAfterFirstArgument(char cmdLine[],int argv0Len);
 */
 int ParseString(int *argc,char *argv[],char cmdLine[]);
 
-/*! Returns FOUND if found.
-    Returns NOTFOUND if not found.
-	fName must be long enoubh to hold MAX_PATH.
+/*! Returns a pointer to '.' in the file name.
+    Or can point 0.
 */
-int FindExecutableFromPath(char fName[],const char srcFName[]);
+const char *GetExtension(const char *fName);
+
+/*! Replaces the extension of the file.
+    ext can be like ".EXT" or "EXT".
+    If fName length exceeds MAX_PATH, this function won't do anything.
+*/
+void ReplaceExtension(char fName[],const char ext[]);
+
 
 #endif

@@ -1,8 +1,11 @@
 #include <stdio.h>
+#include <string.h>
 #include "UTIL.H"
 #include "DEF.H"
 
 
+
+static char utilFNBuf[MAX_PATH];
 
 void Capitalize(char str[])
 {
@@ -120,4 +123,38 @@ int ParseString(int *argc,char *argv[],char cmdLine[])
 		}
 	}
 	return *argc;
+}
+
+const char *GetExtension(const char *fName)
+{
+	while(0!=(*fName))
+	{
+		if('.'==(*fName))
+		{
+			return fName;
+		}
+		++fName;
+	}
+	return fName;
+}
+
+void ReplaceExtension(char fName[],const char ext[])
+{
+	size_t l=strlen(ext);
+	int i;
+	if('.'!=ext[0])
+	{
+		++l;
+	}
+	for(i=0; 0!=fName[i] && '.'!=fName[i]; ++i)
+	{
+	}
+	if(i+l+1<MAX_PATH)
+	{
+		if('.'!=ext[0])
+		{
+			fName[i++]='.';
+		}
+		strcpy(fName+i,ext);
+	}
 }

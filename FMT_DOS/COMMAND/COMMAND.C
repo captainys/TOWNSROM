@@ -17,6 +17,12 @@ unsigned char far *PSPPtr=NULL;
 
 char lineBuf[LINEBUFLEN];
 
+/*
+1st byte is length excluding the last CR.
+2nd byte and the rest, parameter terminated by CR.
+*/
+char exeParamBuf[MAX_EXEPARAM];
+
 struct BatchState
 {
 	char cmdLine[LINEBUFLEN];
@@ -135,7 +141,7 @@ void ExecSet(char setParam[])
 
 /*! Execute a built-in command.
     Return 1 if it is a build-in command.  afterArgv0 may be altered.
-    Return 0 if it is not.  afterArgv0ineBuf unchanged.
+    Return 0 if it is not.  afterArgv0 unchanged.
 */
 int ExecBuiltInCommand(const char argv0[],char afterArgv0[])
 {
@@ -152,8 +158,36 @@ int ExecBuiltInCommand(const char argv0[],char afterArgv0[])
 	return 0;
 }
 
-int IdentifyCommandType(char exeCmdLine[],const char lineBuf[])
+/*! Identifies the executable pointed by argv0.
+    It sets actual full-path executable name in exeCmd.
+    argv0 is capitalized first argument in the command line.
+*/
+int IdentifyCommandType(char exeCmd[],const char argv0[])
 {
+	if(FOUND==FindExecutableFromPath(exeCmd,argv0))
+	{
+		int i;
+		for(i=0; 0!=exeCmd[i]; ++i)
+		{
+			if('.'==exeCmd[i])
+			{
+				if(0==strcmp(exeCmd+i+1,"EXE") ||
+				   0==strcmp(exeCmd+i+1,"COM"))
+				{
+					return COMTYPE_BINARY;
+				}
+				if(0==strcmp(exeCmd+i+1,"EXP"))
+				{
+					return COMTYPE_BINARY32;
+				}
+				if(0==strcmp(exeCmd+i+1,"BAT"))
+				{
+					return COMTYPE_BATCH;
+				}
+				break;
+			}
+		}
+	}
 	return COMTYPE_UNKNOWN;
 }
 
@@ -235,8 +269,8 @@ int RunBatchFile(char cmd[])
 		ExpandEnvVar(argv0,LINEBUFLEN);
 		if(0==ExecBuiltInCommand(argv0,afterArgv0))
 		{
-			static char exeCmdLine[MAX_PATH];
-			int comType=IdentifyCommandType(exeCmdLine,lineBuf);
+			static char exeCmd[MAX_PATH];
+			int comType=IdentifyCommandType(exeCmd,argv0);
 			switch(comType)
 			{
 			case COMTYPE_BATCH:
@@ -266,10 +300,19 @@ int RunBatchFile(char cmd[])
 					}
 				}
 				break;
+			case COMTYPE_BINARY:
+				{
+					strncpy(exeParamBuf+1,afterArgv0,MAX_EXEPARAM-2);
+					exeParamBuf[0]=strlen(afterArgv0);
+					strcat(exeParamBuf+1,"\n");
+					DOSEXEC(PSP,ENVSEG,exeCmd,exeParamBuf);
+				}
+				break;
+			case COMTYPE_BINARY32:
+				break;
 			default:
 				break;
 			}
-			for(;;);
 		}
 	}
 

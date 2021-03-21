@@ -3,6 +3,7 @@
 #include "DOSLIB.H"
 #include "DOSCALL.H"
 #include "UTIL.H"
+#include "DEF.H"
 
 
 
@@ -11,14 +12,13 @@ const char *COMSPEC="COMSPEC=";
 const char *COMMANDCOM="COMMAND.COM";
 const char *YAMANDCOM="YAMAND.COM";
 
+static char doslibFNBuf[MAX_PATH];
 
 
 void InitENVSEG(unsigned int ENVSEG,unsigned int len,const char path[])
 {
 	int i,j;
 	unsigned char far *ptr=MAKEFARPTR(ENVSEG,0);
-	unsigned int MCB=ENVSEG-1;
-	unsigned char far *mcb=MAKEFARPTR(ENVSEG,0);
 
 	i=0;
 	for(i=0; i<len*DOSPARA; ++i)
@@ -58,6 +58,11 @@ void InitENVSEG(unsigned int ENVSEG,unsigned int len,const char path[])
 int FindExecutableFromPath(char fName[],const char srcFName[])
 {
 	FILE *fp;
+	const char *srcExt;
+	const char *const ext[]=
+	{
+		".BAT",".EXE",".COM",NULL
+	};
 
 	/* First try as is. */
 	DOSTRUENAME(fName,srcFName);
@@ -67,12 +72,32 @@ int FindExecutableFromPath(char fName[],const char srcFName[])
 		return FOUND;
 	}
 
+	strncpy(doslibFNBuf,srcFName,MAX_PATH-1);
+	doslibFNBuf[MAX_PATH-1]=0;
+	srcExt=GetExtension(srcFName);
+
+	if(0==srcExt[0])
+	{
+		int i;
+		for(i=0; NULL!=ext[i]; ++i)
+		{
+			ReplaceExtension(doslibFNBuf,ext[i]);
+			DOSTRUENAME(fName,doslibFNBuf);
+			if(NULL!=(fp=fopen(fName,"rb")))
+			{
+				printf("Found %s\n",fName);
+				fclose(fp);
+				return FOUND;
+			}
+		}
+	}
 
 /*
 	if srcFName has an extension,
 		Try different paths.
 	else
-		Try different path for .BAT, .COM, .EXE, and .EXP
+		Try current dir for .BAT, .COM, .EXE
+		Then try different paths for .BAT, .COM, .EXE
 */
 	return NOTFOUND;
 }
@@ -254,8 +279,9 @@ void SetEnv(unsigned int ENVSEG,const char var[],const char data[])
 	}
 }
 
-const char *GetEnv(unsigned int ENVSEG,const char var[])
+const char far *GetEnv(unsigned int ENVSEG,const char var[])
 {
+	return "";
 }
 
 long int GetArenaBytes(unsigned int SEG)
