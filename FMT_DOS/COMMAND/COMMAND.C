@@ -302,9 +302,14 @@ int RunBatchFile(char cmd[])
 				break;
 			case COMTYPE_BINARY:
 				{
+					int i;
 					strncpy(exeParamBuf+1,afterArgv0,MAX_EXEPARAM-2);
 					exeParamBuf[0]=strlen(afterArgv0);
-					strcat(exeParamBuf+1,"\n");
+					for(i=1; 0!=exeParamBuf[i]; ++i)
+					{
+					}
+					exeParamBuf[i]=ASCII_CR;
+					exeParamBuf[i+1]=0;
 					DOSEXEC(PSP,ENVSEG,exeCmd,exeParamBuf);
 				}
 				break;
