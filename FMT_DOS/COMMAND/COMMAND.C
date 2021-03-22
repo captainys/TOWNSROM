@@ -276,6 +276,11 @@ int RunBatchFile(char cmd[])
 	static char lineBuf[LINEBUFLEN];
 	struct BatchState batState;
 
+	while(' '==*cmd || '\t'==*cmd)
+	{
+		++cmd;
+	}
+
 	strncpy(batState.cmdLine,cmd,LINEBUFLEN-1);
 	batState.cmdLine[LINEBUFLEN-1]=0;
 	batState.fPos=0;

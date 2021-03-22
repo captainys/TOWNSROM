@@ -61,12 +61,15 @@ int ExpandEnvVar(char lineBuf[],unsigned int lineBufLen)
 
 int GetFirstArgument(char argv0[],const char cmdLine[])
 {
-	int i;
-	for(i=0; i+1<MAX_PATH && 0!=cmdLine[i] && ' '!=cmdLine[i] && '\t'!=cmdLine[i]; ++i)
+	int i,writePtr=0;
+	for(i=0; ' '==cmdLine[i] || '\t'==cmdLine[i]; ++i)
 	{
-		argv0[i]=cmdLine[i];
 	}
-	argv0[i]=0;
+	for(i=i; writePtr+1<MAX_PATH && 0!=cmdLine[i] && ' '!=cmdLine[i] && '\t'!=cmdLine[i]; ++i)
+	{
+		argv0[writePtr++]=cmdLine[i];
+	}
+	argv0[writePtr]=0;
 	return i;
 }
 
