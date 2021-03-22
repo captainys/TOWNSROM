@@ -241,5 +241,5 @@ int DOSGETERRORLEVEL(void)
 	union REGS regIn,regOut;
 	regIn.x.ax=0x4D00;
 	intdos(&regIn,&regOut);
-	return (regOut.x.ax&0xF0);
+	return (regOut.x.ax&0x0F);
 }

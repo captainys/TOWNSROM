@@ -15,6 +15,9 @@ unsigned int PSP=0,ENVSEG=0;
 unsigned char far *PSPPtr=NULL;
 
 
+int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char afterArgv0[]);
+
+
 /*
 1st byte is length excluding the last CR.
 2nd byte and the rest, parameter terminated by CR.
@@ -219,10 +222,60 @@ void ExecSet(char setParam[])
 
 void ExecGoto(struct BatchState *batState,char gotoLabel[])
 {
+	FILE *fp;
+	static char labelBuf[MAX_PATH],inputBuf[LINEBUFLEN],lineBuf[LINEBUFLEN];
+	GetFirstArgument(labelBuf,gotoLabel);
+	Capitalize(labelBuf);
+	fp=fopen(batState->fName,"r");
+	if(NULL!=fp)
+	{
+		while(NULL!=fgets(inputBuf,LINEBUFLEN-1,fp))
+		{
+			GetFirstArgument(lineBuf,inputBuf);
+			Capitalize(lineBuf);
+			if(':'==lineBuf[0] && 0==strcmp(labelBuf,lineBuf+1))
+			{
+				batState->fPos=ftell(fp); /* Next line of the label. */
+				break;
+			}
+		}
+		fclose(fp);
+	}
+	else
+	{
+		fprintf(stderr,"Cannot open batch file.\n");
+	}
 }
 
-void ExecIf(struct BatchState *batState,char param[])
+void ExecIf(struct BatchState *batState,char *param)
 {
+	unsigned int len;
+	static char wordBuf[MAX_PATH];
+	len=GetFirstArgument(wordBuf,param);
+	param+=len;
+	Capitalize(wordBuf);
+	if(0==strcmp(wordBuf,"ERRORLEVEL"))
+	{
+		int compareLevel,errorLevel;
+		len=GetFirstArgument(wordBuf,param);
+		Capitalize(wordBuf);
+		param+=len;
+
+		compareLevel=atoi(wordBuf);
+		errorLevel=DOSGETERRORLEVEL();
+		if(compareLevel<=errorLevel)
+		{
+			/* To be safe for reentrance, don't look at wordBuf after ExecBuiltInCommand */
+			len=GetFirstArgument(wordBuf,param);
+			Capitalize(wordBuf);
+			ExecBuiltInCommand(batState,wordBuf,param+len);
+		}
+	}
+	else
+	{
+		fprintf(stderr,"What condition?\n");
+		return;
+	}
 }
 
 
@@ -251,6 +304,11 @@ int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char after
 	{
 		ExecIf(batState,afterArgv0);
 		return 1;
+	}
+	else if(0==strcmp(argv0,"PAUSE"))
+	{
+		printf("HALTED\n");
+		for(;;);
 	}
 	return 0;
 }
@@ -384,7 +442,11 @@ int RunBatchFile(char cmd[])
 		Capitalize(argv0);
 		/* ExpandBatchArg(argv0,LINEBUFLEN,batArgc,batArgv); */
 		ExpandEnvVar(argv0,LINEBUFLEN);
-		if(0==ExecBuiltInCommand(&batState,argv0,afterArgv0))
+		if(':'==argv0[0]) /* It's a jump label. */
+		{
+			continue;
+		}
+		else if(0==ExecBuiltInCommand(&batState,argv0,afterArgv0))
 		{
 			static char exeCmd[MAX_PATH];
 			int comType=IdentifyCommandType(exeCmd,argv0);

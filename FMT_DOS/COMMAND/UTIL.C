@@ -65,7 +65,14 @@ int GetFirstArgument(char argv0[],const char cmdLine[])
 	for(i=0; ' '==cmdLine[i] || '\t'==cmdLine[i]; ++i)
 	{
 	}
-	for(i=i; writePtr+1<MAX_PATH && 0!=cmdLine[i] && ' '!=cmdLine[i] && '\t'!=cmdLine[i]; ++i)
+	for(i=i; 
+	    writePtr+1<MAX_PATH &&
+	    0!=cmdLine[i] &&
+	    ASCII_CR!=cmdLine[i] &&
+	    ASCII_LF!=cmdLine[i] &&
+	    ' '!=cmdLine[i] &&
+	    '\t'!=cmdLine[i]
+	    ; ++i)
 	{
 		argv0[writePtr++]=cmdLine[i];
 	}
