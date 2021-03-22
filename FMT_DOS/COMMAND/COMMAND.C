@@ -44,6 +44,21 @@ struct BatchState
 	unsigned char eof;
 };
 
+void InitBatchState(struct BatchState *state)
+{
+	int i;
+	for(i=0; i<LINEBUFLEN; ++i)
+	{
+		state->cmdLine[i]=0;
+	}
+	for(i=0; i<MAX_PATH; ++i)
+	{
+		state->fName[i]=0;
+	}
+	state->fPos=0;
+	state->eof=0;
+}
+
 
 
 void Test(int argc,char *argv[])
@@ -202,11 +217,20 @@ void ExecSet(char setParam[])
 	SetEnv(ENVSEG,var,data);
 }
 
+void ExecGoto(struct BatchState *batState,char gotoLabel[])
+{
+}
+
+void ExecIf(struct BatchState *batState,char param[])
+{
+}
+
+
 /*! Execute a built-in command.
     Return 1 if it is a build-in command.  afterArgv0 may be altered.
     Return 0 if it is not.  afterArgv0 unchanged.
 */
-int ExecBuiltInCommand(const char argv0[],char afterArgv0[])
+int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char afterArgv0[])
 {
 	if(0==strcmp(argv0,"ECHO"))
 	{
@@ -216,6 +240,16 @@ int ExecBuiltInCommand(const char argv0[],char afterArgv0[])
 	else if(0==strcmp(argv0,"SET"))
 	{
 		ExecSet(afterArgv0);
+		return 1;
+	}
+	else if(0==strcmp(argv0,"GOTO"))
+	{
+		ExecGoto(batState,afterArgv0);
+		return 1;
+	}
+	else if(0==strcmp(argv0,"IF"))
+	{
+		ExecIf(batState,afterArgv0);
 		return 1;
 	}
 	return 0;
@@ -281,10 +315,9 @@ int RunBatchFile(char cmd[])
 		++cmd;
 	}
 
+	InitBatchState(&batState);
 	strncpy(batState.cmdLine,cmd,LINEBUFLEN-1);
 	batState.cmdLine[LINEBUFLEN-1]=0;
-	batState.fPos=0;
-	batState.eof=0;
 
 	ExpandEnvVar(batState.cmdLine,LINEBUFLEN);
 	ParseString(&batArgc,batArgv,batState.cmdLine);
@@ -351,7 +384,7 @@ int RunBatchFile(char cmd[])
 		Capitalize(argv0);
 		/* ExpandBatchArg(argv0,LINEBUFLEN,batArgc,batArgv); */
 		ExpandEnvVar(argv0,LINEBUFLEN);
-		if(0==ExecBuiltInCommand(argv0,afterArgv0))
+		if(0==ExecBuiltInCommand(&batState,argv0,afterArgv0))
 		{
 			static char exeCmd[MAX_PATH];
 			int comType=IdentifyCommandType(exeCmd,argv0);
@@ -429,11 +462,16 @@ int ExecExternalCommand(const char fName[],const char param[])
 	default:
 		return -1;
 	}
+	return 0;
 }
 
 int CommandMain(struct Option *option)
 {
+	struct BatchState batch;
 	int returnCode=0;
+
+	InitBatchState(&batch);
+
 	printf("Entering Interactive Mode.\n");
 	for(;;)
 	{

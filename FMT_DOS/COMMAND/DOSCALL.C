@@ -233,3 +233,13 @@ int DOSEXEC(unsigned int PSP,unsigned int ENVSEG,const char exeFullPath[],const 
 	return err;
 #endif
 }
+
+
+
+int DOSGETERRORLEVEL(void)
+{
+	union REGS regIn,regOut;
+	regIn.x.ax=0x4D00;
+	intdos(&regIn,&regOut);
+	return (regOut.x.ax&0xF0);
+}

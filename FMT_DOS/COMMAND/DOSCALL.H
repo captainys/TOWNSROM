@@ -36,4 +36,15 @@ int DOSEXEC(unsigned int PSP,unsigned int ENVSEG,const char exeFullPath[],const 
 
 
 
+/*! Returns ERRORLEVEL
+*/
+int DOSGETERRORLEVEL(void);
+
+
+
+/*! 
+*/
+
+
+
 #endif
