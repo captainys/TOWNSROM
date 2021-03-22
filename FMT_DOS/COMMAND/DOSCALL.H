@@ -2,6 +2,13 @@
 #define DOSCALL_H_IS_INCLUDED
 
 
+
+/*! Returns the PSP segment.
+*/
+unsigned int DOSGETPSP(void);
+
+
+
 /*! Returns the segment.
 */
 unsigned int DOSMALLOC(unsigned int pages);

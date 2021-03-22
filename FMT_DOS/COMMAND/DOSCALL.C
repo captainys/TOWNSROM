@@ -1,6 +1,17 @@
 #include <stdio.h>
+#include <dos.h>
 #include "DOSCALL.H"
 #include "UTIL.H"
+
+
+
+unsigned int DOSGETPSP(void)
+{
+	union REGS regIn,regOut;
+	regIn.x.ax=0x5100;
+	intdos(&regIn,&regOut);
+	return regOut.x.bx;
+}
 
 
 
@@ -8,6 +19,21 @@
 */
 unsigned int DOSMALLOC(unsigned int pages)
 {
+	union REGS regIn,regOut;
+	regIn.x.ax=0x4800;	/* INT 48H */
+	regIn.x.bx=pages;
+	intdos(&regIn,&regOut);
+
+	if(regOut.x.flags&1) /* CF */
+	{
+		printf("Malloc Failure.\n");
+		for(;;);
+	}
+
+	return regOut.x.ax;
+
+#if 0
+/* I just leave inline-assembly for LSI-C for future reference. */
 	void _asm_malloc();
 
 	unsigned int SEGERR[2]={0xcccc,0xcccc};
@@ -29,7 +55,7 @@ unsigned int DOSMALLOC(unsigned int pages)
 		"POP	BX\n"
 		"POP	ES\n",
 		_asm_malloc,	/* AX (SKip) */
-		pages,			/* AX */
+		pages,			/* BX */
 		_asm_malloc,	/* CX (Skip) */
 		SEGERR			/* DX */
 	);
@@ -42,10 +68,22 @@ unsigned int DOSMALLOC(unsigned int pages)
 	}
 
 	return SEGERR[0];
+#endif
 }
 
 void DOSFREE(unsigned int SEG)
 {
+	if(0!=SEG)
+	{
+		union REGS regIn,regOut;
+		struct SREGS sregs;
+		regIn.x.ax=0x4900;	/* INT 49H */
+		sregs.es=SEG;
+		intdosx(&regIn,&regOut,&sregs);
+	}
+
+#if 0
+/* I just leave LSI-C inline assembly for future reference. */
 	void _asm_free();
 	if(0!=SEG)
 	{
@@ -61,10 +99,25 @@ void DOSFREE(unsigned int SEG)
 			SEG			/* DX */
 		);
 	}
+*/
+#endif
 }
 
 int DOSTRUENAME(char fullpath[],const char src[])
 {
+	union REGS regIn,regOut;
+	struct SREGS sregs;
+	segread(&sregs);
+	sregs.es=sregs.ds;
+	regIn.x.ax=0x6000; /* AH=60h */
+	regIn.x.di=(unsigned int)fullpath;
+	regIn.x.si=(unsigned int)src;
+	intdosx(&regIn,&regOut,&sregs);
+
+	return regOut.x.flags&1; /* CF */
+
+#if 0
+/* I just leave LSI-C inline assembly for future reference. */
 	int _asm_truename();
 	int err=0;
 
@@ -94,10 +147,39 @@ int DOSTRUENAME(char fullpath[],const char src[])
 	);
 
 	return err;
+#endif
 }
 
 int DOSEXEC(unsigned int PSP,unsigned int ENVSEG,const char exeFullPath[],const char commandArg[])
 {
+	int i;
+	unsigned char paramBlock[0x16];
+	union REGS regIn,regOut;
+	struct SREGS sregs;
+
+	segread(&sregs);
+
+	SetUint16(paramBlock,ENVSEG);
+	SetUint16(paramBlock+2,((unsigned int)commandArg));
+	SetUint16(paramBlock+4,sregs.ds);
+	SetUint16(paramBlock+6,0x5C);
+	SetUint16(paramBlock+8,PSP);
+	SetUint16(paramBlock+0x0A,0x6C);
+	SetUint16(paramBlock+0x0C,PSP);
+	for(i=0x0E; i<0x16; ++i)
+	{
+		paramBlock[i]=0;
+	}
+
+	regIn.x.ax=0x4B00; /* AH=60h */
+	sregs.es=sregs.ds;
+	regIn.x.bx=(unsigned int)paramBlock; /* ES:BX Param Block */
+	regIn.x.dx=(unsigned int)exeFullPath;
+	intdosx(&regIn,&regOut,&sregs);
+
+	return regOut.x.flags&1; /* CF */
+
+#if 0
 	int _asm_exec();
 	int i,err=0;
 
@@ -145,4 +227,5 @@ int DOSEXEC(unsigned int PSP,unsigned int ENVSEG,const char exeFullPath[],const 
 	printf("Returned %d\n",err);
 
 	return err;
+#endif
 }

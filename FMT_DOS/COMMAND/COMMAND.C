@@ -137,7 +137,7 @@ void SetUp(struct Option *option,int argc,char *argv[])
 		}
 	}
 
-	PSP=getpid();
+	PSP=DOSGETPSP();
 	printf("PSP Segment=%04x\n",PSP);
 
 	PSPPtr=(unsigned char far*)MK_FP(PSP,0);
