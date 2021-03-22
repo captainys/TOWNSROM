@@ -14,7 +14,6 @@ unsigned char isFirstLevel=0;
 unsigned int PSP=0,ENVSEG=0;
 unsigned char far *PSPPtr=NULL;
 
-char lineBuf[LINEBUFLEN];
 
 /*
 1st byte is length excluding the last CR.
@@ -271,8 +270,10 @@ void PrepareExecParam(char execParamBuf[],const char param[],unsigned int execPa
 
 int RunBatchFile(char cmd[])
 {
+	int returnCode=0;
 	int batArgc=0;
 	static char *batArgv[MAX_ARG];
+	static char lineBuf[LINEBUFLEN];
 	struct BatchState batState;
 
 	strncpy(batState.cmdLine,cmd,LINEBUFLEN-1);
@@ -389,13 +390,46 @@ int RunBatchFile(char cmd[])
 			}
 		}
 	}
-
-	for(;;);
+	return returnCode;
 }
 
-int CommandMain(int argc,char *argv[])
+int ExecExternalCommand(const char fName[],const char param[])
+{
+	static char exeCmd[MAX_PATH];
+	static char lineBuf[LINEBUFLEN];
+	int comType=IdentifyCommandType(exeCmd,fName);
+	switch(comType)
+	{
+	case COMTYPE_BATCH:
+		{
+			int linePtr=0;
+			int i;
+			for(i=0; 0!=fName[i] && linePtr<LINEBUFLEN-1; ++i)
+			{
+				lineBuf[linePtr++]=fName[i];
+			}
+			for(i=0; 0!=param[i] && linePtr<LINEBUFLEN-1; ++i)
+			{
+				lineBuf[linePtr++]=param[i];
+			}
+			lineBuf[linePtr]=0;
+			return RunBatchFile(lineBuf);
+		}
+		break;
+	case COMTYPE_BINARY:
+		PrepareExecParam(execParamBuf,param,MAX_EXEPARAM);
+		DOSEXEC(PSP,ENVSEG,exeCmd,execParamBuf);
+		break;
+	case COMTYPE_BINARY32:
+	default:
+		return -1;
+	}
+}
+
+int CommandMain(struct Option *option)
 {
 	int returnCode=0;
+	printf("Entering Interactive Mode.\n");
 	for(;;)
 	{
 	}
@@ -404,6 +438,7 @@ int CommandMain(int argc,char *argv[])
 
 int main(int argc,char *argv[])
 {
+	int returnCode=0;
 	static struct Option opt;
 
 	printf("\n");
@@ -424,12 +459,19 @@ int main(int argc,char *argv[])
 	if(RUNMODE_FIRST_LEVEL==opt.runMode)
 	{
 		RunBatchFile("AUTOEXEC.BAT");
-		CommandMain(argc-1,argv+1);
+		CommandMain(&opt);
 	}
-	else
+	if(RUNMODE_EXEC_AND_STAY==opt.runMode)
 	{
-		CommandMain(argc,argv);
+		Capitalize(opt.execFilename);
+		ExecExternalCommand(opt.execFilename,opt.execParam);
+		returnCode=CommandMain(&opt);
+	}
+	else if(RUNMODE_EXEC_AND_EXIT==opt.runMode)
+	{
+		Capitalize(opt.execFilename);
+		returnCode=ExecExternalCommand(opt.execFilename,opt.execParam);
 	}
 
-	return 0;
+	return returnCode;
 }
