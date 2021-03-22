@@ -12,7 +12,6 @@
 unsigned char echo=1;
 unsigned char isFirstLevel=0;
 unsigned int PSP=0,ENVSEG=0;
-unsigned int ENVSEGLEN=16;	/* Number of Paragraphs*/
 unsigned char far *PSPPtr=NULL;
 
 char lineBuf[LINEBUFLEN];
@@ -22,6 +21,21 @@ char lineBuf[LINEBUFLEN];
 2nd byte and the rest, parameter terminated by CR.
 */
 char execParamBuf[MAX_EXEPARAM];
+
+enum
+{
+	RUNMODE_FIRST_LEVEL,
+	RUNMODE_EXEC_AND_STAY,
+	RUNMODE_EXEC_AND_EXIT
+};
+
+struct Option
+{
+	unsigned char runMode;
+	unsigned int ENVSEGLen;
+	char execFilename[MAX_PATH];
+	char execParam[MAX_EXEPARAM];
+};
 
 struct BatchState
 {
@@ -67,9 +81,62 @@ void PrintPSPInfo(unsigned char far *PSPPtr)
 
 /*! Return value 0:Not the First-Level   Non-Zero:First-Level
 */
-unsigned char SetUp(int argc,char *argv[])
+void SetUp(struct Option *option,int argc,char *argv[])
 {
-	int argUsed=0;
+	int i;
+
+	option->runMode=RUNMODE_EXEC_AND_STAY;
+	option->execFilename[0]=0;
+	option->ENVSEGLen=10; /* 160 bytes */
+	option->execParam[0]=0;
+
+	for(i=1; i<argc; ++i)
+	{
+		if(argv[i][0]=='/')
+		{
+			char c=argv[i][1];
+			if('a'<=c && c<='z')
+			{
+				c=c+'A'-'a';
+			}
+			switch(c)
+			{
+			case 'C':
+			case 'K':
+				if('C'==c)
+				{
+					option->runMode=RUNMODE_EXEC_AND_EXIT;
+				}
+				else /* if('K'==c) */
+				{
+					option->runMode=RUNMODE_EXEC_AND_STAY;
+				}
+				++i;
+				if(i<argc)
+				{
+					int paramPtr=0;
+					strcpy(option->execFilename,argv[i]);
+					for(++i; paramPtr<MAX_EXEPARAM-2 && i<argc; ++i)
+					{
+						int j;
+						if(0!=paramPtr)
+						{
+							option->execParam[paramPtr++]=' ';
+						}
+						for(j=0; paramPtr<MAX_EXEPARAM-2 && 0!=argv[i][j]; ++j)
+						{
+							option->execParam[paramPtr++]=argv[i][j];
+						}
+						option->execParam[paramPtr]=0;
+					}
+				}
+				break;
+			case 'P':
+				option->runMode=RUNMODE_FIRST_LEVEL;
+				break;
+			}
+		}
+	}
 
 	PSP=getpid();
 	printf("PSP Segment=%04x\n",PSP);
@@ -80,14 +147,11 @@ unsigned char SetUp(int argc,char *argv[])
 	ENVSEG=GetUint16(PSPPtr+PSP_ENVSEG);
 	if(0==ENVSEG)
 	{
-		ENVSEG=DOSMALLOC(ENVSEGLEN);
-		InitENVSEG(ENVSEG,ENVSEGLEN,argv[1]);
-		argUsed=1;
-		printf("ENVSEG Allocated:%04x\n",ENVSEG);
+		ENVSEG=DOSMALLOC(option->ENVSEGLen);
+		InitENVSEG(ENVSEG,option->ENVSEGLen,argv[1]);
+		printf("Allocated ENVSEG:%04x\n",ENVSEG);
 		SetUint16(PSPPtr+PSP_ENVSEG,ENVSEG);
 	}
-
-	return argUsed;
 }
 
 void ExecEcho(const char afterArgv0[])
@@ -340,6 +404,8 @@ int CommandMain(int argc,char *argv[])
 
 int main(int argc,char *argv[])
 {
+	static struct Option opt;
+
 	printf("\n");
 	printf("COMMAND.COM for FM TOWNS Emulators.\n");
 	printf("By CaptainYS\n");
@@ -354,8 +420,8 @@ int main(int argc,char *argv[])
 		for(;;);
 	}
 
-	isFirstLevel=SetUp(argc,argv);
-	if(0!=isFirstLevel)
+	SetUp(&opt,argc,argv);
+	if(RUNMODE_FIRST_LEVEL==opt.runMode)
 	{
 		RunBatchFile("AUTOEXEC.BAT");
 		CommandMain(argc-1,argv+1);
