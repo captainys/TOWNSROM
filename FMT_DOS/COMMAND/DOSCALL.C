@@ -5,6 +5,10 @@
 
 
 
+#define CF(reg) ((reg).x.cflag)
+
+
+
 unsigned int DOSGETPSP(void)
 {
 	union REGS regIn,regOut;
@@ -24,7 +28,7 @@ unsigned int DOSMALLOC(unsigned int pages)
 	regIn.x.bx=pages;
 	intdos(&regIn,&regOut);
 
-	if(regOut.x.flags&1) /* CF */
+	if(CF(regOut)) /* CF */
 	{
 		printf("Malloc Failure.\n");
 		for(;;);
@@ -114,7 +118,7 @@ int DOSTRUENAME(char fullpath[],const char src[])
 	regIn.x.si=(unsigned int)src;
 	intdosx(&regIn,&regOut,&sregs);
 
-	return regOut.x.flags&1; /* CF */
+	return CF(regOut); /* CF */
 
 #if 0
 /* I just leave LSI-C inline assembly for future reference. */
@@ -171,13 +175,13 @@ int DOSEXEC(unsigned int PSP,unsigned int ENVSEG,const char exeFullPath[],const 
 		paramBlock[i]=0;
 	}
 
-	regIn.x.ax=0x4B00; /* INT 21H 60h */
+	regIn.x.ax=0x4B00; /* INT 21H AH=60h */
 	sregs.es=sregs.ds;
 	regIn.x.bx=(unsigned int)paramBlock; /* ES:BX Param Block */
 	regIn.x.dx=(unsigned int)exeFullPath;
 	intdosx(&regIn,&regOut,&sregs);
 
-	return regOut.x.flags&1; /* CF */
+	return CF(regOut); /* CF */
 
 #if 0
 	int _asm_exec();

@@ -7,8 +7,6 @@
 #define GetUint16(ptr) ((ptr)[0]|((ptr)[1]<<8))
 #define SetUint16(ptr,data) {(ptr)[0]=((data)&255);(ptr)[1]=(((data)>>8)&255);}
 
-extern char utilFNBuf[MAX_PATH];
-
 
 
 /*! Drop ' ', '\t', and control code at the tail of the string.

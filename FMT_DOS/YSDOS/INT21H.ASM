@@ -97,6 +97,8 @@ INT_21H_ALREADY_INDOS:
 						JE		INT_21H_5FH_INT_2FH_TUNNEL
 						CMP		AH,62H
 						JE		INT_21H_62H_GET_PSP
+						CMP		AH,63H
+						JE		INT_21H_63H_GET_KANJI_LEAD_BYTE
 						CMP		AH,71H
 						JE		INT_21H_71H_LONG_FILENAME_FUNCTIONS
 						CMP		AH,0F8H
@@ -1313,6 +1315,31 @@ INT_21H_60H_TRUENAME:
 ;
 INT_21H_62H_GET_PSP:
 						MOV		BX,CS:[CurrentPDB]
+						IRET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+LEADBYTERANGE			DW	081h,0ffh,0,0
+
+INT_21H_63H_GET_KANJI_LEAD_BYTE:
+						PUSH	BP
+						; BP+6 FLAGS
+						; BP+4 CS
+						; BP+2 IP
+						; BP   BP
+						MOV		BP,SP
+						AND		BYTE PTR [BP+6],0FEh
+						MOV		AX,7100h
+						POP		BP
+
+						PUSH	CS
+						POP		DS
+						MOV		SI,OFFSET LEADBYTERANGE
+
 						IRET
 
 
