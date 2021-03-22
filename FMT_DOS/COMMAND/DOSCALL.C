@@ -243,3 +243,18 @@ int DOSGETERRORLEVEL(void)
 	intdos(&regIn,&regOut);
 	return (regOut.x.ax&0x0F);
 }
+
+
+int DOSCHDIR(const char dir[])
+{
+	union REGS regIn,regOut;
+	regIn.x.ax=0x3B00;
+	regIn.x.dx=(unsigned int)dir; /* DS:DX is dir. */
+	intdos(&regIn,&regOut);
+	if(CF(regOut))
+	{
+		return regOut.x.ax;
+	}
+	return 0;
+}
+

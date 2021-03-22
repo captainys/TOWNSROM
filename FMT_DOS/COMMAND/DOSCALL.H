@@ -42,6 +42,12 @@ int DOSGETERRORLEVEL(void);
 
 
 
+/*! Change directory, but do not change current drive.
+    chdir of DIRECT.H may end up changing the drive.
+*/
+int DOSCHDIR(const char dir[]);
+
+
 /*! 
 */
 

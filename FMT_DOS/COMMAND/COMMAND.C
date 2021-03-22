@@ -278,6 +278,23 @@ void ExecIf(struct BatchState *batState,char *param)
 	}
 }
 
+void ExecCD(char afterArgv0[])
+{
+	int err;
+	char dir[MAX_PATH];
+	GetFirstArgument(dir,afterArgv0);
+	err=DOSCHDIR(dir);
+	if(0!=err)
+	{
+		fprintf(stderr,"Cannot change directory.\n");
+	}
+}
+
+void ExecDriveLetter(char driveLetter)
+{
+	unsigned int driveAvail;
+	_dos_setdrive(driveLetter-'A'+1,&driveAvail);
+}
 
 /*! Execute a built-in command.
     Return 1 if it is a build-in command.  afterArgv0 may be altered.
@@ -304,6 +321,14 @@ int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char after
 	{
 		ExecIf(batState,afterArgv0);
 		return 1;
+	}
+	else if(0==strcmp(argv0,"CD"))
+	{
+		ExecCD(afterArgv0);
+	}
+	else if(0==strcmp(argv0+1,":"))
+	{
+		ExecDriveLetter(argv0[0]);
 	}
 	else if(0==strcmp(argv0,"PAUSE"))
 	{

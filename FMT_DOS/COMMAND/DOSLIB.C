@@ -110,7 +110,7 @@ void SetEnv(unsigned int ENVSEG,const char var[],const char data[])
 	long int ENVLen=GetArenaBytes(ENVSEG);
 	unsigned int i;
 	unsigned int state=1; /* 0:Searching for 0  1:Top of variable */
-	unsigned int insPoint=-1,nextPoint=-1,final=-1,movePoint=-1,VARDATALen;
+	unsigned int insPoint=~0,nextPoint=~0,final=~0,movePoint=~0,VARDATALen;
 
 	if(32762<ENVLen)
 	{
@@ -157,7 +157,7 @@ void SetEnv(unsigned int ENVSEG,const char var[],const char data[])
 		}
 	}
 
-	if(insPoint<0)
+	if(~0==insPoint)
 	{
 		/* ENVSEG broken. */
 		return;
