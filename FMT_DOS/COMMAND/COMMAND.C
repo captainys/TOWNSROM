@@ -21,7 +21,7 @@ char lineBuf[LINEBUFLEN];
 1st byte is length excluding the last CR.
 2nd byte and the rest, parameter terminated by CR.
 */
-char exeParamBuf[MAX_EXEPARAM];
+char execParamBuf[MAX_EXEPARAM];
 
 struct BatchState
 {
@@ -191,6 +191,20 @@ int IdentifyCommandType(char exeCmd[],const char argv0[])
 	return COMTYPE_UNKNOWN;
 }
 
+void PrepareExecParam(char execParamBuf[],const char param[],unsigned int execParamBufLen)
+{
+	int i;
+	strncpy(execParamBuf+1,param,execParamBufLen-3); /* -2 should be good enough, but just in case, I'd add an extra 0. */
+	execParamBuf[execParamBufLen-1]=0;
+	execParamBuf[0]=0;
+	for(i=1; 0!=execParamBuf[i]; ++i)
+	{
+		++execParamBuf[0];
+	}
+	execParamBuf[i]=ASCII_CR;
+	execParamBuf[i+1]=0;
+}
+
 int RunBatchFile(char cmd[])
 {
 	int batArgc=0;
@@ -301,17 +315,8 @@ int RunBatchFile(char cmd[])
 				}
 				break;
 			case COMTYPE_BINARY:
-				{
-					int i;
-					strncpy(exeParamBuf+1,afterArgv0,MAX_EXEPARAM-2);
-					exeParamBuf[0]=strlen(afterArgv0);
-					for(i=1; 0!=exeParamBuf[i]; ++i)
-					{
-					}
-					exeParamBuf[i]=ASCII_CR;
-					exeParamBuf[i+1]=0;
-					DOSEXEC(PSP,ENVSEG,exeCmd,exeParamBuf);
-				}
+				PrepareExecParam(execParamBuf,afterArgv0,MAX_EXEPARAM);
+				DOSEXEC(PSP,ENVSEG,exeCmd,execParamBuf);
 				break;
 			case COMTYPE_BINARY32:
 				break;
