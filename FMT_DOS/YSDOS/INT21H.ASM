@@ -99,6 +99,8 @@ INT_21H_ALREADY_INDOS:
 						JE		INT_21H_62H_GET_PSP
 						CMP		AH,63H
 						JE		INT_21H_63H_GET_KANJI_LEAD_BYTE
+						CMP		AH,65H
+						JE		INT_21H_65H_GET_EXT_COUNTRYINFO
 						CMP		AH,71H
 						JE		INT_21H_71H_LONG_FILENAME_FUNCTIONS
 						CMP		AH,0F8H
@@ -200,6 +202,8 @@ INT_21H_REGISTERS_SAVED:
 						JE		INT_21H_55H_CREATE_CHILD_PSP
 						CMP		AH,60h
 						JE		INT_21H_60H_TRUENAME
+						CMP		AH,68h
+						JE		INT_21H_68H_FFLUSH
 
 ; Not-so-simple Functions <<
 
@@ -1323,7 +1327,7 @@ INT_21H_62H_GET_PSP:
 
 
 
-LEADBYTERANGE			DW	081h,0ffh,0,0
+LEADBYTERANGE			DB	081h,0ffh,0,0
 
 INT_21H_63H_GET_KANJI_LEAD_BYTE:
 						PUSH	BP
@@ -1348,6 +1352,25 @@ INT_21H_63H_GET_KANJI_LEAD_BYTE:
 
 
 
+INT_21H_65H_GET_EXT_COUNTRYINFO:
+						PUSH	BP
+						MOV		BP,SP
+						; [BP]    BP
+						; [BP+2]  AX
+						; [BP+4]  IP
+						; [BP+6]  CS
+						; [BP+8]  FLAGS
+						OR		WORD PTR [BP+8],1				; Return CF
+						POP		BP
+						MOV		AX,DOSERR_INVALID_FUNC
+						IRET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
 ; Unsupported.  Return CF=0 and AX=7100h
 INT_21H_71H_LONG_FILENAME_FUNCTIONS:
 						PUSH	BP
@@ -1360,6 +1383,16 @@ INT_21H_71H_LONG_FILENAME_FUNCTIONS:
 						MOV		AX,7100h
 						POP		BP
 						IRET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+INT_21H_68H_FFLUSH:
+						CALL	FLUSH_BUFFERS
+						JMP		INT_RESTORE_AND_IRET
 
 
 
