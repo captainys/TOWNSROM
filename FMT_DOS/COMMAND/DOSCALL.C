@@ -20,7 +20,7 @@ unsigned int DOSGETPSP(void)
 unsigned int DOSMALLOC(unsigned int pages)
 {
 	union REGS regIn,regOut;
-	regIn.x.ax=0x4800;	/* INT 48H */
+	regIn.x.ax=0x4800;	/* INT 21H 48H */
 	regIn.x.bx=pages;
 	intdos(&regIn,&regOut);
 
@@ -77,7 +77,7 @@ void DOSFREE(unsigned int SEG)
 	{
 		union REGS regIn,regOut;
 		struct SREGS sregs;
-		regIn.x.ax=0x4900;	/* INT 49H */
+		regIn.x.ax=0x4900;	/* INT 21H 49H */
 		sregs.es=SEG;
 		intdosx(&regIn,&regOut,&sregs);
 	}
@@ -109,7 +109,7 @@ int DOSTRUENAME(char fullpath[],const char src[])
 	struct SREGS sregs;
 	segread(&sregs);
 	sregs.es=sregs.ds;
-	regIn.x.ax=0x6000; /* AH=60h */
+	regIn.x.ax=0x6000; /* INT 21H 60h */
 	regIn.x.di=(unsigned int)fullpath;
 	regIn.x.si=(unsigned int)src;
 	intdosx(&regIn,&regOut,&sregs);
@@ -171,7 +171,7 @@ int DOSEXEC(unsigned int PSP,unsigned int ENVSEG,const char exeFullPath[],const 
 		paramBlock[i]=0;
 	}
 
-	regIn.x.ax=0x4B00; /* AH=60h */
+	regIn.x.ax=0x4B00; /* INT 21H 60h */
 	sregs.es=sregs.ds;
 	regIn.x.bx=(unsigned int)paramBlock; /* ES:BX Param Block */
 	regIn.x.dx=(unsigned int)exeFullPath;
