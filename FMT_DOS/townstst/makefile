@@ -21,3 +21,18 @@ build\makefrag.exp : makefrag.c
 build\fwrite.exp : fwrite.c
 	hcd386 fwrite.c -obj build\fwrite.OBJ
 	386link build\fwrite.obj @LIBS.LN -exe build\fwrite.exp
+
+
+build\return0.exp : return0.c
+	hcd386 return0.c -obj build\return0.OBJ
+	386link build\return0.obj @LIBS.LN -exe build\return0.exp
+
+
+build\return1.exp : return1.c
+	hcd386 return1.c -obj build\return1.OBJ
+	386link build\return1.obj @LIBS.LN -exe build\return1.exp
+
+
+build\return2.exp : return2.c
+	hcd386 return2.c -obj build\return2.OBJ
+	386link build\return2.obj @LIBS.LN -exe build\return2.exp
