@@ -3188,6 +3188,50 @@ SET_GET_FILE_ATTRIB_INVALID_FUNC:
 
 
 ; Input
+;   AX File Handle
+; Return
+;   CX=File Time
+;   DX=File Date
+GET_FILE_TIME_STAMP:
+						CALL	GET_SF_ENTRY_FROM_JFN
+						MOV		AX,DOSERR_INVALID_HANDLE
+						JC		GET_FILE_TIME_STAMP_EXIT
+						; FS:DI is SF_ENTRY
+						MOV		CX,FS:[DI+SF_TIME]
+						MOV		DX,FS:[DI+SF_DATE]
+GET_FILE_TIME_STAMP_EXIT:
+						RET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; Input
+;   AX File Handle
+; Return
+;   CX=File Time
+;   DX=File Date
+SET_FILE_TIME_STAMP:
+						CALL	GET_SF_ENTRY_FROM_JFN
+						MOV		AX,DOSERR_INVALID_HANDLE
+						JC		SET_FILE_TIME_STAMP_EXIT
+						; FS:DI is SF_ENTRY
+						MOV		FS:[DI+SF_TIME],CX
+						MOV		FS:[DI+SF_DATE],DX
+						AND		WORD PTR FS:[DI+5],0ffffh-SF_DEVFLAG_BLOCK_NOT_WRITTEN	; Mark as written.
+						OR		WORD PTR FS:[DI+5],SF_DEVFLAG_BLOCK_TIME_SET			; So that FCLOSE won't overwrite.
+SET_FILE_TIME_STAMP_EXIT:
+						RET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; Input
 ;  DS:SI=Input file name
 ;  ES:DI=True name
 TRUENAME:
