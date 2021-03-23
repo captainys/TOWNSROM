@@ -2352,7 +2352,6 @@ OPEN_CHARDEV_ERROR:
 
 ; Input
 ;   DS:SI   File name
-;   AL      Mode 0:Read 1:Write 2:Read/Write
 ;   CL      File attribute
 ; Return
 ;   CF=0  Success  AX=JFN
@@ -2368,7 +2367,7 @@ FCREATE:
 
 						; Observation from Afterburner II
 						; If it tries to create "NUL", it just opens.
-						MOV		BYTE PTR CS:[FILE_OPENMODE],SF_MODE_WRITE
+						MOV		BYTE PTR CS:[FILE_OPENMODE],SF_MODE_READ_WRITE
 						CALL	OPEN_CHARDEV
 						JC		FCREATE_ERROR
 						JMP		FCREATE_SUCCESS
@@ -2430,6 +2429,47 @@ FCREATE_ERROR:
 						STC
 						RET
 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; Input
+;   DS:SI=Filename
+;   CL=File Attribute
+; Return
+;   CF=0 AX=File Handle
+;   CF=1 AX=Error Code
+FCREATE_IF_NOT_EXIST:
+						PUSH	DS
+						PUSH	SI
+						PUSH	CX
+
+						; Input
+						;   DS:SI File Template
+						;   CX Attribute Mask (CH=0)
+						;   CS:[DMA_BUFFER_PTR] Pointer to store FINDSTRUCT
+						MOV		CX,0FFFFh-DIRENT_ATTR_VOLLABEL
+						CALL	FIND_FIRST
+						; Output
+						;   CF=0 Success
+						;   CF=1 Error AX=Error Code DOSERR_FILE_NOT_FOUND,DOSERR_DIR_NOT_FOUND, or DOSERR_NO_MORE_FILES
+
+						POP		CX
+						POP		SI
+						POP		DS
+						JNC		FCREATE_IF_NOT_EXIST_ALREADY_EXISTS
+
+						CALL	FCREATE
+						RET
+
+FCREATE_IF_NOT_EXIST_ALREADY_EXISTS:
+						; MOV		BYTE PTR CS:[ERROR_CLASS],
+						; MOV		BYTE PTR CS:[ERROR_LOCUS],
+						MOV		AX,DOSERR_ACCESS_DENIED
+						STC
+						RET
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -3253,6 +3293,7 @@ TRUENAME_EXIT:
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 
 FCB_MESSAGE				DB		"FCB access not supported."

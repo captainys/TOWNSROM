@@ -228,6 +228,8 @@ INT_21H_REGISTERS_SAVED:
 						JE		INT_21H_55H_CREATE_CHILD_PSP
 						CMP		AH,57H
 						JE		INT_21H_57H_SET_GET_TIME_STAMP
+						CMP		AH,5BH
+						JE		INT_21H_5BH_CREATE_BUT_NOT_TRUNCATE_FILE
 						CMP		AH,60h
 						JE		INT_21H_60H_TRUENAME
 						CMP		AH,68h
@@ -1329,6 +1331,23 @@ INT_21H_57H_SET_TIME_STAMP:
 						RETURN_REGISTERW	AX
 
 						JMP		INT_RESTORE_AND_IRET_WITH_CF
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+INT_21H_5BH_CREATE_BUT_NOT_TRUNCATE_FILE:
+						MOV		SI,DX
+						CALL	FCREATE_IF_NOT_EXIST
+
+						_LSS	SP,CS:[SP_RESTORE_POINT]
+						MOV		BP,SP
+						RETURN_REGISTERW	AX
+
+						JMP		INT_RESTORE_AND_IRET_WITH_CF
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
