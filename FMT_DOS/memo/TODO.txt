@@ -16,6 +16,10 @@ During Fread
 1679:00003CCB 80F900                    CMP     CL,00H
 
 
+- INT 21H AH=3FH FREAD
+  CHARDEVからの読み込みの場合、簡単なラインエディタを作らなくちゃいかんのか。
+
+
 - INT 21H AH=06h DL=0FFhのとき何をすればいいのか？
 
 

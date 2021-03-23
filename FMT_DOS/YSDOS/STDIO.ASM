@@ -375,3 +375,39 @@ GETS_ADDCHAR_EXIT:
 						RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; 00h Buffer empty
+; 0FFh At least one letter in the buffer.
+KBHIT:
+						MOV		AX,FILE_STDIN
+						CALL	GET_SF_ENTRY_FROM_JFN
+						JC		KBHIT_BUFFER_EMPTY	; Error.  Nothing can be read.
+
+						TEST	FS:[DI+SF_DEVFLAGS],SF_DEVFLAG_IS_CHARDEV
+						JE		KBHIT_NOT_CHARDEV
+;KBHIT_CHARDEV:
+						; Input
+						;   AL     Unit
+						;   AH     Media Desc
+						;   ESI    Device Driver Pointer (Hiword=SEG, Loword=OFFSET)
+						CALL	DEVCALL_NON_DEST_READ
+						; Return
+						;   AX     Status Return bit9=1 means nothing to read
+						TEST	AX,CONSDEV_FLAG_BUSY
+						JE		KBHIT_BUFFER_READY
+						JMP		KBHIT_BUFFER_EMPTY
+
+
+KBHIT_NOT_CHARDEV:
+						MOV		EAX,FS:[DI+SF_FILE_POINTER]
+						CMP		EAX,FS:[DI+SF_FILE_SIZE]
+						JAE		KBHIT_BUFFER_EMPTY
+
+KBHIT_BUFFER_READY:
+						MOV		AL,0FFh
+						RET
+KBHIT_BUFFER_EMPTY:
+						XOR		AL,AL
+						RET

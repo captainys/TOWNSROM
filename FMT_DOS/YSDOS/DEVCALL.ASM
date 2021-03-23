@@ -261,6 +261,46 @@ DEVCALL_READ_SECTOR		ENDP
 ; Input
 ;   AL     Unit
 ;   AH     Media Desc
+;   ESI    Device Driver Pointer (Hiword=SEG, Loword=OFFSET)
+; Return
+;   AX     Status Return bit9=1 means nothing to read
+DEVCALL_NON_DEST_READ		PROC
+						PUSH	DS
+						PUSH	ES
+						PUSH	BX
+
+						MOV		BX,OFFSET YSDOS_UTILITY_BUFFER
+						MOV		BYTE PTR CS:[BX+REQ_LEN],0Dh
+						MOV		CS:[BX+REQ_UNIT],AL
+						MOV		BYTE PTR CS:[BX+REQ_COMMAND],DEVREQ_CMD_NON_DEST_READ
+						MOV		WORD PTR CS:[BX+REQ_STATUS],0
+						MOV		CS:[BX+REQ_READ_WRITE_MEDIA_DESC],AH
+
+						ROL		ESI,16
+						MOV		DS,SI
+						ROL		ESI,16
+
+						PUSH	CS
+						POP		ES
+						CALL	CALL_STRATEGY_AND_INTERRUPT
+
+						MOV		AX,ES:[BX+REQ_STATUS]
+
+						POP		BX
+						POP		ES
+						POP		DS
+						RET
+DEVCALL_NON_DEST_READ	ENDP
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; Input
+;   AL     Unit
+;   AH     Media Desc
 ;   CX     Length in bytes in CHARDEV, Number of sectors in BLOCKDEV
 ;   DX     LBA
 ;   ESI    Device Driver Pointer (Hiword=SEG, Loword=OFFSET)

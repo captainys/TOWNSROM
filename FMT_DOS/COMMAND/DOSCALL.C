@@ -258,3 +258,40 @@ int DOSCHDIR(const char dir[])
 	return 0;
 }
 
+
+void DOSPUTS(const char str[])
+{
+	int i;
+	for(i=0; 0!=str[i]; ++i)
+	{
+		DOSPUTC(str[i]);
+	}
+}
+
+
+void DOSPUTC(char c)
+{
+	union REGS regIn,regOut;
+	regIn.x.ax=0x0200;
+	regIn.x.dx=c;
+	intdos(&regIn,&regOut);
+}
+
+
+int DOSGETS(char buf[LINEBUFLEN])
+{
+	int i;
+	union REGS regIn,regOut;
+	unsigned char inputBuf[LINEBUFLEN+2];
+	inputBuf[0]=240; /* 240<LINEBUFLEN */
+	inputBuf[1]=0;
+	regIn.x.ax=0x0A00;
+	regIn.x.dx=(unsigned int)inputBuf;
+	intdos(&regIn,&regOut);
+	for(i=0; i<inputBuf[1]; ++i)
+	{
+		buf[i]=inputBuf[2+i];
+	}
+	buf[i]=0;
+	return i;
+}

@@ -3,6 +3,10 @@
 
 
 
+#include "DEF.H"
+
+
+
 /*! Returns the PSP segment.
 */
 unsigned int DOSGETPSP(void);
@@ -48,8 +52,17 @@ int DOSGETERRORLEVEL(void);
 int DOSCHDIR(const char dir[]);
 
 
-/*! 
+
+/*! Use INT 21H AH=0AH to get one line of input.
+    buf must be minimum LINEBUFLEN.
 */
+int DOSGETS(char buf[LINEBUFLEN]);
+
+
+/*! PUTS and PUTC using AH=02H
+*/
+void DOSPUTS(const char str[]);
+void DOSPUTC(char c);
 
 
 

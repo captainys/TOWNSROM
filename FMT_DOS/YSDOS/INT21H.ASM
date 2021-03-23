@@ -132,6 +132,8 @@ INT_21H_REGISTERS_SAVED:
 						JE		INT_21H_09H_PUTS
 						CMP		AH,0AH
 						JE		INT_21H_0AH_GETS
+						CMP		AH,0BH
+						JE		INT_21H_0BH_KBHIT
 						CMP		AH,0DH
 						JE		INT_21H_0DH_FLUSH_BUFFERS
 						CMP		AH,0EH
@@ -299,6 +301,25 @@ INT_21H_09H_PUTS:
 INT_21H_0AH_GETS:
 						MOV		SI,DX
 						CALL	GETS
+						JMP		INT_RESTORE_AND_IRET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; Return
+; 00h Buffer empty
+; 0FFh At least one letter in the buffer.
+INT_21H_0BH_KBHIT:
+						CALL	KBHIT
+						MOV		AH,0Bh ; Recover AH
+
+						_LSS	SP,CS:[SP_RESTORE_POINT]
+						MOV		BP,SP
+						RETURN_REGISTERW	AX
+
 						JMP		INT_RESTORE_AND_IRET
 
 

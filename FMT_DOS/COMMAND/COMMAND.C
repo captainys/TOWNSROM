@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <direct.h>
 
 #include "DOSLIB.H"
 #include "DOSCALL.H"
@@ -562,6 +563,14 @@ int CommandMain(struct Option *option)
 	printf("Entering Interactive Mode.\n");
 	for(;;)
 	{
+		static char cwd[MAX_PATH];
+		static char cmd[LINEBUFLEN];
+		getcwd(cwd,MAX_PATH);
+		DOSPUTS(cwd);
+		DOSPUTC('>');
+		DOSGETS(cmd);
+		DOSPUTC(ASCII_CR);
+		DOSPUTC(ASCII_LF);
 	}
 	return returnCode;
 }
