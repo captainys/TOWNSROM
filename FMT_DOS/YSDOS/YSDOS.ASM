@@ -897,6 +897,7 @@ DOSINIT_INIT_UNKNOWN_JUMP_TABLE:
 						; DS needs to be as returned from CREATE_PDB.
 						; So, DS is PSP for MSDOS.SYS?
 
+						CALL	DOSINIT_TOWNS_CLS
 						CALL	DOSINIT_TOWNS_PALETTE
 
 						RETF

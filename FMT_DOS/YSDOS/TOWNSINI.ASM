@@ -88,6 +88,25 @@ DOSINIT_TOWNS_PALETTE_LOOP:
 
 
 
+DOSINIT_TOWNS_CLS:
+					PUSH	ES
+					PUSH	CX
+					PUSH	DI
+					PUSH	EAX
+					MOV		AX,0C000h
+					MOV		ES,AX
+					XOR		EAX,EAX
+					XOR		DI,DI
+					MOV		CX,2000h
+					REP STOSD
+					POP		EAX
+					POP		DI
+					POP		CX
+					POP		ES
+					RET
+
+
+
 ; What is this?
 ; FM TOWNS OS V1.1 L30's MENU_DRV, included in IO.SYS has a bug, which makes SHSUCDX unusable.
 ; I personally think R-drive was a bad idea to start with.
