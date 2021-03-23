@@ -431,10 +431,10 @@ GET_FREE_DISK_SPACE_ECX_IS_FREECOUNT:
 						MOV		GS:[BP+DPB_NUM_FREE_CLUSTERS],CX
 
 						MOV		EBX,ECX
-						MOVZX	AX,BYTE PTR GS:[DPB_CLUSTER_MASK]
+						MOVZX	AX,BYTE PTR GS:[BP+DPB_CLUSTER_MASK]
 						INC		AX	; CLUSTER_MASK+1=Sectors per Cluster
-						MOV		CX,GS:[DPB_BYTES_PER_SECTOR]
-						MOV		DX,GS:[DPB_MAX_CLUSTER_NUM]
+						MOV		CX,GS:[BP+DPB_BYTES_PER_SECTOR]
+						MOV		DX,GS:[BP+DPB_MAX_CLUSTER_NUM]
 						DEC		DX
 
 						; MS-DOS V3.1 returns the total usable clusters in DX, not the number of clusters
