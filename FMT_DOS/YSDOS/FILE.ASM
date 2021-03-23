@@ -693,7 +693,7 @@ CLOSE_SF_DONT_SET_DATETIME:
 						; To support those case, if the disk was changed, force-read the directory sector and
 						; check if the directory entry still exists.
 						AND		BH,BH
-						JS		CLOSE_SF_ERROR
+						JS		CLOSE_SF_DISK_CHANGE
 						; Apparently Floppy Disk returns Changed/Unchanged unknown (in here BH=0)
 						; if Volume Label and Media Type matches even when disk was not changed.
 						; So, this point I can only say disk changed for sure if BH<0.
@@ -755,6 +755,8 @@ CLOSE_SF_NOERROR:
 						MOV		AX,DOSERR_NO_ERROR
 						RET
 
+CLOSE_SF_DISK_CHANGE:
+						MOV		DWORD PTR DS:[PREVIOUS_DISK_LABEL],ESI
 CLOSE_SF_ERROR:
 						STC
 						RET

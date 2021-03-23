@@ -166,7 +166,7 @@ DEVCALL_OPEN_OR_CLOSE	ENDP
 ;   ESI    Device Driver Pointer (Hiword=SEG, Loword=OFFSET)
 ; Return
 ;   CF=1 AX=Status Code  If error ((status code&0x8000)!=0)
-;   CF=0 AH=[REQ+REQ_MEDIACHECK_CODE_RETURN] (1=unchanged, 0=unknown, -1=changed), AL Destroyed
+;   CF=0 AH=[REQ+REQ_MEDIACHECK_CODE_RETURN] (1=unchanged, 0=unknown, -1=changed), AL Destroyed,  ESI=Pointer to Previous Disk Label
 DEVCALL_MEDIACHECK:
 						PUSH	ES
 						PUSH	DS
@@ -178,7 +178,7 @@ DEVCALL_MEDIACHECK:
 
 						SET_ESBX_AS_REQPTR
 
-						MOV		BYTE PTR ES:[BX+REQ_LEN],0fH
+						MOV		BYTE PTR ES:[BX+REQ_LEN],13h ; CS:540C routine is calling with 0Fh.  Probably not getting Pointer to Previous Disk Label
 						MOV		ES:[BX+REQ_UNIT],AL
 						MOV		BYTE PTR ES:[BX+REQ_COMMAND],DEVREQ_CMD_MEDIA_CHECK
 						MOV		WORD PTR ES:[BX+REQ_STATUS],0
@@ -192,6 +192,11 @@ DEVCALL_MEDIACHECK:
 
 						MOV		AH,ES:[BX+REQ_MEDIACHECK_CODE_RETURN]
 						CLC
+						TEST	AH,080h
+						JE		DEVCALL_MEDIACHECK_RET
+
+						MOV		ESI,ES:[BX+REQ_MEDIACHECK_VOLUME_LABEL_RETURN]
+
 DEVCALL_MEDIACHECK_RET:
 						UNPREP_REQPTR
 						POP		BX

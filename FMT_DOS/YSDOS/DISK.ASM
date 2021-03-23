@@ -86,6 +86,7 @@ MEDIACHECK_READYCDS:
 						; No brainer.  Discard buffers (too late), rebuild DPB, reset CWD.
 MEDIACHECK_READYCDS_MEDIA_CHANGED:
 						; Temporarily mark DPB as UNACCESSED
+						MOV		DWORD PTR CS:[PREVIOUS_DISK_LABEL],ESI
 						MOV		BYTE PTR GS:[BP+DPB_ACCESS_FLAG],DPB_ACCESS_FLAG_UNACCESSED
 
 						; If media changed, there is a danger that the cached sectors will be
