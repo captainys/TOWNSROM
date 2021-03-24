@@ -861,6 +861,8 @@ invalid5:
 
 	JMPFAR startall ; ここからすべてが始まる
 
-	db 0,0,0
+; CaptainYS>>
+	db 051h		; This byte will be transferred to IO.SYS's DS:0000, and then returned as Machine Id to DS:[DI] by INT AFH AH=05H.  MX->51h
+	db 0,0
 	dd 0,0
-
+; CaptainYS<<

@@ -135,8 +135,15 @@ USE_OPPENCLOSE_BLOCKDEV		DB		0
 ; Used in 46BEH and 3121H
 ; Prob: If zero, 46BEH proc won't issue DEVREQ Close.
 
+
+; This is the start of SDA (Swappable Data Area)
+; http://www.ctyme.com/intr/rb-3023.htm
 						ORG		02CEH
+SDA_START:
 ERRORMODE				DB		0			; SHSUCDX denotes it as DTApp
+
+SDA_SIZE				EQU		0738h		; DOS 3.1 returns this
+SDA_SIZE_ALWAYS_SWAP	EQU		0018h		; DOS 3.1 returns this
 
 ; Memo to myself:
 ; A very good question is if INT 21H is made safe for Ctrl+C during the re-entrance.

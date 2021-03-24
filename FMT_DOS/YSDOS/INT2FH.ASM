@@ -4,6 +4,11 @@
 INT_2FH_HANDLER:
 						CMP		AX,1206H
 						JE		INT_2FH_1206H
+						CMP		AX,1600H
+						JE		INT_2FH_1600H
+						; REIPL.COM from Towns OS V2.1 L20 expects AX is not touched (return 4680H)
+						CMP		AX,4680H
+						JE		INT_2FH_JUST_IRET
 
 						PUSH	BP
 						MOV		BP,SP
@@ -14,8 +19,13 @@ INT_2FH_HANDLER:
 						OR		WORD PTR [BP+6],1
 						POP		BP
 						MOV		AX,DOSERR_INVALID_FUNC
+INT_2FH_JUST_IRET:
 						IRET
 
+; Windows Installation Check.  Must return AL=0
+INT_2FH_1600H:
+						XOR		AL,AL
+						IRET
 
 
 ; Since Towns OS V1.1 L20, it uses weird read-only RAM drive, Drive R.

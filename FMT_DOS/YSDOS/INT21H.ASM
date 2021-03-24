@@ -87,8 +87,12 @@ INT_21H_ALREADY_INDOS:
 						JE		INT_21H_2CH_GET_TIME
 						CMP		AH,2Dh
 						JE		INT_21H_2DH_SET_TIME
+						CMP		AH,2Fh
+						JE		INT_21H_2FH_GET_DTA_ADDRESS
 						CMP		AH,30H
 						JE		INT_21H_30H_GET_DOS_VERSION
+						CMP		AH,33H
+						JE		INT_21H_33H_EXTENDED_BREAK_CHECK
 						CMP		AH,34H
 						JE		INT_21H_34H_GET_INDOS
 						CMP		AH,35H
@@ -566,6 +570,19 @@ INT_21H_2DH_SET_TIME:
 						IRET
 
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+INT_21H_2FH_GET_DTA_ADDRESS:
+						PUSH	CS
+						POP		ES
+						MOV		BX,OFFSET DMA_BUFFER_PTR
+						IRET
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -591,6 +608,20 @@ INT_21H_30H_GET_DOS_VERSION_3_3:
 						XOR		BL,BL
 						XOR		CX,CX
 						IRET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; AL=0 -> Return DL=Current State
+; AL=1 -> Set state of Ctrl-C Check
+;         DL=0 Off,  DL=1 Check Always
+INT_21H_33H_EXTENDED_BREAK_CHECK:
+						; I just ignore for the time being.
+						IRET
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1459,6 +1490,8 @@ INT_21H_59H_EXIT:
 ; If it is redirected-printer mode, just ignore.
 ; If not, trap it so that I know the function is actually used.
 INT_21H_5DH_INTERNAL:
+						CMP		AL,6
+						JE		INT_21H_5DH_GET_SDA
 						CMP		AL,7
 						JE		INT_21H_5DH_IGNORE
 						CMP		AL,8
@@ -1466,6 +1499,23 @@ INT_21H_5DH_INTERNAL:
 						CMP		AL,9
 						JE		INT_21H_5DH_IGNORE
 INT_21H_5DH_STOP:		JMP		INT_21H_5DH_STOP
+
+INT_21H_5DH_GET_SDA:
+						PUSH	CS
+						POP		DS
+						MOV		SI,SDA_START
+						MOV		CX,SDA_SIZE
+						MOV		DX,SDA_SIZE_ALWAYS_SWAP
+						PUSH	BP
+						MOV		BP,SP
+						; [BP]    BP
+						; [BP+2]  AX
+						; [BP+4]  IP
+						; [BP+6]  CS
+						; [BP+8]  FLAGS
+						AND		WORD PTR [BP+8],0fffeh	; Return CF
+						POP		BP
+						IRET
 
 INT_21H_5DH_IGNORE:		IRET
 
