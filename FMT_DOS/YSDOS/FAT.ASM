@@ -326,6 +326,7 @@ FREE_CLUSTER_CHAIN_LOOP:
 						JMP		FREE_CLUSTER_CHAIN_LOOP
 
 FREE_CLUSTER_CHAIN_EXIT:
+						MOV		WORD PTR GS:[BP+DPB_NUM_FREE_CLUSTERS],0ffffh
 						CLC
 						RET
 ; I think FAT is corrupt if it comes here.  Rest In Peace...

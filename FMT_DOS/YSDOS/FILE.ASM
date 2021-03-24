@@ -2792,9 +2792,6 @@ MKDIR:
 MKDIR_NOT_REDIRECTED:
 						LGS		BP,DS:[BX+CDS_DRIVE_PARAM_BLOCK]
 
-						; EDX=Filename
-						PUSH	EDX
-
 						PUSH	CS
 						POP		DS
 						MOV		SI,OFFSET FILENAME_BUFFER+3
@@ -2813,7 +2810,6 @@ MKDIR_NOT_REDIRECTED:
 						;   CF=1  Not Found.  AX is DOSERR_FILE_NOT_FOUND, DOSERR_DIR_NOT_FOUND, or DOSERR_ACCESS_DENIED
 						;   Lastly scanned directory cluster can be found in DIR_variables
 						; Don't expect registers are preserved.
-						POP		EDX
 
 						JNC		MKDIR_ACCESS_DENIED	; If it already exists, cannot create a directory.
 
@@ -2916,6 +2912,202 @@ MKDIR_DIR_NOT_FOUND:
 						RET
 
 MKDIR_ACCESS_DENIED:
+						MOV		AX,DOSERR_ACCESS_DENIED
+						STC
+						RET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+;Input
+;  DS:SI=Filename
+;Output
+;  CF=0 Success
+;  CF=1 AX=DOS Error Code
+RMDIR:
+						MOV		WORD PTR CS:[FILE_INPUT_FILENAME],SI
+						MOV		WORD PTR CS:[FILE_INPUT_FILENAME+2],DS
+
+						CALL	MAKE_FULLPATH_CRUNCH_LESSERWC
+						JC		RMDIR_EXIT
+
+						CALL	DRIVE_NUMBER_FROM_FILENAME_BUFFER
+						CALL	MEDIACHECK_READYCDS		; CF=1 Error  CF=0 AL=(0:No Change  1:Disk Changed)
+						MOV		AX,DOSERR_ACCESS_DENIED
+						JC		RMDIR_EXIT
+
+						CALL	DRIVE_NUMBER_FROM_FILENAME_BUFFER
+						CALL	GET_DRIVE_CDS
+						MOV		AX,DOSERR_INVALID_DRIVE
+						JC		RMDIR_EXIT
+
+						; Output
+						;   CF=0  DS:BX=CDS      AX Destroyed
+						;   CF=1  Drive invalid  AX=DOSERR_INVALID_DRIVE   DS,BX Destroyed
+						TEST	WORD PTR DS:[BX+CDS_DRIVE_TYPE],CDS_TYPE_REDIRECTED
+						JE		RMDIR_NOT_REDIRECTED
+
+;RMDIR_REDIRECTED:
+						MOV		WORD PTR CS:[FILENAME_BUFFER_PTR1],OFFSET FILENAME_BUFFER
+						MOV		WORD PTR CS:[FILENAME_BUFFER_PTR1+2],CS
+						MOV		AX,INT2FH_RMDIR
+						MOV		WORD PTR CS:[CURRENT_CDS_STRUCT],BX
+						MOV		WORD PTR CS:[CURRENT_CDS_STRUCT+2],DS
+						INT		2FH
+						RET
+
+RMDIR_NOT_REDIRECTED:
+						LGS		BP,DS:[BX+CDS_DRIVE_PARAM_BLOCK]
+
+						PUSH	CS
+						POP		DS
+						MOV		SI,OFFSET FILENAME_BUFFER+3
+						XOR		EAX,EAX
+						MOV		CX,DIRENT_ATTR_DIRECTORY
+						;   GS:BP  DPB
+						;   DS:SI  Starting pointer in the fully-qualified file name.
+						;          If the file name is:
+						;            C:\COMMAND.COM
+						;               ^SI must point this.
+						;   EAX    Starting cluster (0->Root Dir)
+						;   CX     Attribute Filter, High-Byte ignored.
+						CALL	FETCH_DIR
+						; Return
+						;   CF=0  Found.  AL is file attribute  AH=0,  ES:DI=DIRENT,  ES:BX=BUFFER HEADER
+						;   CF=1  Not Found.  AX is DOSERR_FILE_NOT_FOUND, DOSERR_DIR_NOT_FOUND, or DOSERR_ACCESS_DENIED
+						;   Lastly scanned directory cluster can be found in DIR_variables
+						JC		RMDIR_ACCESS_DENIED
+
+						TEST	AX,DIRENT_ATTR_DIRECTORY
+						JE		RMDIR_ACCESS_DENIED
+
+
+						MOVZX	EBX,WORD PTR ES:[DI+DIRENT_FIRST_CLUSTER]
+RMDIR_CLUSTER_LOOP:
+						PUSH	EBX
+						XCHG	EDX,EBX	; EDX=Cluster for the dir
+						CALL	CLUSTER_TO_SECTOR
+						; EBX=Sector
+						MOVZX	CX,BYTE PTR GS:[BP+DPB_CLUSTER_MASK]
+						INC		CX
+						; CX=Number of Sectors
+RMDIR_SECTOR_LOOP:
+						PUSH	EBX
+						PUSh	CX
+						; Input
+						;   GS:BP  Drive Parameter Block
+						;   DX     LBA
+						;   AL     AL==0 Read sector
+						;          AL!=0 Don't read sector (Just make an available buffer)
+						MOV		EDX,EBX
+						CALL	GETBUFFER_REGULAR
+						; Output
+						;   CF=0   DS:DI=Buffer
+						;   CF=1   Error
+						;   AX     Destroyed
+						;   DX     Destroyed
+						;   Hiword EDI  Destroyed
+						JC		RMDIR_SECTOR_READ_ERROR
+						OR		BYTE PTR DS:[DI+IO_BUF_FLAGS],IO_BUF_FLAG_IS_DIR
+
+						ADD		DI,IO_BUF_INFO_size
+						MOV		CX,GS:[BP+DPB_BYTES_PER_SECTOR]
+						SHR		CX,DIRENT_SHIFT
+RMDIR_DIRENT_LOOP:
+						CMP		BYTE PTR DS:[DI],0
+						JE		RMDIR_DIRENT_NEXT
+						CMP		BYTE PTR DS:[DI],DELETED_FILE_FIRST_BYTE
+						JE		RMDIR_DIRENT_NEXT
+
+						; If not, only acceptable are "." and ".."
+						CMP		DWORD PTR [DI+4],20202020h
+						JNE		RMDIR_DIR_NOT_EMPTY
+						CMP		DWORD PTR [DI+7],20202020h
+						JNE		RMDIR_DIR_NOT_EMPTY
+
+						CMP		DWORD PTR [DI],2020202Eh	; ".   "
+						JE		RMDIR_DIRENT_NEXT
+						CMP		DWORD PTR [DI],20202E2Eh	; "..  "
+						JE		RMDIR_DIRENT_NEXT
+						JMP		RMDIR_DIR_NOT_EMPTY
+RMDIR_DIRENT_NEXT:
+						ADD		DI,DIRECTORY_ENTRY_size
+						LOOP	RMDIR_DIRENT_LOOP
+
+						POP		CX
+						POP		EBX
+						INC		EBX
+						LOOP	RMDIR_SECTOR_LOOP
+
+						POP		EBX
+
+						; Input
+						;   GS:BP  Drive Parameter Block
+						;   BX     Cluster
+						CALL	GET_NEXT_CLUSTER
+						; Output
+						;   CF=0   DX=Next Cluster
+						;   CF=1   DX Destroyed
+						MOV		AX,DOSERR_ACCESS_DENIED
+						JC		RMDIR_EXIT
+
+						MOV		EBX,EDX
+						CMP		BX,GS:[DPB_MAX_CLUSTER_NUM]
+						JBE		RMDIR_CLUSTER_LOOP
+
+
+						; Cluster is empty.
+						; Need to re-fetch the DIRENT.  Buffer may be flushed.
+
+						PUSH	CS
+						POP		DS
+						MOV		SI,OFFSET FILENAME_BUFFER+3
+						XOR		EAX,EAX
+						MOV		CX,DIRENT_ATTR_DIRECTORY
+						;   GS:BP  DPB
+						;   DS:SI  Starting pointer in the fully-qualified file name.
+						;          If the file name is:
+						;            C:\COMMAND.COM
+						;               ^SI must point this.
+						;   EAX    Starting cluster (0->Root Dir)
+						;   CX     Attribute Filter, High-Byte ignored.
+						CALL	FETCH_DIR
+						; Return
+						;   CF=0  Found.  AL is file attribute  AH=0,  ES:DI=DIRENT,  ES:BX=BUFFER HEADER
+						;   CF=1  Not Found.  AX is DOSERR_FILE_NOT_FOUND, DOSERR_DIR_NOT_FOUND, or DOSERR_ACCESS_DENIED
+						;   Lastly scanned directory cluster can be found in DIR_variables
+						; Don't expect registers are preserved.
+
+						JC		RMDIR_ACCESS_DENIED	; Supposed to be succeed, but just in case.
+
+						MOV		BYTE PTR ES:[DI],DELETED_FILE_FIRST_BYTE
+						OR		BYTE PTR ES:[BX+IO_BUF_FLAGS],IO_BUF_FLAG_WRITTEN
+
+						MOVZX	EBX,WORD PTR ES:[DI+DIRENT_FIRST_CLUSTER]
+						CALL	FREE_CLUSTER_CHAIN
+						; Don't look back...
+
+						CLC
+
+RMDIR_EXIT:
+						RET
+
+RMDIR_DIR_NOT_EMPTY:
+						ADD		SP,10	; EBX,EBX,CX
+						MOV		AX,DOSERR_ACCESS_DENIED	; Is it the right error code?
+						STC
+						RET
+
+RMDIR_SECTOR_READ_ERROR:
+						ADD		SP,10	; EBX,EBX,CX
+						MOV		AX,DOSERR_ACCESS_DENIED
+						STC
+						RET
+
+RMDIR_ACCESS_DENIED:
 						MOV		AX,DOSERR_ACCESS_DENIED
 						STC
 						RET

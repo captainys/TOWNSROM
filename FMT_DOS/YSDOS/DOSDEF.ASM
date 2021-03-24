@@ -824,6 +824,7 @@ EXEHEADER_size			EQU		(SIZE EXEHEADER)	; --NOT_IN_NASM--
 
 
 
+INT2FH_RMDIR			EQU		1101h
 INT2FH_MKDIR			EQU		1103h
 INT2FH_CHDIR			EQU		1105h	; It checks the path name is directory.  It does NOT update CDS.
 INT2F_CLOSE				EQU		1106h
