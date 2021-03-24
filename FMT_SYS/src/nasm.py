@@ -29,7 +29,7 @@ def Assemble():
 			"bin",
 			"sys.asm",
 			"-o",
-			"../parts/fmt_sys6.pr",
+			"../parts/fmt_sys6.prg",
 			"-l",
 			"SYS.LST",
 		])

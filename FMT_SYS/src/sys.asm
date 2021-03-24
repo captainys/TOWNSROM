@@ -99,6 +99,13 @@
 %endif
 %endmacro
 
+; by CaptainYS >>
+%macro					PLACE 1
+						TIMES	%1-($-$$) DB 0
+%endmacro
+; by CaptainYS <<
+
+
 ;---------------------------------------------------------------------
 
 ; あやしいヘッダ
@@ -627,6 +634,8 @@ disk_command_04:
 disk_command_05:
 	mov	al,[si]
 	and	al,0f0h
+	cmp	al,020h		; by CaptainYS
+	je	.fd			; by CaptainYS
 	cmp	al,040h
 	jz	.rom
 	call	cd_command_05
@@ -634,6 +643,9 @@ disk_command_05:
 .rom:
 	call	osrom_command_05
 	ret
+.fd:						; by CaptainYS
+	call	fd_command_05	; by CaptainYS
+	ret						; by CaptainYS
 
 disk_command_06:
 	mov	al,[si]
@@ -808,6 +820,8 @@ cmos_bios:
 
 %include "sys_p32.asm"
 
+%include "sys_print.asm" ; by CaptainYS
+
 ;---------------------------------------------------------------------
 ; ウェイト(うんづではあまり意味が無いので省略)
 
@@ -835,18 +849,9 @@ invalid5:
 ;---------------------------------------------------------------------
 
 	; CaptainYS >>
-	; Current version of NASM requires alignment to be 2^N.
-	; Rep count must be adjusted so that the total file size becomes 16384 bytes.
-%rep 2000h
-	db 0
-%endrep
-	align 1000h, db 0
+	PLACE	03FB0h	; FC000+03FB0=FFFB0
 	; CaptainYS <<
 
-
-%rep 0fb0h
-	db 0
-%endrep
 
 	JMPFAR invalid1 ; 診断エラー?
 	JMPFAR invalid2 ; 診断エラー?
@@ -854,7 +859,7 @@ invalid5:
 	JMPFAR invalid4 ; 文字列表示(未実装)
 	JMPFAR disk_bios
 	JMPFAR cmos_bios
-	JMPFAR invalid5 ; 文字列表示(未実装)
+	JMPFAR print_string ; by CaptainYS
 	JMPFAR waitloop
 
 	dd 0,0, 0,0,0,0
