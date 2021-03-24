@@ -59,8 +59,8 @@ NUM_CDS					DB		0				; Number of current directory structures. Returned by INT 2
 DEVHEAD					DW		0,0				; Also SYSDEV for NUL Device
 						; SYSVARS+26h
 						DW		SYSDEV_DEVFLAG_NUL+SYSDEV_DEVFLAG_IS_CHARDEV	; SYSDEV_DEVFLAGS
-						DW		NUL_STRATEGY									; SYSDEV_STRATEGY
-						DW		NUL_INTERRUPT									; SYSDEV_INTERRUPT
+						DW		NUL_STRATEGY								; SYSDEV_STRATEGY
+						DW		NUL_INTERRUPT							; SYSDEV_INTERRUPT
 						DB	"NUL     "
 						; 005Ah  SYSVARS+34h
 NUM_JOINED_DRV			DB		0

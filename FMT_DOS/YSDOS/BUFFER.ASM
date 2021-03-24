@@ -277,7 +277,7 @@ POPULATE_BUFFER			ENDP
 ;   AL     AL==0 Read sector
 ;          AL!=0 Don't read sector (Just make an available buffer)
 ; Output
-;   CF=0   DS:DI=Buffer
+;   CF=0   DS:DI=Buffer (Buffer Header)
 ;   CF=1   Error
 ;   AX     Destroyed
 ;   DX     Destroyed

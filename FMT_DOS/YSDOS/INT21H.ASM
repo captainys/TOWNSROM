@@ -23,7 +23,7 @@ NOCF:																	; --NOT_IN_NASM--
 ;						JNC		%%NOCF									; --USE_IN_NASM--
 ;						MOV		WORD CS:[EXTENDED_ERROR_CODE],%1		; --USE_IN_NASM--
 ;%%NOCF:																; --USE_IN_NASM--
-;						ENDM											; --USE_IN_NASM--
+;%ENDMACRO																; --USE_IN_NASM--
 
 
 
@@ -190,6 +190,8 @@ INT_21H_REGISTERS_SAVED:
 						JE		INT_21H_31H_EXIT_AND_STAY_RESIDENT
 						CMP		AH,36H
 						JE		INT_21H_36H_GET_FREE_DISK_SPACE
+						CMP		AH,39H
+						JE		INT_21H_39H_MKDIR
 						CMP		AH,3BH
 						JE		INT_21H_3BH_CHDIR
 						CMP		AH,3CH
@@ -688,6 +690,23 @@ INT_21H_38H_GET_COUNTRY_INFO:
 						IRET
 
 CASE_ROUTINE:			RETF
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+INT_21H_39H_MKDIR:
+						MOV		SI,DX
+						CALL	MKDIR
+
+						_LSS	SP,CS:[SP_RESTORE_POINT]
+						MOV		BP,SP
+						RETURN_REGISTERW	AX
+
+						JMP		INT_RESTORE_AND_IRET
 
 
 

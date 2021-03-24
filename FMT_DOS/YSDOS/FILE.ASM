@@ -2437,7 +2437,7 @@ FCREATE_ERROR:
 
 ; Input
 ;   DS:SI=Filename
-;   CL=File Attribute
+;   CL=File Attribute (Can create a directory for internal use.)
 ; Return
 ;   CF=0 AX=File Handle
 ;   CF=1 AX=Error Code
@@ -2527,6 +2527,7 @@ CREATE_DISK_FILE:
 						;   DX     DIRENT Position in Sector in bytes.
 						; Not for CHARDEV
 						CALL	MAKE_SF_ENTRY_FROM_DIRENT
+						AND		WORD PTR FS:[DI+SF_DEVFLAGS],0ffffh-SF_DEVFLAG_BLOCK_NOT_WRITTEN
 
 						POP		BX
 						CALL	FREE_CLUSTER_CHAIN
@@ -2725,6 +2726,198 @@ FDELETE_NOT_REDIRECTED:
 						CLC
 
 FDELETE_EXIT:
+						RET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+MKDIR_DIRENT_TEMPLATE	DB	".          "
+						DB	DIRENT_ATTR_READONLY+DIRENT_ATTR_DIRECTORY
+						DB	10 dup(0)
+MKDIR_DIRENT_TMPL_TIME0	DW	0
+MKDIR_DIRENT_TMPL_DATE0	DW	0
+MKDIR_DIRENT_TMPL_CLST0	DW	0
+						DD	0
+
+						DB	"..         "
+						DB	DIRENT_ATTR_READONLY+DIRENT_ATTR_DIRECTORY
+						DB	10 dup(0)
+MKDIR_DIRENT_TMPL_TIME1	DW	0
+MKDIR_DIRENT_TMPL_DATE1	DW	0
+MKDIR_DIRENT_TMPL_CLST1	DW	0
+						DD	0
+
+
+
+; Input
+;   DS:SI=FIlename
+; Return
+;   CF=0 Success
+;   CF=1 AX=Error Code
+MKDIR:
+						MOV		WORD PTR CS:[FILE_INPUT_FILENAME],SI
+						MOV		WORD PTR CS:[FILE_INPUT_FILENAME+2],DS
+
+						CALL	MAKE_FULLPATH_CRUNCH_LESSERWC
+						JC		MKDIR_EXIT
+
+						CALL	DRIVE_NUMBER_FROM_FILENAME_BUFFER
+						CALL	MEDIACHECK_READYCDS		; CF=1 Error  CF=0 AL=(0:No Change  1:Disk Changed)
+						MOV		AX,DOSERR_ACCESS_DENIED
+						JC		MKDIR_EXIT
+
+						CALL	DRIVE_NUMBER_FROM_FILENAME_BUFFER
+						CALL	GET_DRIVE_CDS
+						MOV		AX,DOSERR_INVALID_DRIVE
+						JC		MKDIR_EXIT
+
+						; Output
+						;   CF=0  DS:BX=CDS      AX Destroyed
+						;   CF=1  Drive invalid  AX=DOSERR_INVALID_DRIVE   DS,BX Destroyed
+						TEST	WORD PTR DS:[BX+CDS_DRIVE_TYPE],CDS_TYPE_REDIRECTED
+						JE		MKDIR_NOT_REDIRECTED
+
+;MKDIR_REDIRECTED:
+						MOV		WORD PTR CS:[FILENAME_BUFFER_PTR1],OFFSET FILENAME_BUFFER
+						MOV		WORD PTR CS:[FILENAME_BUFFER_PTR1+2],CS
+						MOV		AX,INT2FH_MKDIR
+						MOV		WORD PTR CS:[CURRENT_CDS_STRUCT],BX
+						MOV		WORD PTR CS:[CURRENT_CDS_STRUCT+2],DS
+						INT		2FH
+						RET
+
+MKDIR_NOT_REDIRECTED:
+						LGS		BP,DS:[BX+CDS_DRIVE_PARAM_BLOCK]
+
+						; EDX=Filename
+						PUSH	EDX
+
+						PUSH	CS
+						POP		DS
+						MOV		SI,OFFSET FILENAME_BUFFER+3
+						XOR		EAX,EAX
+						MOV		CX,0FFFFh-DIRENT_ATTR_VOLLABEL
+						;   GS:BP  DPB
+						;   DS:SI  Starting pointer in the fully-qualified file name.
+						;          If the file name is:
+						;            C:\COMMAND.COM
+						;               ^SI must point this.
+						;   EAX    Starting cluster (0->Root Dir)
+						;   CX     Attribute Filter, High-Byte ignored.
+						CALL	FETCH_DIR
+						; Return
+						;   CF=0  Found.  AL is file attribute  AH=0,  ES:DI=DIRENT,  ES:BX=BUFFER HEADER
+						;   CF=1  Not Found.  AX is DOSERR_FILE_NOT_FOUND, DOSERR_DIR_NOT_FOUND, or DOSERR_ACCESS_DENIED
+						;   Lastly scanned directory cluster can be found in DIR_variables
+						; Don't expect registers are preserved.
+						POP		EDX
+
+						JNC		MKDIR_ACCESS_DENIED	; If it already exists, cannot create a directory.
+
+						MOV		EBX,DWORD PTR CS:[DIR_CLUSTER0]	; This will be for ".."
+						MOV		CS:[MKDIR_DIRENT_TMPL_CLST1],BX
+
+						CALL	READ_CLOCK_FOR_DIRENT
+						MOV		CS:[MKDIR_DIRENT_TMPL_TIME0],DX
+						MOV		CS:[MKDIR_DIRENT_TMPL_DATE0],AX
+						MOV		CS:[MKDIR_DIRENT_TMPL_TIME1],DX
+						MOV		CS:[MKDIR_DIRENT_TMPL_DATE1],AX
+
+
+						; Input
+						;   GS:BP  Driver Parameter Block
+						;   ECX    Clusters needed
+						MOV		ECX,1
+						CALL	ALLOCATE_CLUSTER_CHAIN
+						MOV		AX,DOSERR_DISK_FULL
+						JC		MKDIR_EXIT
+
+						;   CF=0   EBX First of the cluster chain, or tail-cluster ID if ECX=0
+						MOV		CS:[MKDIR_DIRENT_TMPL_CLST0],BX	; Save cluster in MKDIR_DIRENT_TMPL_CLST0
+
+						XCHG	EDX,EBX	; EDX=Cluster for the dir
+						CALL	CLUSTER_TO_SECTOR
+
+						; EBX=Sector
+
+						MOVZX	ECX,BYTE PTR GS:[BP+DPB_CLUSTER_MASK]
+						INC		ECX
+						OR		ECX,80000000h
+MKDIR_INIT_SECTOR_LOOP:
+						PUSH	ECX
+						PUSH	EBX
+
+						; Input
+						;   GS:BP  Drive Parameter Block
+						;   DX     LBA
+						;   AL     AL==0 Read sector
+						;          AL!=0 Don't read sector (Just make an available buffer)
+						CALL	GETBUFFER_REGULAR
+						; Output
+						;   CF=0   DS:DI=Buffer
+						;   CF=1   Error
+						;   AX     Destroyed
+						;   DX     Destroyed
+						;   Hiword EDI  Destroyed
+						OR		BYTE PTR DS:[DI+IO_BUF_FLAGS],IO_BUF_FLAG_WRITTEN+IO_BUF_FLAG_IS_DIR
+
+						MOV		CX,GS:[BP+DPB_BYTES_PER_SECTOR]
+						XOR		AL,AL
+						ADD		DI,IO_BUF_INFO_size
+						PUSH	DS
+						POP		ES
+
+						PUSH	DI
+						REP STOSB
+						POP		DI
+
+						TEST	ECX,80000000h
+						JE		MKDIR_INIT_SECTOR_NEXT
+
+						PUSH	CS
+						POP		DS
+						MOV		SI,OFFSET MKDIR_DIRENT_TEMPLATE
+						MOV		CX,64
+						REP MOVSB
+
+MKDIR_INIT_SECTOR_NEXT:
+						POP		EBX
+						POP		ECX
+						AND		ECX,7FFFFFFFh
+						INC		EBX
+						LOOP	MKDIR_INIT_SECTOR_LOOP
+
+
+						_LDS	SI,CS:[FILE_INPUT_FILENAME]
+						MOV		CX,DIRENT_ATTR_DIRECTORY
+						CALL	FCREATE_IF_NOT_EXIST
+						JC		MKDIR_EXIT
+
+
+						PUSH	AX
+						CALL	GET_SF_ENTRY_FROM_JFN
+						; FS:DI=SF_ENTRY
+						MOV		BX,CS:[MKDIR_DIRENT_TMPL_CLST0]
+						MOV		FS:[DI+SF_FIRST_CLUSTER_NUM],BX
+						AND		WORD PTR FS:[DI+SF_DEVFLAGS],0ffffh-SF_DEVFLAG_BLOCK_NOT_WRITTEN
+						POP		AX
+
+						CALL	FCLOSE
+
+MKDIR_EXIT:
+						RET
+
+MKDIR_DIR_NOT_FOUND:
+						MOV		AX,DOSERR_DIR_NOT_FOUND
+						STC
+						RET
+
+MKDIR_ACCESS_DENIED:
+						MOV		AX,DOSERR_ACCESS_DENIED
+						STC
 						RET
 
 
