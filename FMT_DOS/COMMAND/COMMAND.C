@@ -326,15 +326,48 @@ int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char after
 	else if(0==strcmp(argv0,"CD"))
 	{
 		ExecCD(afterArgv0);
+		return 1;
 	}
 	else if(0==strcmp(argv0+1,":"))
 	{
 		ExecDriveLetter(argv0[0]);
+		return 1;
 	}
 	else if(0==strcmp(argv0,"PAUSE"))
 	{
 		printf("HALTED\n");
 		for(;;);
+		return 1;
+	}
+	else if(0==strcmp(argv0,"DIR") || 0==strcmp(argv0,"LS"))
+	{
+		printf("DIR to be implemented\n");
+		return 1;
+	}
+	else if(0==strcmp(argv0,"COPY") || 0==strcmp(argv0,"CD"))
+	{
+		printf("COPY to be implemented\n");
+		return 1;
+	}
+	else if(0==strcmp(argv0,"DEL") || 0==strcmp(argv0,"RM"))
+	{
+		printf("DEL to be implemented\n");
+		return 1;
+	}
+	else if(0==strcmp(argv0,"REN") || 0==strcmp(argv0,"MV"))
+	{
+		printf("REN to be implemented\n");
+		return 1;
+	}
+	else if(0==strcmp(argv0,"MD") || 0==strcmp(argv0,"MKDIR"))
+	{
+		printf("MKDIR to be implemented\n");
+		return 1;
+	}
+	else if(0==strcmp(argv0,"RD") || 0==strcmp(argv0,"RMDIR"))
+	{
+		printf("MKDIR to be implemented\n");
+		return 1;
 	}
 	return 0;
 }
@@ -555,22 +588,34 @@ int ExecExternalCommand(const char fName[],const char param[])
 
 int CommandMain(struct Option *option)
 {
-	struct BatchState batch;
+	struct BatchState batState;
 	int returnCode=0;
 
-	InitBatchState(&batch);
+	InitBatchState(&batState);
 
 	printf("Entering Interactive Mode.\n");
 	for(;;)
 	{
 		static char cwd[MAX_PATH];
-		static char cmd[LINEBUFLEN];
+		static char lineBuf[LINEBUFLEN];
+		static char argv0[MAX_PATH];
+		int argv0Len;
+		char *afterArgv0;
+
 		getcwd(cwd,MAX_PATH);
 		DOSPUTS(cwd);
 		DOSPUTC('>');
-		DOSGETS(cmd);
+		DOSGETS(lineBuf);
 		DOSPUTC(ASCII_CR);
 		DOSPUTC(ASCII_LF);
+
+		argv0Len=GetFirstArgument(argv0,lineBuf);
+		Capitalize(argv0);
+		afterArgv0=GetAfterFirstArgument(lineBuf,argv0Len);
+		if(0==ExecBuiltInCommand(&batState,argv0,afterArgv0))
+		{
+			/* Then exec external command */
+		}
 	}
 	return returnCode;
 }

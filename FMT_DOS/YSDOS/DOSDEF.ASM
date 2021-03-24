@@ -23,11 +23,20 @@ ASCII_DOUBLEQUOTE		EQU		022h
 
 
 
-GETS_BUFFER				STRUC
-GETS_BUF_LEN			DB		0
-GETS_BUF_FILLED			DB		0
-GETS_BUF_DATA			DB		0
-GETS_BUFFER				ENDS
+GETS_BUFFER				STRUC			;--NOT_IN_NASM--
+GETS_BUF_LEN			DB		0		;--NOT_IN_NASM--
+GETS_BUF_FILLED			DB		0		;--NOT_IN_NASM--
+GETS_BUF_DATA			DB		0		;--NOT_IN_NASM--
+GETS_BUFFER				ENDS			;--NOT_IN_NASM--
+
+;GETS_BUF_LEN			EQU		0		;--USE_IN_NASM--
+;GETS_BUF_FILLED		EQU		1		;--USE_IN_NASM--
+;GETS_BUF_DATA			EQU		2		;--USE_IN_NASM--
+
+; Looks like I stepped on a bug of NASM.
+; If I use STRUCT, NASM makes MOV BYTE PTR DS:[SI+GETS_BUF_FILLED],0 as MOV BYTE PTR DS:[SI],0,
+; where correct interpretation is MOV BYTE PTR DS:[SI+1],0
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
