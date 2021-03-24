@@ -22,6 +22,7 @@ int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char after
 /*
 1st byte is length excluding the last CR.
 2nd byte and the rest, parameter terminated by CR.
+There should be no re-entrance for this buffer.
 */
 char execParamBuf[MAX_EXEPARAM];
 
@@ -598,7 +599,7 @@ int CommandMain(struct Option *option)
 	{
 		static char cwd[MAX_PATH];
 		static char lineBuf[LINEBUFLEN];
-		static char argv0[MAX_PATH];
+		static char argv0[MAX_PATH],exeCmd[MAX_PATH];
 		int argv0Len;
 		char *afterArgv0;
 
@@ -615,6 +616,20 @@ int CommandMain(struct Option *option)
 		if(0==ExecBuiltInCommand(&batState,argv0,afterArgv0))
 		{
 			/* Then exec external command */
+			int comType=IdentifyCommandType(exeCmd,argv0);
+			switch(comType)
+			{
+			case COMTYPE_BATCH:
+				break;
+			case COMTYPE_BINARY:
+				PrepareExecParam(execParamBuf,afterArgv0,MAX_EXEPARAM);
+				DOSEXEC(PSP,ENVSEG,exeCmd,execParamBuf);
+				break;
+			case COMTYPE_BINARY32:
+				break;
+			default:
+				break;
+			}
 		}
 	}
 	return returnCode;
