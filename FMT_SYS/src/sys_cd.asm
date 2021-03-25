@@ -51,7 +51,7 @@ cd_command_05:
 	; DMA初期化
 	call	cd_init_dma
 	mov	ax,[es:di+0ah] ; di
-	mov	dx,[es:di+0ch] ; es
+	mov	dx,[es:di+0ch] ; ds  (Comment corrected by CaptainYS this is incoming ds. Was commented as es.)
 	push	dx
 	shl	dx,4
 	add	ax,dx

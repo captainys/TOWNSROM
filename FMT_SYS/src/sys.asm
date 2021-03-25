@@ -811,6 +811,7 @@ cmos_bios:
 ;---------------------------------------------------------------------
 ; 各デバイス特有の処理を記述したコードをインクルード
 
+%include "townsio.asm"	; by CaptainYS
 %include "sys_cd.asm"
 %include "sys_fd.asm"
 %include "sys_hd.asm"
