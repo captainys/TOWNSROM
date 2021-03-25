@@ -5,6 +5,27 @@
 
 
 
+SET_IF_NO_CARRY			MACRO	REG,VALUE		;--NOT_IN_NASM--
+						LOCAL	CARRYSET		;--NOT_IN_NASM--
+						JC		CARRYSET		;--NOT_IN_NASM--
+						MOV		REG,VALUE		;--NOT_IN_NASM--
+CARRYSET:										;--NOT_IN_NASM--
+						ENDM					;--NOT_IN_NASM--
+
+
+
+;%MACRO					SET_IF_NO_CARRY		2	;--USE_IN_NASM--
+;						JC		%%CARRYSET		;--USE_IN_NASM--
+;						MOV		%1,%2			;--USE_IN_NASM--
+;%%CARRYSET:									;--USE_IN_NASM--
+;						%ENDMACRO				;--USE_IN_NASM--
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
 MAKESMALLER_UNSIGNED	MACRO	REG,VALUE		;--NOT_IN_NASM--
 						LOCAL	VALUESET		;--NOT_IN_NASM--
 						CMP		REG,VALUE		;--NOT_IN_NASM--

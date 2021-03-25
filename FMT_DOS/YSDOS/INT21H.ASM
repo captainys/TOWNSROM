@@ -1285,12 +1285,14 @@ INT_21H_4CH_EXIT_PROCESS:
 ;   AL=Special Flag?
 ;   CX=Attrib Filter (eg. 08h and A:\*.* will return Volume Label)
 ;   DS:DX=Search Template C-String
+; Undocumented Behavior?
+;   Super Daisenryaku expects AX to be zero if file is found.
 INT_21H_4EH_FIND_FIRST:
 						MOV		SI,DX
 						CALL	FIND_FIRST
 						STORE_LASTERR_IF_CF	AX
 
-						JNC		INT_RESTORE_AND_IRET_WITH_CF
+						SET_IF_NO_CARRY		AX,0
 
 						_LSS	SP,CS:[SP_RESTORE_POINT]
 						MOV		BP,SP
@@ -1308,10 +1310,13 @@ INT_21H_4EH_FIND_FIRST:
 ;   DTA Area=FINDSTRUCT returned by FindFirst or preceding FindNext
 ; Output
 ;   Updated FINDSTRUCT
+; Undocumented Behavior?
+;   Super Daisenryaku expects AX to be zero if file is found.
 INT_21H_4FH_FIND_NEXT:
 						CALL	FIND_NEXT
-						JNC		INT_RESTORE_AND_IRET_WITH_CF
 						STORE_LASTERR_IF_CF	AX
+
+						SET_IF_NO_CARRY		AX,0
 
 						_LSS	SP,CS:[SP_RESTORE_POINT]
 						MOV		BP,SP
@@ -1503,7 +1508,7 @@ INT_21H_5DH_STOP:		JMP		INT_21H_5DH_STOP
 INT_21H_5DH_GET_SDA:
 						PUSH	CS
 						POP		DS
-						MOV		SI,SDA_START
+						MOV		SI,OFFSET SDA_START
 						MOV		CX,SDA_SIZE
 						MOV		DX,SDA_SIZE_ALWAYS_SWAP
 						PUSH	BP
