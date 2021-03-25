@@ -58,6 +58,17 @@
 %define PMODE_SETPALETTE  3
 %define PMODE_TRANSFERMEM 4
 
+
+; By CaptainYS >>
+KEYCOMB_CBIT	EQU		1
+KEYCOMB_DBIT	EQU		2
+KEYCOMB_FBIT	EQU		4
+KEYCOMB_HBIT	EQU		8
+KEYCOMB_IBIT	EQU		16
+KEYCOMB_MBIT	EQU		32
+; By CaptainYS <<
+
+
 ;---------------------------------------------------------------------
 
 %macro JMPFAR 1
@@ -183,8 +194,97 @@ startall:
 	mov	al,PMODE_MEMORYCHECK
 	call	call_pmode
 
+
+; by CaptainYS >>
+	call	check_boot_key_combination
+
+	;BOOTKEY_CD			EQU		1
+	cmp		eax,0ffff0000h+KEYCOMB_CBIT+KEYCOMB_DBIT
+	je		.device_loop_cd
+
+	;BOOTKEY_F0			EQU		2
+	cmp		eax,KEYCOMB_FBIT
+	je		.device_loop_f0
+
+	;BOOTKEY_F1			EQU		3
+	cmp		eax,00010000h+KEYCOMB_FBIT
+	je		.device_loop_f1
+
+	;BOOTKEY_H0			EQU		4
+	cmp		eax,KEYCOMB_HBIT
+	je		.device_loop_h0
+
+	;BOOTKEY_H1			EQU		5
+	cmp		eax,00010000h+KEYCOMB_HBIT
+	je		.device_loop_h1
+
+	;BOOTKEY_H2			EQU		6
+	cmp		eax,00020000h+KEYCOMB_HBIT
+	je		.device_loop_h2
+
+	;BOOTKEY_H3			EQU		7
+	cmp		eax,00030000h+KEYCOMB_HBIT
+	je		.device_loop_h3
+
+	;BOOTKEY_ICM		EQU		8
+	cmp		eax,0ffff0000h+KEYCOMB_IBIT+KEYCOMB_CBIT+KEYCOMB_MBIT
+	je		.device_loop_icm
+
+
+.no_boot_key:
+	; Check the default boot device from CMOS and try before start loop.
+
+
+.device_loop:
+.device_loop_cd:
+	call	try_cd_boot
+.device_loop_f0:
+	mov		al,0
+	call	try_fd_boot
+.device_loop_f1:
+	mov		al,1
+	call	try_fd_boot
+.device_loop_h0:
+	mov		al,0
+	call	try_hd_boot
+.device_loop_h1:
+	mov		al,1
+	call	try_hd_boot
+.device_loop_h2:
+	mov		al,2
+	call	try_hd_boot
+.device_loop_h3:
+	mov		al,3
+	call	try_hd_boot
+.device_loop_icm:
+	call	try_icm_boot
+	jmp		.device_loop
+; by CaptainYS <<
+
+
+
+; by CaptainYS >>
+; al=Unit
+try_fd_boot:
+	ret
+
+
+; al=Unit
+try_hd_boot:
+	ret
+
+
+try_icm_boot:
+	ret
+; by CaptainYS <<
+
+
+
+; by CaptainYS
+; Made it a procedure.  It was a one-shot code in the boot sequence.
+try_cd_boot:
 	; CDが読めるか？
-	mov	ah,0eh
+	mov	ax,0ec0h	; by CaptainYS  mov ah,0eh -> mov ax 0ec0h to prepare for FD, HD, and ICM boot
 	CALLFAR disk_bios
 	jnc	.cdok
 
@@ -195,7 +295,7 @@ startall:
 	mov	si,mes_cantboot
 	mov	di,VRAM_PITCH*384
 	call	textout
-	jmp	$
+	ret
 
 .cdok:
 	; IPL読み込み
@@ -233,8 +333,88 @@ startall:
 	mov	di,VRAM_PITCH*384
 	call	textout
 
-	; 死
-	jmp	$
+	ret
+
+
+
+check_boot_key_combination:
+	mov		ebx,0ffff0000h
+	mov		cx,1000h
+
+.keybuffer_loop:
+	dec		cx
+	je		.keybuffer_loop_break
+
+	mov		dx,IO_KEYBOARD_STATUS
+	in		al,dx
+	and		al,1	; Data in the Buffer?
+	je		.keybuffer_loop_break
+
+	mov		dx,IO_KEYBOARD_DATA
+	in		al,dx
+	or		al,al
+	js		.keybuffer_loop
+
+	cmp		al,02h	; Key Code for '1'
+	jb		.key_not_number
+	cmp		al,0bh	; Key Code for '0'
+	ja		.key_not_number
+	je		.key_zero
+
+.key_number:
+	dec		al	;	'1'->1
+	movzx	eax,al
+	shl		eax,16
+	and		ebx,0ffffh
+	or		ebx,eax
+	jmp		.keybuffer_loop
+
+.key_zero:
+	and		ebx,0ffffh
+	jmp		.keybuffer_loop
+
+.key_not_number:
+	cmp		al,TOWNS_JISKEY_C
+	jne		.key_not_c
+	or		bx,KEYCOMB_CBIT
+	jmp		.keybuffer_loop
+
+.key_not_c:
+	cmp		al,TOWNS_JISKEY_D
+	jne		.key_not_d
+	or		bx,KEYCOMB_DBIT
+	jmp		.keybuffer_loop
+
+.key_not_d:
+	cmp		al,TOWNS_JISKEY_F
+	jne		.key_not_f
+	or		bx,KEYCOMB_FBIT
+	jmp		.keybuffer_loop
+
+.key_not_f:
+	cmp		al,TOWNS_JISKEY_H
+	jne		.key_not_h
+	or		bx,KEYCOMB_HBIT
+	jmp		.keybuffer_loop
+
+.key_not_h:
+	cmp		al,TOWNS_JISKEY_I
+	jne		.key_not_m
+	or		bx,KEYCOMB_IBIT
+	jmp		.keybuffer_loop
+
+.key_not_m:
+	cmp		al,TOWNS_JISKEY_M
+	jne		.keybuffer_loop
+	or		bx,KEYCOMB_MBIT
+	jmp		.keybuffer_loop
+
+
+.keybuffer_loop_break:
+	mov		eax,ebx
+	ret
+
+
 
 ; CaptainYS: Since NASM doesn't seem to understand Shift-JIS, 
 ;            I've pasted shift-jis code directly.
@@ -372,16 +552,19 @@ init_keyboard:
 	mov	al,0a1h ; reset
 	out	dx,al
 
-	; バッファが空になるまで待つ
-.loop:
-	mov	dx,602h
-	in	al,dx
-	test	al,1
-	jz	.exit
-	sub	dx,2
-	in	al,dx
-	jmp	.loop
-.exit:
+; Commented out by CaptainYS >>
+;	; バッファが空になるまで待つ
+;.loop:
+;	mov	dx,602h
+;	in	al,dx
+;	test	al,1
+;	jz	.exit
+;	sub	dx,2
+;	in	al,dx
+;	jmp	.loop
+;.exit:
+; Commented out by CaptainYS >>
+
 	ret
 
 ;---------------------------------------------------------------------
@@ -863,7 +1046,9 @@ invalid5:
 	JMPFAR print_string ; by CaptainYS
 	JMPFAR waitloop
 
-	dd 0,0, 0,0,0,0
+	; CaptainYS >>
+	PLACE	03FF0h	; FC000+03FF0=FFFF0
+	; CaptainYS <<
 
 	JMPFAR startall ; ここからすべてが始まる
 
