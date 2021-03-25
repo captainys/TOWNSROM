@@ -359,7 +359,7 @@
    325                                  .goto_pmode:
    326                                  
    327 00000201 EA                      	db	0eah
-   328 00000202 [8CCAFFFF]              	dd	BOOTCODE_BASE+pmode_entry
+   328 00000202 [04CCFFFF]              	dd	BOOTCODE_BASE+pmode_entry
    329 00000206 0800                    	dw	8
    330                                  
    331                                  return_from_pmode:
@@ -751,7 +751,7 @@
    641 00000429 E83401                  	call	cd_command_05
    642 0000042C C3                      	ret
    643                                  .rom:
-   644 0000042D E82603                  	call	osrom_command_05
+   644 0000042D E89E04                  	call	osrom_command_05
    645 00000430 C3                      	ret
    646                                  .fd:						; by CaptainYS
    647 00000431 E81C03                  	call	fd_command_05	; by CaptainYS
@@ -765,7 +765,7 @@
    655 0000043D EBFE                    	jmp	$
    656 0000043F C3                      	ret
    657                                  .rom:
-   658 00000440 E81303                  	call	osrom_command_06
+   658 00000440 E88B04                  	call	osrom_command_06
    659 00000443 C3                      	ret
    660                                  
    661                                  disk_command_08:
@@ -783,43 +783,43 @@
    673                                  ; CMOS-BIOS(と勝手に呼んでいる)
    674                                  ; ahに応じて次の機能を提供する(ah = -3(0xfd)-0x20)
    675                                  	align 2
-   676 0000044C [A207]                  	dw	cmos_command_fd ;fd : 未実装
-   677 0000044E [A007]                  	dw	cmos_command_xx ;fe : 無効
-   678 00000450 [A007]                  	dw	cmos_command_xx ;ff : 無効
+   676 0000044C [1A09]                  	dw	cmos_command_fd ;fd : 未実装
+   677 0000044E [1809]                  	dw	cmos_command_xx ;fe : 無効
+   678 00000450 [1809]                  	dw	cmos_command_xx ;ff : 無効
    679                                  cmos_command_table:
-   680 00000452 [A407]                  	dw	cmos_command_00 ; 0 : イニシャライズ
-   681 00000454 [4C08]                  	dw	cmos_command_01 ; 1 : 未実装
-   682 00000456 [4E08]                  	dw	cmos_command_02 ; 2 : 未実装
-   683 00000458 [5008]                  	dw	cmos_command_03 ; 3 : 未実装
-   684 0000045A [5208]                  	dw	cmos_command_04 ; 4 : 未実装
-   685 0000045C [5408]                  	dw	cmos_command_05 ; 5 : 未実装
-   686 0000045E [6008]                  	dw	cmos_command_06 ; 6 : 未実装
-   687 00000460 [A007]                  	dw	cmos_command_xx ; 7 : 無効
-   688 00000462 [A007]                  	dw	cmos_command_xx ; 8 : 無効
-   689 00000464 [A007]                  	dw	cmos_command_xx ; 9 : 無効
-   690 00000466 [A007]                  	dw	cmos_command_xx ; a : 無効
-   691 00000468 [A007]                  	dw	cmos_command_xx ; b : 無効
-   692 0000046A [A007]                  	dw	cmos_command_xx ; c : 無効
-   693 0000046C [A007]                  	dw	cmos_command_xx ; d : 無効
-   694 0000046E [A007]                  	dw	cmos_command_xx ; e : 無効
-   695 00000470 [A007]                  	dw	cmos_command_xx ; f : 無効
-   696 00000472 [6208]                  	dw	cmos_command_10 ;10 : ブロック書き込み
-   697 00000474 [AF08]                  	dw	cmos_command_11 ;11 : ブロック読み出し
-   698 00000476 [A007]                  	dw	cmos_command_xx ;12 : 無効
-   699 00000478 [A007]                  	dw	cmos_command_xx ;13 : 無効
-   700 0000047A [A007]                  	dw	cmos_command_xx ;14 : 無効
-   701 0000047C [A007]                  	dw	cmos_command_xx ;15 : 無効
-   702 0000047E [A007]                  	dw	cmos_command_xx ;16 : 無効
-   703 00000480 [A007]                  	dw	cmos_command_xx ;17 : 無効
-   704 00000482 [A007]                  	dw	cmos_command_xx ;18 : 無効
-   705 00000484 [A007]                  	dw	cmos_command_xx ;19 : 無効
-   706 00000486 [A007]                  	dw	cmos_command_xx ;1a : 無効
-   707 00000488 [A007]                  	dw	cmos_command_xx ;1b : 無効
-   708 0000048A [A007]                  	dw	cmos_command_xx ;1c : 無効
-   709 0000048C [A007]                  	dw	cmos_command_xx ;1d : 無効
-   710 0000048E [A007]                  	dw	cmos_command_xx ;1e : 無効
-   711 00000490 [A007]                  	dw	cmos_command_xx ;1f : 無効
-   712 00000492 [DA08]                  	dw	cmos_command_20 ;20 : ヘッダが正常かチェック
+   680 00000452 [1C09]                  	dw	cmos_command_00 ; 0 : イニシャライズ
+   681 00000454 [C409]                  	dw	cmos_command_01 ; 1 : 未実装
+   682 00000456 [C609]                  	dw	cmos_command_02 ; 2 : 未実装
+   683 00000458 [C809]                  	dw	cmos_command_03 ; 3 : 未実装
+   684 0000045A [CA09]                  	dw	cmos_command_04 ; 4 : 未実装
+   685 0000045C [CC09]                  	dw	cmos_command_05 ; 5 : 未実装
+   686 0000045E [D809]                  	dw	cmos_command_06 ; 6 : 未実装
+   687 00000460 [1809]                  	dw	cmos_command_xx ; 7 : 無効
+   688 00000462 [1809]                  	dw	cmos_command_xx ; 8 : 無効
+   689 00000464 [1809]                  	dw	cmos_command_xx ; 9 : 無効
+   690 00000466 [1809]                  	dw	cmos_command_xx ; a : 無効
+   691 00000468 [1809]                  	dw	cmos_command_xx ; b : 無効
+   692 0000046A [1809]                  	dw	cmos_command_xx ; c : 無効
+   693 0000046C [1809]                  	dw	cmos_command_xx ; d : 無効
+   694 0000046E [1809]                  	dw	cmos_command_xx ; e : 無効
+   695 00000470 [1809]                  	dw	cmos_command_xx ; f : 無効
+   696 00000472 [DA09]                  	dw	cmos_command_10 ;10 : ブロック書き込み
+   697 00000474 [270A]                  	dw	cmos_command_11 ;11 : ブロック読み出し
+   698 00000476 [1809]                  	dw	cmos_command_xx ;12 : 無効
+   699 00000478 [1809]                  	dw	cmos_command_xx ;13 : 無効
+   700 0000047A [1809]                  	dw	cmos_command_xx ;14 : 無効
+   701 0000047C [1809]                  	dw	cmos_command_xx ;15 : 無効
+   702 0000047E [1809]                  	dw	cmos_command_xx ;16 : 無効
+   703 00000480 [1809]                  	dw	cmos_command_xx ;17 : 無効
+   704 00000482 [1809]                  	dw	cmos_command_xx ;18 : 無効
+   705 00000484 [1809]                  	dw	cmos_command_xx ;19 : 無効
+   706 00000486 [1809]                  	dw	cmos_command_xx ;1a : 無効
+   707 00000488 [1809]                  	dw	cmos_command_xx ;1b : 無効
+   708 0000048A [1809]                  	dw	cmos_command_xx ;1c : 無効
+   709 0000048C [1809]                  	dw	cmos_command_xx ;1d : 無効
+   710 0000048E [1809]                  	dw	cmos_command_xx ;1e : 無効
+   711 00000490 [1809]                  	dw	cmos_command_xx ;1f : 無効
+   712 00000492 [520A]                  	dw	cmos_command_20 ;20 : ヘッダが正常かチェック
    713                                  ;
    714                                  ; リターンコード: ah(0:正常終了)、エラーの有無はキャリーフラグにセット
    715                                  
@@ -1020,1515 +1020,1855 @@
    811                                  ;---------------------------------------------------------------------
    812                                  ; 各デバイス特有の処理を記述したコードをインクルード
    813                                  
-   814                                  %include "sys_cd.asm"
-   815                              <1> ; version 2003.03.04.1
-   816                              <1> ;---------------------------------------------------------------------
-   817                              <1> ;
-   818                              <1> ; FM TOWNS 互換 ROM シリーズ
-   819                              <1> ;
-   820                              <1> ; FMT_SYS.ROM : CDアクセス
-   821                              <1> ;
-   822                              <1> ; by Kasanova
-   823                              <1> ;
-   824                              <1> ;---------------------------------------------------------------------
-   825                              <1> ; ※単独ではアセンブルしません
+   814                                  %include "townsio.asm"	; by CaptainYS
+   815                              <1> ; TOWNSIO.ASM by CaptainYS
+   816                              <1> 
+   817                              <1> IO_FDC_STATUS			EQU		0200h
+   818                              <1> IO_FDC_COMMAND			EQU		0200h
+   819                              <1> 
+   820                              <1> IO_FDC_TRACK			EQU		0202h
+   821                              <1> IO_FDC_SECTOR			EQU		0204h
+   822                              <1> IO_FDC_DATA				EQU		0206h
+   823                              <1> 
+   824                              <1> IO_FDC_DRIVE_STATUS		EQU		0208h
+   825                              <1> IO_FDC_DRIVE_CONTROL	EQU		0208h
    826                              <1> 
-   827                              <1> 
-   828                              <1> %define CD_CMOS_PARA  3b60h
-   829                              <1> %define CD_CMOS_DATA  3b70h
-   830                              <1> %define CD_CMOS_DATA0 3b70h
-   831                              <1> %define CD_CMOS_DATA1 3b72h
-   832                              <1> %define CD_CMOS_DATA2 3b74h
-   833                              <1> %define CD_CMOS_DATA3 3b78h
-   834                              <1> 
-   835                              <1> ;---------------------------------------------------------------------
-   836                              <1> ; 読み込み
-   837                              <1> ; cl+dx : 読み込み開始セクタ番号(16進)
-   838                              <1> ; bx    : 読み込むセクタ数
-   839                              <1> ; ds:di : 転送先アドレス
-   840                              <1> ; [リターンコード]
-   841                              <1> ;  ah : 0(正常終了)、bx : 読み残したセクタ数
-   842                              <1> 
-   843                              <1> cd_command_05:
-   844 00000560 E8BF00              <1> 	call	cd_test_ready
-   845 00000563 0F82A400            <1> 	jc	.error1          ; アクセスできる状態でない
-   846 00000567 26837D0200          <1> 	cmp	word [es:di+2],0 ; bx
-   847 0000056C 0F849600            <1> 	jz	.error2          ; 読み込むセクタ数が不適切
-   848                              <1> 	
-   849                              <1> 	; 読み込み開始セクタをセット
-   850 00000570 BB603B              <1> 	mov	bx,CD_CMOS_PARA
-   851 00000573 260FB65504          <1> 	movzx	dx,byte [es:di+4] ; cl
-   852 00000578 8B4402              <1> 	mov	ax,[si+2]         ; dx
-   853 0000057B E85F01              <1> 	call	cd_set_sectorno
+   827                              <1> IO_FDC_DRIVE_SELECT		EQU		020Ch
+   828                              <1> 
+   829                              <1> IO_FDC_CMD_SEEK			EQU		010h
+   830                              <1> IO_FDC_CMD_READ_DATA	EQU		080h
+   831                              <1> IO_FDC_CMD_WRITE_DATA	EQU		0A0h
+   832                              <1> 
+   833                              <1> 
+   834                              <1> BIOSERR_DETAIL_DISK_DRIVE_NOT_READY		EQU		0001h
+   835                              <1> BIOSERR_DETAIL_DISK_SEEK_ERROR			EQU		0000h	; ?
+   836                              <1> BIOSERR_DETAIL_DISK_CRC_ERROR			EQU		0008h
+   837                              <1> BIOSERR_DETAIL_DISK_RECORD_NOT_FOUND	EQU		0010h
+   838                              <1> BIOSERR_DETAIL_DISK_LOST_DATA			EQU		0040h
+   839                              <1> 
+   840                              <1> 
+   841                              <1> SECTOR_LENGTH_1232KB_DISK		EQU		1024
+   842                              <1> SECTOR_PER_TRACK_1232KB_DISK	EQU		8
+   843                              <1> 
+   844                              <1> PHASE_FLAG_COMMAND		EQU		01H
+   845                              <1> PHASE_FLAG_DATA_IN		EQU		02H
+   846                              <1> PHASE_FLAG_MESSAGE		EQU		04H
+   847                              <1> PHASE_FLAG_STATUS		EQU		08H
+   848                              <1> 
+   849                              <1> IO_1US_WAIT				EQU		06CH	; Available after FM Towns 20F
+   850                              <1> 
+   851                              <1> IO_SCSI_DATA			EQU		0C30H
+   852                              <1> IO_SCSI_STATUS			EQU		0C32H
+   853                              <1> IO_SCSI_COMMAND			EQU		0C32H
    854                              <1> 
-   855                              <1> 	; 読み込み終了セクタを計算し、セット
-   856 0000057E 260FB65504          <1> 	movzx	dx,byte [es:di+4] ; cl
-   857 00000583 8B4402              <1> 	mov	ax,[si+2]         ; dx
-   858 00000586 268B5D02            <1> 	mov	bx,[es:di+2]      ; bx
-   859 0000058A 4B                  <1> 	dec	bx
-   860 0000058B 01D8                <1> 	add	ax,bx
-   861 0000058D 83D200              <1> 	adc	dx,0
-   862 00000590 BB663B              <1> 	mov	bx,CD_CMOS_PARA+6
-   863 00000593 E84701              <1> 	call	cd_set_sectorno
-   864                              <1> 
-   865                              <1> 	; DMA初期化
-   866 00000596 E87801              <1> 	call	cd_init_dma
-   867 00000599 268B450A            <1> 	mov	ax,[es:di+0ah] ; di
-   868 0000059D 268B550C            <1> 	mov	dx,[es:di+0ch] ; es
-   869 000005A1 52                  <1> 	push	dx
-   870 000005A2 C1E204              <1> 	shl	dx,4
-   871 000005A5 01D0                <1> 	add	ax,dx
-   872 000005A7 5A                  <1> 	pop	dx
-   873 000005A8 C1EA0C              <1> 	shr	dx,12
-   874 000005AB E87B01              <1> 	call	cd_dma_setaddress
-   875 000005AE B8FF07              <1> 	mov	ax,7ffh
-   876 000005B1 E87201              <1> 	call	cd_dma_setlength
-   877 000005B4 E4AF                <1> 	in	al,0afh
-   878 000005B6 2407                <1> 	and	al,7
-   879 000005B8 E6AF                <1> 	out	0afh,al
-   880                              <1> 
-   881                              <1> 	; 読み込み開始
-   882 000005BA B022                <1> 	mov	al,022h
-   883 000005BC E89900              <1> 	call	cd_sendcommand
-   884 000005BF E8BF00              <1> 	call	cd_recieve4byte
-   885                              <1> 
-   886 000005C2 BA703B              <1> 	mov	dx,CD_CMOS_DATA0
-   887 000005C5 EC                  <1> 	in	al,dx
-   888 000005C6 08C0                <1> 	or	al,al
-   889 000005C8 7536                <1> 	jnz	.error3 ; コマンド実行エラー
-   890                              <1> 
-   891                              <1> .readloop:
-   892 000005CA E8B400              <1> 	call	cd_recieve4byte
-   893 000005CD BA703B              <1> 	mov	dx,CD_CMOS_DATA0
-   894 000005D0 EC                  <1> 	in	al,dx
-   895 000005D1 3C22                <1> 	cmp	al,22h
-   896 000005D3 7406                <1> 	jz	.transfer
-   897 000005D5 3C06                <1> 	cmp	al,6
-   898 000005D7 741B                <1> 	jz	.exit
-   899 000005D9 EB25                <1> 	jmp	.error3 ; エラーか、異常なリターンコード
-   900                              <1> 
-   901                              <1> .transfer:
-   902                              <1> 	; CaptainYS >>
-   903                              <1> 	; The original implementaiton is expecting DMA address be incremented automatically with AUTOI flag.
-   904                              <1> 	;
-   905                              <1> 	; Is AUTOI auto-increment or auto-initialize?  That's a good question, isn't it?
-   906                              <1> 	; NED uPD71071 data sheet (English) page 19 top-right paragraph tells it is 'Autoinitialize'.
-   907                              <1> 	; The correct behavior is resetting both address and counter at DMA END.  Not just counter.
-   908                              <1> 	;
-   909                              <1> 	; In fact, Shadow of the Beast demands DMA address not incremented automatically with AUTOI flag set.
-   910                              <1> 	;
-   911                              <1> 	; I have corrected by (1) get DMA address in DX|AX, (2) push to stack, pop, and (3) then increment.
-   912 000005DB E85201              <1> 	call	cd_dma_getaddress
-   913 000005DE 52                  <1> 	PUSH	DX
-   914 000005DF 50                  <1> 	PUSH	AX
-   915 000005E0 E85401              <1> 	call	cd_dma_transfer
-   916 000005E3 58                  <1> 	POP		AX
-   917 000005E4 5A                  <1> 	POP		DX
-   918 000005E5 050008              <1> 	ADD		AX,0800h
-   919 000005E8 83D200              <1> 	ADC		DX,0
-   920                              <1> 	; CaptainYS <<
-   921                              <1> 
-   922 000005EB E83B01              <1> 	call	cd_dma_setaddress
-   923 000005EE 26FF4D02            <1> 	dec	word [es:di+2] ; bx 読み残しセクタを減らす
-   924 000005F2 EBD6                <1> 	jmp	.readloop
-   925                              <1> 
-   926                              <1> .exit:
-   927 000005F4 E4AF                <1> 	in	al,0afh
-   928 000005F6 0C08                <1> 	or	al,8
-   929 000005F8 E6AF                <1> 	out	0afh,al
-   930 000005FA 30E4                <1> 	xor	ah,ah
-   931 000005FC E81700              <1> 	call	cd_store_result
-   932 000005FF C3                  <1> 	ret
-   933                              <1> 
-   934                              <1> .error3:
-   935 00000600 E4AF                <1> 	in	al,0afh
-   936 00000602 0C08                <1> 	or	al,8
-   937 00000604 E6AF                <1> 	out	0afh,al
-   938                              <1> .error2:
-   939 00000606 B480                <1> 	mov	ah,80h
-   940 00000608 B90200              <1> 	mov	cx,2
-   941                              <1> .error1:
-   942 0000060B E80800              <1> 	call	cd_store_result
-   943 0000060E C3                  <1> 	ret
-   944                              <1> 
-   945                              <1> 
-   946                              <1> ;---------------------------------------------------------------------
-   947                              <1> 
-   948                              <1> ; ドライブの状態をチェック
-   949                              <1> cd_command_0e:
-   950 0000060F E81000              <1> 	call	cd_test_ready
-   951 00000612 E80100              <1> 	call	cd_store_result
-   952 00000615 C3                  <1> 	ret
-   953                              <1> 
-   954                              <1> 
-   955                              <1> ;---------------------------------------------------------------------
-   956                              <1> ; 下請け
-   957                              <1> 
-   958                              <1> ; コマンド実行結果を格納
-   959                              <1> cd_store_result:
-   960 00000616 886401              <1> 	mov	[si+1],ah
-   961 00000619 08E4                <1> 	or	ah,ah
-   962 0000061B 7904                <1> 	jns	.noerrorcode
-   963 0000061D 26894D04            <1> 	mov	[es:di+4],cx
-   964                              <1> .noerrorcode:
-   965 00000621 C3                  <1> 	ret
-   966                              <1> 
-   967                              <1> ;----------
-   968                              <1> 
-   969                              <1> ; CDが読み込み可能かをチェック
-   970                              <1> cd_test_ready:
-   971 00000622 E89300              <1> 	call	cd_recieve
-   972 00000625 E81D00              <1> 	call	cd_clear_parabuffer
-   973 00000628 B0A0                <1> 	mov	al,0a0h
-   974 0000062A E82B00              <1> 	call	cd_sendcommand
-   975 0000062D E85100              <1> 	call	cd_recieve4byte
-   976                              <1> 
-   977 00000630 BA723B              <1> 	mov	dx,CD_CMOS_DATA1
-   978 00000633 EC                  <1> 	in	al,dx
-   979 00000634 240F                <1> 	and	al,0fh
-   980                              <1> 
-   981 00000636 B480                <1> 	mov	ah,80h
-   982 00000638 3C09                <1> 	cmp	al,9 ; ノットレディ
-   983 0000063A 7505                <1> 	jnz	.j1
-   984 0000063C B90100              <1> 	mov	cx,1
-   985 0000063F F9                  <1> 	stc
-   986 00000640 C3                  <1> 	ret
-   987                              <1> .j1:
-   988 00000641 30E4                <1> 	xor	ah,ah
-   989 00000643 F8                  <1> 	clc
-   990 00000644 C3                  <1> 	ret
-   991                              <1> 
-   992                              <1> ;----------
-   993                              <1> 
-   994                              <1> ; パラメータ格納バッファをクリア
-   995                              <1> cd_clear_parabuffer:
-   996 00000645 51                  <1> 	push	cx
-   997 00000646 52                  <1> 	push	dx
-   998 00000647 BA603B              <1> 	mov	dx,CD_CMOS_PARA
-   999 0000064A 30C0                <1> 	xor	al,al
-  1000 0000064C B90800              <1> 	mov	cx,8
-  1001                              <1> .loop:
-  1002 0000064F EE                  <1> 	out	dx,al
-  1003 00000650 83C202              <1> 	add	dx,2
-  1004 00000653 E2FA                <1> 	loop	.loop
-  1005 00000655 5A                  <1> 	pop	dx
-  1006 00000656 59                  <1> 	pop	cx
-  1007 00000657 C3                  <1> 	ret
-  1008                              <1> 
-  1009                              <1> ;----------
-  1010                              <1> 
-  1011                              <1> ; CDCコマンド発行
-  1012                              <1> cd_sendcommand:
-  1013 00000658 53                  <1> 	push	bx
-  1014 00000659 51                  <1> 	push	cx
-  1015 0000065A 52                  <1> 	push	dx
-  1016 0000065B 88C4                <1> 	mov	ah,al
-  1017 0000065D BAC004              <1> 	mov	dx,4c0h
-  1018                              <1> .waitready:
-  1019 00000660 EC                  <1> 	in	al,dx
-  1020 00000661 A801                <1> 	test	al,1
-  1021 00000663 74FB                <1> 	jz	.waitready
-  1022                              <1> 
-  1023 00000665 BB603B              <1> 	mov	bx,CD_CMOS_PARA
-  1024 00000668 B90800              <1> 	mov	cx,8
-  1025                              <1> .commandloop:
-  1026 0000066B 89DA                <1> 	mov	dx,bx
-  1027 0000066D EC                  <1> 	in	al,dx
-  1028 0000066E BAC404              <1> 	mov	dx,4c4h
-  1029 00000671 EE                  <1> 	out	dx,al
-  1030 00000672 83C302              <1> 	add	bx,2
-  1031 00000675 E2F4                <1> 	loop	.commandloop
-  1032                              <1> 
-  1033 00000677 88E0                <1> 	mov	al,ah
-  1034 00000679 BAC204              <1> 	mov	dx,4c2h
-  1035 0000067C EE                  <1> 	out	dx,al
-  1036 0000067D 5A                  <1> 	pop	dx
-  1037 0000067E 59                  <1> 	pop	cx
-  1038 0000067F 5B                  <1> 	pop	bx
-  1039 00000680 C3                  <1> 	ret
-  1040                              <1> 
-  1041                              <1> ;----------
-  1042                              <1> 
-  1043                              <1> ; CDCからの4バイトのステータスを取得
-  1044                              <1> cd_recieve4byte:
-  1045 00000681 50                  <1> 	push	ax
-  1046 00000682 52                  <1> 	push	dx
-  1047 00000683 BAC004              <1> 	mov	dx,4c0h
-  1048                              <1> .loop:
-  1049 00000686 EC                  <1> 	in	al,dx
-  1050 00000687 A802                <1> 	test	al,2
-  1051 00000689 74FB                <1> 	jz	.loop
-  1052                              <1> 
-  1053 0000068B 08C0                <1> 	or	al,al
-  1054                              <1> 
-  1055 0000068D BAC204              <1> 	mov	dx,4c2h
-  1056 00000690 EC                  <1> 	in	al,dx
-  1057 00000691 BA703B              <1> 	mov	dx,CD_CMOS_DATA0
-  1058 00000694 EE                  <1> 	out	dx,al
-  1059 00000695 BAC204              <1> 	mov	dx,4c2h
-  1060 00000698 EC                  <1> 	in	al,dx
-  1061 00000699 BA723B              <1> 	mov	dx,CD_CMOS_DATA1
-  1062 0000069C EE                  <1> 	out	dx,al
-  1063 0000069D BAC204              <1> 	mov	dx,4c2h
-  1064 000006A0 EC                  <1> 	in	al,dx
-  1065 000006A1 BA743B              <1> 	mov	dx,CD_CMOS_DATA2
-  1066 000006A4 EE                  <1> 	out	dx,al
-  1067 000006A5 BAC204              <1> 	mov	dx,4c2h
-  1068 000006A8 EC                  <1> 	in	al,dx
-  1069 000006A9 BA783B              <1> 	mov	dx,CD_CMOS_DATA3
-  1070 000006AC EE                  <1> 	out	dx,al
-  1071                              <1> 
-  1072 000006AD 7906                <1> 	jns	.exit
-  1073                              <1> 
-  1074 000006AF BAC004              <1> 	mov	dx,4c0h ; clear irq
-  1075 000006B2 B080                <1> 	mov	al,80h
-  1076 000006B4 EE                  <1> 	out	dx,al
-  1077                              <1> 
-  1078                              <1> .exit:
-  1079 000006B5 5A                  <1> 	pop	dx
-  1080 000006B6 58                  <1> 	pop	ax
-  1081 000006B7 C3                  <1> 	ret
-  1082                              <1> 
-  1083                              <1> ;----------
-  1084                              <1> 
-  1085                              <1> ; 食べ残しをクリア
-  1086                              <1> cd_recieve:
-  1087 000006B8 52                  <1> 	push	dx
-  1088 000006B9 BAC004              <1> 	mov	dx,4c0h
-  1089 000006BC EC                  <1> 	in	al,dx
-  1090 000006BD A802                <1> 	test	al,2
-  1091 000006BF 7408                <1> 	jz	.exit
-  1092                              <1> 
-  1093                              <1> .loop:
-  1094 000006C1 E8BDFF              <1> 	call	cd_recieve4byte
-  1095 000006C4 EC                  <1> 	in	al,dx
-  1096 000006C5 A802                <1> 	test	al,2
-  1097 000006C7 75F8                <1> 	jnz	.loop
-  1098                              <1> .exit:
-  1099 000006C9 5A                  <1> 	pop	dx
-  1100 000006CA C3                  <1> 	ret
-  1101                              <1> 
-  1102                              <1> ;----------
-  1103                              <1> 
-  1104                              <1> ; 10進変換
-  1105                              <1> cd_hextodecimal:
-  1106 000006CB 51                  <1> 	push	cx
-  1107 000006CC 88E5                <1> 	mov	ch,ah
-  1108 000006CE 30E4                <1> 	xor	ah,ah
-  1109 000006D0 B10A                <1> 	mov	cl,10
-  1110 000006D2 F6F1                <1> 	div	cl
-  1111 000006D4 C0E004              <1> 	shl	al,4
-  1112 000006D7 00E0                <1> 	add	al,ah
-  1113 000006D9 88EC                <1> 	mov	ah,ch
-  1114 000006DB 59                  <1> 	pop	cx
-  1115 000006DC C3                  <1> 	ret
-  1116                              <1> 
-  1117                              <1> ;----------
-  1118                              <1> 
-  1119                              <1> ; CDのセクタ番号を10進数に変換して保管
-  1120                              <1> cd_set_sectorno:
-  1121 000006DD 53                  <1> 	push	bx
-  1122 000006DE 51                  <1> 	push	cx
-  1123 000006DF 52                  <1> 	push	dx
-  1124 000006E0 059600              <1> 	add	ax,150   ; CDの先頭セクタはセクタ150
-  1125 000006E3 83D200              <1> 	adc	dx,0
-  1126 000006E6 B99411              <1> 	mov	cx,75*60 ; M-S-F の M
-  1127 000006E9 F7F1                <1> 	div	cx
-  1128 000006EB 92                  <1> 	xchg	ax,dx
-  1129                              <1> 	; dx = M, ax = S-F
-  1130 000006EC B14B                <1> 	mov	cl,75    ; S
-  1131 000006EE F6F1                <1> 	div	cl
-  1132 000006F0 88D1                <1> 	mov	cl,dl
-  1133 000006F2 86C4                <1> 	xchg	al,ah
-  1134                              <1> 
-  1135                              <1> 	; cl-ah-al : M-S-F
-  1136                              <1> 
-  1137 000006F4 8D5704              <1> 	lea	dx,[bx+4]
-  1138 000006F7 E8D1FF              <1> 	call	cd_hextodecimal
-  1139 000006FA EE                  <1> 	out	dx,al
-  1140 000006FB 83EA02              <1> 	sub	dx,2
-  1141 000006FE 88E0                <1> 	mov	al,ah
-  1142 00000700 E8C8FF              <1> 	call	cd_hextodecimal
-  1143 00000703 EE                  <1> 	out	dx,al
-  1144 00000704 83EA02              <1> 	sub	dx,2
-  1145 00000707 88C8                <1> 	mov	al,cl
-  1146 00000709 E8BFFF              <1> 	call	cd_hextodecimal
-  1147 0000070C EE                  <1> 	out	dx,al
-  1148 0000070D 5A                  <1> 	pop	dx
-  1149 0000070E 59                  <1> 	pop	cx
-  1150 0000070F 5B                  <1> 	pop	bx
-  1151 00000710 C3                  <1> 	ret
-  1152                              <1> 
-  1153                              <1> ;----------
-  1154                              <1> 
-  1155                              <1> cd_init_dma:
-  1156                              <1> 	; リセット
-  1157 00000711 B003                <1> 	mov	al,3
-  1158 00000713 E6A0                <1> 	out	0a0h,al
-  1159                              <1> 
-  1160                              <1> 	; チャネルを CD にセット
-  1161 00000715 B003                <1> 	mov	al,3
-  1162 00000717 E6A1                <1> 	out	0a1h,al
-  1163                              <1> 
-  1164                              <1> 	; DMA動作禁止
-  1165 00000719 B024                <1> 	mov	al,24h
-  1166 0000071B E6A8                <1> 	out	0a8h,al
-  1167                              <1> 
-  1168                              <1> 	; デバイスコントロール
-  1169 0000071D 30C0                <1> 	xor	al,al
-  1170 0000071F E6A9                <1> 	out	0a9h,al
-  1171                              <1> 
-  1172                              <1> 	; モードコントロール
-  1173 00000721 B054                <1> 	mov	al,54h
-  1174 00000723 E6AA                <1> 	out	0aah,al
-  1175 00000725 C3                  <1> 	ret
-  1176                              <1> 
-  1177                              <1> ;----------
-  1178                              <1> 
-  1179                              <1> cd_dma_setlength:
-  1180 00000726 E7A2                <1> 	out	0a2h,ax
-  1181 00000728 C3                  <1> 	ret
-  1182                              <1> 
-  1183                              <1> ;----------
-  1184                              <1> 
-  1185                              <1> cd_dma_setaddress:
-  1186 00000729 E7A4                <1> 	out	0a4h,ax
-  1187 0000072B 89D0                <1> 	mov	ax,dx
-  1188 0000072D E7A6                <1> 	out	0a6h,ax
-  1189 0000072F C3                  <1> 	ret
-  1190                              <1> 
-  1191                              <1> ;----------
-  1192                              <1> 
-  1193                              <1> cd_dma_getaddress:
-  1194 00000730 E5A6                <1> 	in	ax,0a6h
-  1195 00000732 89C2                <1> 	mov	dx,ax
-  1196 00000734 E5A4                <1> 	in	ax,0a4h
-  1197 00000736 C3                  <1> 	ret
-  1198                              <1> 
-  1199                              <1> ;----------
-  1200                              <1> 
-  1201                              <1> ; DMA転送を行う
-  1202                              <1> cd_dma_transfer:
-  1203 00000737 52                  <1> 	push	dx
-  1204                              <1> 	; DMA動作許可
-  1205 00000738 B020                <1> 	mov	al,20h
-  1206 0000073A E6A8                <1> 	out	0a8h,al
-  1207                              <1> 
-  1208                              <1> 	; 転送開始
-  1209 0000073C BAC604              <1> 	mov	dx,4c6h
-  1210 0000073F B010                <1> 	mov	al,10h
-  1211 00000741 EE                  <1> 	out	dx,al
-  1212                              <1> 
-  1213                              <1> 	; 転送が終わるまで待つ
-  1214 00000742 BAC004              <1> 	mov	dx,4c0h
-  1215                              <1> .loop:
-  1216 00000745 EC                  <1> 	in	al,dx
-  1217 00000746 A810                <1> 	test	al,10h
-  1218 00000748 75FB                <1> 	jnz	.loop
-  1219                              <1> 
-  1220                              <1> 	; DMA動作禁止
-  1221 0000074A B024                <1> 	mov	al,24h
-  1222 0000074C E6A8                <1> 	out	0a8h,al
-  1223 0000074E 5A                  <1> 	pop	dx
-  1224 0000074F C3                  <1> 	ret
-   815                                  %include "sys_fd.asm"
+   855                              <1> IO_DMA_INITIALIZE		EQU		0A0H
+   856                              <1> IO_DMA_CHANNEL			EQU		0A1H
+   857                              <1> IO_DMA_COUNT_LOW		EQU		0A2H
+   858                              <1> IO_DMA_COUNT_HIGH		EQU		0A3H
+   859                              <1> IO_DMA_ADDR_LOW			EQU		0A4H
+   860                              <1> IO_DMA_ADDR_MID_LOW		EQU		0A5H
+   861                              <1> IO_DMA_ADDR_MID_HIGH	EQU		0A6H
+   862                              <1> IO_DMA_ADDR_HIGH		EQU		0A7H
+   863                              <1> IO_DMA_DEVICE_CTRL_LOW	EQU		0A8H
+   864                              <1> IO_DMA_DEVICE_CTRL_HIGH	EQU		0A9H
+   865                              <1> IO_DMA_MODE_CONTROL		EQU		0AAH
+   866                              <1> IO_DMA_STATUS			EQU		0ABH
+   867                              <1> IO_DMA_REQUEST			EQU		0AEH
+   868                              <1> IO_DMA_MASK				EQU		0AFH
+   869                              <1> 
+   870                              <1> DMA_CHANNEL_FDC			EQU		0
+   871                              <1> DMA_CHANNEL_SCSI		EQU		1
+   872                              <1> DMA_CHANNEL_PRINTER		EQU		2
+   873                              <1> DMA_CHANNEL_CDC			EQU		3
+   874                              <1> 
+   875                              <1> SCSI_MODE_DATA_IN		EQU		44H		; Data In (I/O to Mem)
+   876                              <1> SCSI_MODE_DATA_OUT		EQU		48H		; Data Out (Mem to I/O)
+   877                              <1> 
+   878                              <1> SCSI_STATUS_GOOD                      	EQU		0
+   879                              <1> SCSI_STATUS_CHECK_CONDITION           	EQU		02H
+   880                              <1> SCSI_STATUS_CONDITION_MET             	EQU		04H
+   881                              <1> SCSI_STATUS_BUSY                      	EQU		08H
+   882                              <1> SCSI_STATUS_INTERMEDIATE              	EQU		10H
+   883                              <1> SCSI_STATUS_INTERMEDIATE_CONDITION_MET	EQU		14H
+   884                              <1> SCSI_STATUS_RESERVATION_CONFLICT      	EQU		18H
+   885                              <1> SCSI_STATUS_COMMAND_TERMINATED        	EQU		22H
+   886                              <1> SCSI_STATUS_QUEUE_FULL                	EQU		28H
+   887                              <1> 
+   815                                  %include "sys_cd.asm"
    816                              <1> ; version 2003.03.04.1
    817                              <1> ;---------------------------------------------------------------------
    818                              <1> ;
    819                              <1> ; FM TOWNS 互換 ROM シリーズ
    820                              <1> ;
-   821                              <1> ; FMT_SYS.ROM : FDアクセス
+   821                              <1> ; FMT_SYS.ROM : CDアクセス
    822                              <1> ;
    823                              <1> ; by Kasanova
    824                              <1> ;
    825                              <1> ;---------------------------------------------------------------------
    826                              <1> ; ※単独ではアセンブルしません
    827                              <1> 
-   828                              <1> ;---------------------------------------------------------------------
-   829                              <1> ; 読み込み
-   830                              <1> ; cl+dx : 読み込み開始セクタ番号(16進)
-   831                              <1> ; bx    : 読み込むセクタ数
-   832                              <1> ; ds:di : 転送先アドレス
-   833                              <1> ; [リターンコード]
-   834                              <1> ;  ah : 0(正常終了)、bx : 読み残したセクタ数
+   828                              <1> 
+   829                              <1> %define CD_CMOS_PARA  3b60h
+   830                              <1> %define CD_CMOS_DATA  3b70h
+   831                              <1> %define CD_CMOS_DATA0 3b70h
+   832                              <1> %define CD_CMOS_DATA1 3b72h
+   833                              <1> %define CD_CMOS_DATA2 3b74h
+   834                              <1> %define CD_CMOS_DATA3 3b78h
    835                              <1> 
-   836                              <1> fd_command_05:
-   837 00000750 EBFE                <1> 	jmp		fd_command_05		; by CaptainYS
-   838 00000752 C3                  <1> 	ret
-   839                              <1> 
-   840                              <1> ;---------------------------------------------------------------------
-   841                              <1> ; ドライブの状態をチェック
-   842                              <1> 
-   843                              <1> fd_command_0e:
-   844 00000753 C3                  <1> 	ret
-   845                              <1> 
-   816                                  %include "sys_hd.asm"
+   836                              <1> ;---------------------------------------------------------------------
+   837                              <1> ; 読み込み
+   838                              <1> ; cl+dx : 読み込み開始セクタ番号(16進)
+   839                              <1> ; bx    : 読み込むセクタ数
+   840                              <1> ; ds:di : 転送先アドレス
+   841                              <1> ; [リターンコード]
+   842                              <1> ;  ah : 0(正常終了)、bx : 読み残したセクタ数
+   843                              <1> 
+   844                              <1> cd_command_05:
+   845 00000560 E8BF00              <1> 	call	cd_test_ready
+   846 00000563 0F82A400            <1> 	jc	.error1          ; アクセスできる状態でない
+   847 00000567 26837D0200          <1> 	cmp	word [es:di+2],0 ; bx
+   848 0000056C 0F849600            <1> 	jz	.error2          ; 読み込むセクタ数が不適切
+   849                              <1> 	
+   850                              <1> 	; 読み込み開始セクタをセット
+   851 00000570 BB603B              <1> 	mov	bx,CD_CMOS_PARA
+   852 00000573 260FB65504          <1> 	movzx	dx,byte [es:di+4] ; cl
+   853 00000578 8B4402              <1> 	mov	ax,[si+2]         ; dx
+   854 0000057B E85F01              <1> 	call	cd_set_sectorno
+   855                              <1> 
+   856                              <1> 	; 読み込み終了セクタを計算し、セット
+   857 0000057E 260FB65504          <1> 	movzx	dx,byte [es:di+4] ; cl
+   858 00000583 8B4402              <1> 	mov	ax,[si+2]         ; dx
+   859 00000586 268B5D02            <1> 	mov	bx,[es:di+2]      ; bx
+   860 0000058A 4B                  <1> 	dec	bx
+   861 0000058B 01D8                <1> 	add	ax,bx
+   862 0000058D 83D200              <1> 	adc	dx,0
+   863 00000590 BB663B              <1> 	mov	bx,CD_CMOS_PARA+6
+   864 00000593 E84701              <1> 	call	cd_set_sectorno
+   865                              <1> 
+   866                              <1> 	; DMA初期化
+   867 00000596 E87801              <1> 	call	cd_init_dma
+   868 00000599 268B450A            <1> 	mov	ax,[es:di+0ah] ; di
+   869 0000059D 268B550C            <1> 	mov	dx,[es:di+0ch] ; ds  (Comment corrected by CaptainYS this is incoming ds. Was commented as es.)
+   870 000005A1 52                  <1> 	push	dx
+   871 000005A2 C1E204              <1> 	shl	dx,4
+   872 000005A5 01D0                <1> 	add	ax,dx
+   873 000005A7 5A                  <1> 	pop	dx
+   874 000005A8 C1EA0C              <1> 	shr	dx,12
+   875 000005AB E87B01              <1> 	call	cd_dma_setaddress
+   876 000005AE B8FF07              <1> 	mov	ax,7ffh
+   877 000005B1 E87201              <1> 	call	cd_dma_setlength
+   878 000005B4 E4AF                <1> 	in	al,0afh
+   879 000005B6 2407                <1> 	and	al,7
+   880 000005B8 E6AF                <1> 	out	0afh,al
+   881                              <1> 
+   882                              <1> 	; 読み込み開始
+   883 000005BA B022                <1> 	mov	al,022h
+   884 000005BC E89900              <1> 	call	cd_sendcommand
+   885 000005BF E8BF00              <1> 	call	cd_recieve4byte
+   886                              <1> 
+   887 000005C2 BA703B              <1> 	mov	dx,CD_CMOS_DATA0
+   888 000005C5 EC                  <1> 	in	al,dx
+   889 000005C6 08C0                <1> 	or	al,al
+   890 000005C8 7536                <1> 	jnz	.error3 ; コマンド実行エラー
+   891                              <1> 
+   892                              <1> .readloop:
+   893 000005CA E8B400              <1> 	call	cd_recieve4byte
+   894 000005CD BA703B              <1> 	mov	dx,CD_CMOS_DATA0
+   895 000005D0 EC                  <1> 	in	al,dx
+   896 000005D1 3C22                <1> 	cmp	al,22h
+   897 000005D3 7406                <1> 	jz	.transfer
+   898 000005D5 3C06                <1> 	cmp	al,6
+   899 000005D7 741B                <1> 	jz	.exit
+   900 000005D9 EB25                <1> 	jmp	.error3 ; エラーか、異常なリターンコード
+   901                              <1> 
+   902                              <1> .transfer:
+   903                              <1> 	; CaptainYS >>
+   904                              <1> 	; The original implementaiton is expecting DMA address be incremented automatically with AUTOI flag.
+   905                              <1> 	;
+   906                              <1> 	; Is AUTOI auto-increment or auto-initialize?  That's a good question, isn't it?
+   907                              <1> 	; NED uPD71071 data sheet (English) page 19 top-right paragraph tells it is 'Autoinitialize'.
+   908                              <1> 	; The correct behavior is resetting both address and counter at DMA END.  Not just counter.
+   909                              <1> 	;
+   910                              <1> 	; In fact, Shadow of the Beast demands DMA address not incremented automatically with AUTOI flag set.
+   911                              <1> 	;
+   912                              <1> 	; I have corrected by (1) get DMA address in DX|AX, (2) push to stack, pop, and (3) then increment.
+   913 000005DB E85201              <1> 	call	cd_dma_getaddress
+   914 000005DE 52                  <1> 	PUSH	DX
+   915 000005DF 50                  <1> 	PUSH	AX
+   916 000005E0 E85401              <1> 	call	cd_dma_transfer
+   917 000005E3 58                  <1> 	POP		AX
+   918 000005E4 5A                  <1> 	POP		DX
+   919 000005E5 050008              <1> 	ADD		AX,0800h
+   920 000005E8 83D200              <1> 	ADC		DX,0
+   921                              <1> 	; CaptainYS <<
+   922                              <1> 
+   923 000005EB E83B01              <1> 	call	cd_dma_setaddress
+   924 000005EE 26FF4D02            <1> 	dec	word [es:di+2] ; bx 読み残しセクタを減らす
+   925 000005F2 EBD6                <1> 	jmp	.readloop
+   926                              <1> 
+   927                              <1> .exit:
+   928 000005F4 E4AF                <1> 	in	al,0afh
+   929 000005F6 0C08                <1> 	or	al,8
+   930 000005F8 E6AF                <1> 	out	0afh,al
+   931 000005FA 30E4                <1> 	xor	ah,ah
+   932 000005FC E81700              <1> 	call	cd_store_result
+   933 000005FF C3                  <1> 	ret
+   934                              <1> 
+   935                              <1> .error3:
+   936 00000600 E4AF                <1> 	in	al,0afh
+   937 00000602 0C08                <1> 	or	al,8
+   938 00000604 E6AF                <1> 	out	0afh,al
+   939                              <1> .error2:
+   940 00000606 B480                <1> 	mov	ah,80h
+   941 00000608 B90200              <1> 	mov	cx,2
+   942                              <1> .error1:
+   943 0000060B E80800              <1> 	call	cd_store_result
+   944 0000060E C3                  <1> 	ret
+   945                              <1> 
+   946                              <1> 
+   947                              <1> ;---------------------------------------------------------------------
+   948                              <1> 
+   949                              <1> ; ドライブの状態をチェック
+   950                              <1> cd_command_0e:
+   951 0000060F E81000              <1> 	call	cd_test_ready
+   952 00000612 E80100              <1> 	call	cd_store_result
+   953 00000615 C3                  <1> 	ret
+   954                              <1> 
+   955                              <1> 
+   956                              <1> ;---------------------------------------------------------------------
+   957                              <1> ; 下請け
+   958                              <1> 
+   959                              <1> ; コマンド実行結果を格納
+   960                              <1> cd_store_result:
+   961 00000616 886401              <1> 	mov	[si+1],ah
+   962 00000619 08E4                <1> 	or	ah,ah
+   963 0000061B 7904                <1> 	jns	.noerrorcode
+   964 0000061D 26894D04            <1> 	mov	[es:di+4],cx
+   965                              <1> .noerrorcode:
+   966 00000621 C3                  <1> 	ret
+   967                              <1> 
+   968                              <1> ;----------
+   969                              <1> 
+   970                              <1> ; CDが読み込み可能かをチェック
+   971                              <1> cd_test_ready:
+   972 00000622 E89300              <1> 	call	cd_recieve
+   973 00000625 E81D00              <1> 	call	cd_clear_parabuffer
+   974 00000628 B0A0                <1> 	mov	al,0a0h
+   975 0000062A E82B00              <1> 	call	cd_sendcommand
+   976 0000062D E85100              <1> 	call	cd_recieve4byte
+   977                              <1> 
+   978 00000630 BA723B              <1> 	mov	dx,CD_CMOS_DATA1
+   979 00000633 EC                  <1> 	in	al,dx
+   980 00000634 240F                <1> 	and	al,0fh
+   981                              <1> 
+   982 00000636 B480                <1> 	mov	ah,80h
+   983 00000638 3C09                <1> 	cmp	al,9 ; ノットレディ
+   984 0000063A 7505                <1> 	jnz	.j1
+   985 0000063C B90100              <1> 	mov	cx,1
+   986 0000063F F9                  <1> 	stc
+   987 00000640 C3                  <1> 	ret
+   988                              <1> .j1:
+   989 00000641 30E4                <1> 	xor	ah,ah
+   990 00000643 F8                  <1> 	clc
+   991 00000644 C3                  <1> 	ret
+   992                              <1> 
+   993                              <1> ;----------
+   994                              <1> 
+   995                              <1> ; パラメータ格納バッファをクリア
+   996                              <1> cd_clear_parabuffer:
+   997 00000645 51                  <1> 	push	cx
+   998 00000646 52                  <1> 	push	dx
+   999 00000647 BA603B              <1> 	mov	dx,CD_CMOS_PARA
+  1000 0000064A 30C0                <1> 	xor	al,al
+  1001 0000064C B90800              <1> 	mov	cx,8
+  1002                              <1> .loop:
+  1003 0000064F EE                  <1> 	out	dx,al
+  1004 00000650 83C202              <1> 	add	dx,2
+  1005 00000653 E2FA                <1> 	loop	.loop
+  1006 00000655 5A                  <1> 	pop	dx
+  1007 00000656 59                  <1> 	pop	cx
+  1008 00000657 C3                  <1> 	ret
+  1009                              <1> 
+  1010                              <1> ;----------
+  1011                              <1> 
+  1012                              <1> ; CDCコマンド発行
+  1013                              <1> cd_sendcommand:
+  1014 00000658 53                  <1> 	push	bx
+  1015 00000659 51                  <1> 	push	cx
+  1016 0000065A 52                  <1> 	push	dx
+  1017 0000065B 88C4                <1> 	mov	ah,al
+  1018 0000065D BAC004              <1> 	mov	dx,4c0h
+  1019                              <1> .waitready:
+  1020 00000660 EC                  <1> 	in	al,dx
+  1021 00000661 A801                <1> 	test	al,1
+  1022 00000663 74FB                <1> 	jz	.waitready
+  1023                              <1> 
+  1024 00000665 BB603B              <1> 	mov	bx,CD_CMOS_PARA
+  1025 00000668 B90800              <1> 	mov	cx,8
+  1026                              <1> .commandloop:
+  1027 0000066B 89DA                <1> 	mov	dx,bx
+  1028 0000066D EC                  <1> 	in	al,dx
+  1029 0000066E BAC404              <1> 	mov	dx,4c4h
+  1030 00000671 EE                  <1> 	out	dx,al
+  1031 00000672 83C302              <1> 	add	bx,2
+  1032 00000675 E2F4                <1> 	loop	.commandloop
+  1033                              <1> 
+  1034 00000677 88E0                <1> 	mov	al,ah
+  1035 00000679 BAC204              <1> 	mov	dx,4c2h
+  1036 0000067C EE                  <1> 	out	dx,al
+  1037 0000067D 5A                  <1> 	pop	dx
+  1038 0000067E 59                  <1> 	pop	cx
+  1039 0000067F 5B                  <1> 	pop	bx
+  1040 00000680 C3                  <1> 	ret
+  1041                              <1> 
+  1042                              <1> ;----------
+  1043                              <1> 
+  1044                              <1> ; CDCからの4バイトのステータスを取得
+  1045                              <1> cd_recieve4byte:
+  1046 00000681 50                  <1> 	push	ax
+  1047 00000682 52                  <1> 	push	dx
+  1048 00000683 BAC004              <1> 	mov	dx,4c0h
+  1049                              <1> .loop:
+  1050 00000686 EC                  <1> 	in	al,dx
+  1051 00000687 A802                <1> 	test	al,2
+  1052 00000689 74FB                <1> 	jz	.loop
+  1053                              <1> 
+  1054 0000068B 08C0                <1> 	or	al,al
+  1055                              <1> 
+  1056 0000068D BAC204              <1> 	mov	dx,4c2h
+  1057 00000690 EC                  <1> 	in	al,dx
+  1058 00000691 BA703B              <1> 	mov	dx,CD_CMOS_DATA0
+  1059 00000694 EE                  <1> 	out	dx,al
+  1060 00000695 BAC204              <1> 	mov	dx,4c2h
+  1061 00000698 EC                  <1> 	in	al,dx
+  1062 00000699 BA723B              <1> 	mov	dx,CD_CMOS_DATA1
+  1063 0000069C EE                  <1> 	out	dx,al
+  1064 0000069D BAC204              <1> 	mov	dx,4c2h
+  1065 000006A0 EC                  <1> 	in	al,dx
+  1066 000006A1 BA743B              <1> 	mov	dx,CD_CMOS_DATA2
+  1067 000006A4 EE                  <1> 	out	dx,al
+  1068 000006A5 BAC204              <1> 	mov	dx,4c2h
+  1069 000006A8 EC                  <1> 	in	al,dx
+  1070 000006A9 BA783B              <1> 	mov	dx,CD_CMOS_DATA3
+  1071 000006AC EE                  <1> 	out	dx,al
+  1072                              <1> 
+  1073 000006AD 7906                <1> 	jns	.exit
+  1074                              <1> 
+  1075 000006AF BAC004              <1> 	mov	dx,4c0h ; clear irq
+  1076 000006B2 B080                <1> 	mov	al,80h
+  1077 000006B4 EE                  <1> 	out	dx,al
+  1078                              <1> 
+  1079                              <1> .exit:
+  1080 000006B5 5A                  <1> 	pop	dx
+  1081 000006B6 58                  <1> 	pop	ax
+  1082 000006B7 C3                  <1> 	ret
+  1083                              <1> 
+  1084                              <1> ;----------
+  1085                              <1> 
+  1086                              <1> ; 食べ残しをクリア
+  1087                              <1> cd_recieve:
+  1088 000006B8 52                  <1> 	push	dx
+  1089 000006B9 BAC004              <1> 	mov	dx,4c0h
+  1090 000006BC EC                  <1> 	in	al,dx
+  1091 000006BD A802                <1> 	test	al,2
+  1092 000006BF 7408                <1> 	jz	.exit
+  1093                              <1> 
+  1094                              <1> .loop:
+  1095 000006C1 E8BDFF              <1> 	call	cd_recieve4byte
+  1096 000006C4 EC                  <1> 	in	al,dx
+  1097 000006C5 A802                <1> 	test	al,2
+  1098 000006C7 75F8                <1> 	jnz	.loop
+  1099                              <1> .exit:
+  1100 000006C9 5A                  <1> 	pop	dx
+  1101 000006CA C3                  <1> 	ret
+  1102                              <1> 
+  1103                              <1> ;----------
+  1104                              <1> 
+  1105                              <1> ; 10進変換
+  1106                              <1> cd_hextodecimal:
+  1107 000006CB 51                  <1> 	push	cx
+  1108 000006CC 88E5                <1> 	mov	ch,ah
+  1109 000006CE 30E4                <1> 	xor	ah,ah
+  1110 000006D0 B10A                <1> 	mov	cl,10
+  1111 000006D2 F6F1                <1> 	div	cl
+  1112 000006D4 C0E004              <1> 	shl	al,4
+  1113 000006D7 00E0                <1> 	add	al,ah
+  1114 000006D9 88EC                <1> 	mov	ah,ch
+  1115 000006DB 59                  <1> 	pop	cx
+  1116 000006DC C3                  <1> 	ret
+  1117                              <1> 
+  1118                              <1> ;----------
+  1119                              <1> 
+  1120                              <1> ; CDのセクタ番号を10進数に変換して保管
+  1121                              <1> cd_set_sectorno:
+  1122 000006DD 53                  <1> 	push	bx
+  1123 000006DE 51                  <1> 	push	cx
+  1124 000006DF 52                  <1> 	push	dx
+  1125 000006E0 059600              <1> 	add	ax,150   ; CDの先頭セクタはセクタ150
+  1126 000006E3 83D200              <1> 	adc	dx,0
+  1127 000006E6 B99411              <1> 	mov	cx,75*60 ; M-S-F の M
+  1128 000006E9 F7F1                <1> 	div	cx
+  1129 000006EB 92                  <1> 	xchg	ax,dx
+  1130                              <1> 	; dx = M, ax = S-F
+  1131 000006EC B14B                <1> 	mov	cl,75    ; S
+  1132 000006EE F6F1                <1> 	div	cl
+  1133 000006F0 88D1                <1> 	mov	cl,dl
+  1134 000006F2 86C4                <1> 	xchg	al,ah
+  1135                              <1> 
+  1136                              <1> 	; cl-ah-al : M-S-F
+  1137                              <1> 
+  1138 000006F4 8D5704              <1> 	lea	dx,[bx+4]
+  1139 000006F7 E8D1FF              <1> 	call	cd_hextodecimal
+  1140 000006FA EE                  <1> 	out	dx,al
+  1141 000006FB 83EA02              <1> 	sub	dx,2
+  1142 000006FE 88E0                <1> 	mov	al,ah
+  1143 00000700 E8C8FF              <1> 	call	cd_hextodecimal
+  1144 00000703 EE                  <1> 	out	dx,al
+  1145 00000704 83EA02              <1> 	sub	dx,2
+  1146 00000707 88C8                <1> 	mov	al,cl
+  1147 00000709 E8BFFF              <1> 	call	cd_hextodecimal
+  1148 0000070C EE                  <1> 	out	dx,al
+  1149 0000070D 5A                  <1> 	pop	dx
+  1150 0000070E 59                  <1> 	pop	cx
+  1151 0000070F 5B                  <1> 	pop	bx
+  1152 00000710 C3                  <1> 	ret
+  1153                              <1> 
+  1154                              <1> ;----------
+  1155                              <1> 
+  1156                              <1> cd_init_dma:
+  1157                              <1> 	; リセット
+  1158 00000711 B003                <1> 	mov	al,3
+  1159 00000713 E6A0                <1> 	out	0a0h,al
+  1160                              <1> 
+  1161                              <1> 	; チャネルを CD にセット
+  1162 00000715 B003                <1> 	mov	al,3
+  1163 00000717 E6A1                <1> 	out	0a1h,al
+  1164                              <1> 
+  1165                              <1> 	; DMA動作禁止
+  1166 00000719 B024                <1> 	mov	al,24h
+  1167 0000071B E6A8                <1> 	out	0a8h,al
+  1168                              <1> 
+  1169                              <1> 	; デバイスコントロール
+  1170 0000071D 30C0                <1> 	xor	al,al
+  1171 0000071F E6A9                <1> 	out	0a9h,al
+  1172                              <1> 
+  1173                              <1> 	; モードコントロール
+  1174 00000721 B054                <1> 	mov	al,54h
+  1175 00000723 E6AA                <1> 	out	0aah,al
+  1176 00000725 C3                  <1> 	ret
+  1177                              <1> 
+  1178                              <1> ;----------
+  1179                              <1> 
+  1180                              <1> cd_dma_setlength:
+  1181 00000726 E7A2                <1> 	out	0a2h,ax
+  1182 00000728 C3                  <1> 	ret
+  1183                              <1> 
+  1184                              <1> ;----------
+  1185                              <1> 
+  1186                              <1> cd_dma_setaddress:
+  1187 00000729 E7A4                <1> 	out	0a4h,ax
+  1188 0000072B 89D0                <1> 	mov	ax,dx
+  1189 0000072D E7A6                <1> 	out	0a6h,ax
+  1190 0000072F C3                  <1> 	ret
+  1191                              <1> 
+  1192                              <1> ;----------
+  1193                              <1> 
+  1194                              <1> cd_dma_getaddress:
+  1195 00000730 E5A6                <1> 	in	ax,0a6h
+  1196 00000732 89C2                <1> 	mov	dx,ax
+  1197 00000734 E5A4                <1> 	in	ax,0a4h
+  1198 00000736 C3                  <1> 	ret
+  1199                              <1> 
+  1200                              <1> ;----------
+  1201                              <1> 
+  1202                              <1> ; DMA転送を行う
+  1203                              <1> cd_dma_transfer:
+  1204 00000737 52                  <1> 	push	dx
+  1205                              <1> 	; DMA動作許可
+  1206 00000738 B020                <1> 	mov	al,20h
+  1207 0000073A E6A8                <1> 	out	0a8h,al
+  1208                              <1> 
+  1209                              <1> 	; 転送開始
+  1210 0000073C BAC604              <1> 	mov	dx,4c6h
+  1211 0000073F B010                <1> 	mov	al,10h
+  1212 00000741 EE                  <1> 	out	dx,al
+  1213                              <1> 
+  1214                              <1> 	; 転送が終わるまで待つ
+  1215 00000742 BAC004              <1> 	mov	dx,4c0h
+  1216                              <1> .loop:
+  1217 00000745 EC                  <1> 	in	al,dx
+  1218 00000746 A810                <1> 	test	al,10h
+  1219 00000748 75FB                <1> 	jnz	.loop
+  1220                              <1> 
+  1221                              <1> 	; DMA動作禁止
+  1222 0000074A B024                <1> 	mov	al,24h
+  1223 0000074C E6A8                <1> 	out	0a8h,al
+  1224 0000074E 5A                  <1> 	pop	dx
+  1225 0000074F C3                  <1> 	ret
+   816                                  %include "sys_fd.asm"
    817                              <1> ; version 2003.03.04.1
    818                              <1> ;---------------------------------------------------------------------
    819                              <1> ;
    820                              <1> ; FM TOWNS 互換 ROM シリーズ
    821                              <1> ;
-   822                              <1> ; FMT_SYS.ROM : HDアクセス
+   822                              <1> ; FMT_SYS.ROM : FDアクセス
    823                              <1> ;
-   824                              <1> ; by Kasanova
+   824                              <1> ; by Kasanova & CaptainYS
    825                              <1> ;
    826                              <1> ;---------------------------------------------------------------------
    827                              <1> ; ※単独ではアセンブルしません
    828                              <1> 
-   829                              <1> ; SCSIコントロールは面倒くさいので、HDアクセスはうんづに投げられる
-   830                              <1> ; ようにする予定
-   831                              <1> 
-   832                              <1> ;---------------------------------------------------------------------
-   833                              <1> ; 読み込み
-   834                              <1> ; cl+dx : 読み込み開始セクタ番号(16進)
-   835                              <1> ; bx    : 読み込むセクタ数
-   836                              <1> ; ds:di : 転送先アドレス
-   837                              <1> ; [リターンコード]
-   838                              <1> ;  ah : 0(正常終了)、bx : 読み残したセクタ数
-   839                              <1> 
-   840                              <1> hd_command_05:
-   841 00000754 C3                  <1> 	ret
-   842                              <1> 
-   843                              <1> ;---------------------------------------------------------------------
-   844                              <1> ; ドライブの状態をチェック
-   845                              <1> 
-   846                              <1> hd_command_0e:
-   847 00000755 C3                  <1> 	ret
-   848                              <1> 
-   817                                  %include "sys_osr.asm"
+   829                              <1> ;---------------------------------------------------------------------
+   830                              <1> ; 読み込み
+   831                              <1> ; Corrected by CaptainYS >>
+   832                              <1> ; al    : Device ID
+   833                              <1> ; bx    : Number of Sectors
+   834                              <1> ; cx    : Cylinder
+   835                              <1> ; dh    : Head
+   836                              <1> ; dl    : Sector
+   837                              <1> ; ds:di : Buffer Address
+   838                              <1> ; Corrected by CaptainYS <<
+   839                              <1> ; [リターンコード]
+   840                              <1> ;  ah : 0(正常終了)、bx : 読み残したセクタ数
+   841                              <1> 
+   842                              <1> fd_command_05:
+   843                              <1> 	; by CaptainYS >>
+   844                              <1> 	; ds:[si]=ax ds:[si+2]=dx
+   845                              <1> 	; es:[di]=FLAGS es:[di+2]=bx es:[di+4]=cx es:[di+6]=bp es:[di+8]=si es:[di+10]=di es:[di+12]=ds es:[di+14]=es
+   846                              <1> 	; Returned AH will be written to ds:[si+1] in disk_bios.
+   847 00000750 26837D0200          <1> 	cmp		word es:[di+2],0	; bx
+   848 00000755 7503                <1> 	jne		.non_zero_sector
+   849 00000757 30E4                <1> 	xor		ah,ah
+   850 00000759 C3                  <1> 	ret
+   851                              <1> 
+   852                              <1> .non_zero_sector:
+   853 0000075A 6652                <1> 	push	edx
+   854 0000075C 6650                <1> 	push	eax
+   855                              <1> 
+   856 0000075E E82D01              <1> 	call	fd_wait_ready
+   857 00000761 08C0                <1> 	or		al,al
+   858 00000763 0F88A800            <1> 	js		.fd_drive_not_ready
+   859                              <1> 
+   860 00000767 3E8A0C              <1> 	mov		cl,ds:[si]
+   861 0000076A E8F300              <1> 	call	fd_select_drive_2hd
+   862                              <1> 
+   863 0000076D E81E01              <1> 	call	fd_wait_ready
+   864 00000770 E80101              <1> 	call	fd_motor_on_select_side_2hd
+   865                              <1> 
+   866                              <1> 
+   867 00000773 268B5D04            <1> 	mov		bx,es:[di+4]	; bx=cylinder
+   868 00000777 3E8B4C02            <1> 	mov		cx,ds:[si+2]	; ch=head, cl=sector
+   869                              <1> 
+   870 0000077B 26660FB7550C        <1> 	movzx	edx,word es:[di+12]	; DS
+   871 00000781 66C1E204            <1> 	shl		edx,4
+   872 00000785 26660FB7450A        <1> 	movzx	eax,word es:[di+10]	; DI
+   873 0000078B 6601C2              <1> 	add		edx,eax
+   874                              <1> 
+   875 0000078E FA                  <1> 	cli		; should be recovered when leaving the BIOS
+   876                              <1> 
+   877                              <1> .fd_sector_loop:
+   878 0000078F 53                  <1> 	push	bx		; cylinder
+   879 00000790 51                  <1> 	push	cx		; ch=head, cl=sector
+   880 00000791 6652                <1> 	push	edx		; DMA addr
+   881                              <1> 
+   882 00000793 88EC                <1> 	mov		ah,ch
+   883 00000795 E8F600              <1> 	call	fd_wait_ready
+   884 00000798 E8D900              <1> 	call	fd_motor_on_select_side_2hd
+   885                              <1> 
+   886 0000079B E8F000              <1> 	call	fd_wait_ready
+   887 0000079E 89D8                <1> 	mov		ax,bx
+   888 000007A0 E8E000              <1> 	call	fd_seek
+   889 000007A3 E8E800              <1> 	call	fd_wait_ready
+   890 000007A6 A810                <1> 	test	al,010h
+   891 000007A8 7572                <1> 	jne		.fd_seek_error
+   892                              <1> 
+   893 000007AA E81101              <1> 	call	fd_dma_initialize
+   894 000007AD 665A                <1> 	pop		edx
+   895 000007AF 6652                <1> 	push	edx
+   896 000007B1 B80004              <1> 	mov		ax,SECTOR_LENGTH_1232KB_DISK
+   897 000007B4 E8E000              <1> 	call	sys_setup_dma
+   898                              <1> 
+   899 000007B7 665A                <1> 	pop		edx
+   900 000007B9 59                  <1> 	pop		cx
+   901 000007BA 5B                  <1> 	pop		bx
+   902                              <1> 
+   903 000007BB 53                  <1> 	push	bx
+   904 000007BC 51                  <1> 	push	cx
+   905 000007BD 6652                <1> 	push	edx
+   906                              <1> 
+   907 000007BF 88D8                <1> 	mov		al,bl
+   908 000007C1 BA0202              <1> 	mov		dx,IO_FDC_TRACK
+   909 000007C4 EE                  <1> 	out		dx,al
+   910 000007C5 88C8                <1> 	mov		al,cl
+   911 000007C7 BA0402              <1> 	mov		dx,IO_FDC_SECTOR
+   912 000007CA EE                  <1> 	out		dx,al
+   913 000007CB B080                <1> 	mov		al,IO_FDC_CMD_READ_DATA
+   914 000007CD BA0002              <1> 	mov		dx,IO_FDC_COMMAND
+   915 000007D0 EE                  <1> 	out		dx,al
+   916                              <1> 
+   917 000007D1 E8BA00              <1> 	call	fd_wait_ready
+   918 000007D4 A808                <1> 	test	al,08h	; CRC Error
+   919 000007D6 7455                <1> 	je		.fd_crc_error
+   920 000007D8 A810                <1> 	test	al,10h	; Record not found
+   921 000007DA 7462                <1> 	je		.fd_record_not_found
+   922 000007DC A804                <1> 	test	al,04h	; Lost data
+   923 000007DE 746F                <1> 	je		.fd_lost_data
+   924                              <1> 
+   925 000007E0 665A                <1> 	pop		edx
+   926 000007E2 59                  <1> 	pop		cx
+   927 000007E3 5B                  <1> 	pop		bx
+   928                              <1> 
+   929 000007E4 6681C200040000      <1> 	add		edx,SECTOR_LENGTH_1232KB_DISK
+   930                              <1> 
+   931 000007EB FEC1                <1> 	inc		cl
+   932 000007ED 80F908              <1> 	cmp		cl,SECTOR_PER_TRACK_1232KB_DISK
+   933 000007F0 720A                <1> 	jb		.fd_sector_continue
+   934                              <1> 
+   935 000007F2 30C9                <1> 	xor		cl,cl
+   936 000007F4 FEC5                <1> 	inc		ch
+   937 000007F6 80E501              <1> 	and		ch,1
+   938 000007F9 7501                <1> 	jne		.fd_sector_continue
+   939                              <1> 
+   940 000007FB 43                  <1> 	inc		bx
+   941                              <1> 
+   942                              <1> .fd_sector_continue:
+   943 000007FC 26FF4D02            <1> 	dec		word es:[di+2]	;	bx
+   944 00000800 758D                <1> 	jne		.fd_sector_loop
+   945                              <1> 
+   946                              <1> 	; IO.SYS apparently won't reset Highest Byte of the DMA address.
+   947                              <1> 	; Make sure to clear when exit.
+   948 00000802 30C0                <1> 	xor		al,al
+   949 00000804 E6A7                <1> 	out		IO_DMA_ADDR_HIGH,AL
+   950                              <1> 
+   951                              <1> 
+   952                              <1> .fd_trap:
+   953 00000806 EBFE                <1> 	jmp		.fd_trap		; by CaptainYS
+   954                              <1> 	; by CaptainYS <<
+   955                              <1> 
+   956 00000808 6658                <1> 	pop		eax
+   957 0000080A 665A                <1> 	pop		edx
+   958 0000080C 30E4                <1> 	xor		ah,ah
+   959 0000080E C3                  <1> 	ret
+   960                              <1> 
+   961                              <1> .fd_drive_not_ready:
+   962 0000080F 6658                <1> 	pop		eax
+   963 00000811 665A                <1> 	pop		edx
+   964 00000813 B480                <1> 	mov		ah,80h
+   965 00000815 26C745040100        <1> 	mov		word es:[di+4],BIOSERR_DETAIL_DISK_DRIVE_NOT_READY
+   966 0000081B C3                  <1> 	ret
+   967                              <1> 
+   968                              <1> .fd_seek_error:
+   969 0000081C 5B                  <1> 	pop		bx
+   970 0000081D 59                  <1> 	pop		cx
+   971 0000081E 665A                <1> 	pop		edx
+   972 00000820 6658                <1> 	pop		eax
+   973 00000822 665A                <1> 	pop		edx
+   974 00000824 B480                <1> 	mov		ah,80h
+   975 00000826 26C745040000        <1> 	mov		word es:[di+4],BIOSERR_DETAIL_DISK_SEEK_ERROR
+   976 0000082C C3                  <1> 	ret
+   977                              <1> 
+   978                              <1> .fd_crc_error:
+   979 0000082D 5B                  <1> 	pop		bx
+   980 0000082E 59                  <1> 	pop		cx
+   981 0000082F 665A                <1> 	pop		edx
+   982 00000831 6658                <1> 	pop		eax
+   983 00000833 665A                <1> 	pop		edx
+   984 00000835 B480                <1> 	mov		ah,80h
+   985 00000837 26C745040800        <1> 	mov		word es:[di+4],BIOSERR_DETAIL_DISK_CRC_ERROR
+   986 0000083D C3                  <1> 	ret
+   987                              <1> 
+   988                              <1> .fd_record_not_found:
+   989 0000083E 5B                  <1> 	pop		bx
+   990 0000083F 59                  <1> 	pop		cx
+   991 00000840 665A                <1> 	pop		edx
+   992 00000842 6658                <1> 	pop		eax
+   993 00000844 665A                <1> 	pop		edx
+   994 00000846 B480                <1> 	mov		ah,80h
+   995 00000848 26C745041000        <1> 	mov		word es:[di+4],BIOSERR_DETAIL_DISK_RECORD_NOT_FOUND
+   996 0000084E C3                  <1> 	ret
+   997                              <1> 
+   998                              <1> .fd_lost_data:
+   999 0000084F 5B                  <1> 	pop		bx
+  1000 00000850 59                  <1> 	pop		cx
+  1001 00000851 665A                <1> 	pop		edx
+  1002 00000853 6658                <1> 	pop		eax
+  1003 00000855 665A                <1> 	pop		edx
+  1004 00000857 B480                <1> 	mov		ah,80h
+  1005 00000859 26C745044000        <1> 	mov		word es:[di+4],BIOSERR_DETAIL_DISK_LOST_DATA
+  1006 0000085F C3                  <1> 	ret
+  1007                              <1> 
+  1008                              <1> 
+  1009                              <1> ; by CaptainYS >>
+  1010                              <1> ; Input
+  1011                              <1> ;   CL=Drive (High 4-bits will be cleared)
+  1012                              <1> fd_select_drive_2hd:
+  1013 00000860 BA0C02              <1> 	mov		dx,IO_FDC_DRIVE_SELECT
+  1014                              <1> 
+  1015                              <1> 	; For booting, 1232KB disk support is good enough, I think.
+  1016 00000863 B050                <1> 	mov		al,050h ; HISPD (360rpm 2HD)
+  1017 00000865 EE                  <1> 	out		dx,al	; Clear drive selection once.
+  1018                              <1> 
+  1019 00000866 3E8A0C              <1> 	mov		cl,ds:[si]
+  1020 00000869 80E10F              <1> 	and		cl,0fh	; Drive number
+  1021 0000086C B001                <1> 	mov		al,1
+  1022 0000086E D2E0                <1> 	shl		al,cl	; Set Drive Bit
+  1023 00000870 0C50                <1> 	or		al,050h	; HISPD (360rpm 2HD)
+  1024 00000872 EE                  <1> 	out		dx,al	; Drive selected, HISPD latched.
+  1025                              <1> 
+  1026 00000873 C3                  <1> 	ret
+  1027                              <1> 
+  1028                              <1> 
+  1029                              <1> ; ah=side 0 or 1
+  1030                              <1> fd_motor_on_select_side_2hd:
+  1031 00000874 80E401              <1> 	and		ah,1
+  1032 00000877 C0E402              <1> 	shl		ah,2
+  1033 0000087A B012                <1> 	mov		al,012h ; 2MHz Clock, Motor On, DDEN, IRQ Off
+  1034 0000087C 08E0                <1> 	or		al,ah
+  1035 0000087E BA0802              <1> 	mov		dx,IO_FDC_DRIVE_CONTROL
+  1036 00000881 EE                  <1> 	out		dx,al
+  1037 00000882 C3                  <1> 	ret
+  1038                              <1> 
+  1039                              <1> 
+  1040                              <1> ; Input
+  1041                              <1> ;   AL=Cylinder
+  1042                              <1> fd_seek:
+  1043 00000883 BA0602              <1> 	mov		dx,IO_FDC_DATA
+  1044 00000886 EE                  <1> 	out		dx,al
+  1045 00000887 BA0002              <1> 	mov		dx,IO_FDC_COMMAND
+  1046 0000088A B010                <1> 	mov		al,IO_FDC_CMD_SEEK
+  1047 0000088C EE                  <1> 	out		dx,al
+  1048 0000088D C3                  <1> 	ret
+  1049                              <1> 
+  1050                              <1> 
+  1051                              <1> fd_wait_ready:
+  1052 0000088E BA0002              <1> 	mov		dx,IO_FDC_STATUS
+  1053 00000891 EC                  <1> 	in		al,dx
+  1054 00000892 2401                <1> 	and		al,1
+  1055 00000894 75F8                <1> 	jne		fd_wait_ready
+  1056 00000896 C3                  <1> 	ret
+  1057                              <1> 
+  1058                              <1> 
+  1059                              <1> ; Input
+  1060                              <1> ;   EDX=Physical Address
+  1061                              <1> ;   AX=Sector Length
+  1062                              <1> sys_setup_dma:
+  1063 00000897 6650                <1> 	PUSH	EAX
+  1064 00000899 6689D0              <1> 	MOV		EAX,EDX
+  1065 0000089C BAA400              <1> 	MOV		DX,IO_DMA_ADDR_LOW
+  1066 0000089F EE                  <1> 	OUT		DX,AL
+  1067                              <1> 
+  1068 000008A0 66C1E808            <1> 	SHR		EAX,8
+  1069 000008A4 42                  <1> 	INC		DX
+  1070 000008A5 EE                  <1> 	OUT		DX,AL
+  1071                              <1> 
+  1072 000008A6 66C1E808            <1> 	SHR		EAX,8
+  1073 000008AA 42                  <1> 	INC		DX
+  1074 000008AB EE                  <1> 	OUT		DX,AL
+  1075                              <1> 
+  1076 000008AC 66C1E808            <1> 	SHR		EAX,8
+  1077 000008B0 42                  <1> 	INC		DX
+  1078 000008B1 EE                  <1> 	OUT		DX,AL
+  1079                              <1> 
+  1080 000008B2 6658                <1> 	POP		EAX
+  1081                              <1> 
+  1082 000008B4 BAA200              <1> 	MOV		DX,IO_DMA_COUNT_LOW
+  1083 000008B7 EE                  <1> 	OUT		DX,AL
+  1084                              <1> 
+  1085 000008B8 C1E808              <1> 	SHR		AX,8
+  1086 000008BB 42                  <1> 	INC		DX
+  1087 000008BC EE                  <1> 	OUT		DX,AL
+  1088                              <1> 
+  1089 000008BD C3                  <1> 	RET
+  1090                              <1> 
+  1091                              <1> 
+  1092                              <1> 
+  1093                              <1> fd_dma_initialize:
+  1094 000008BE B003                <1> 	MOV		AL,3	; Reset SCSI Controller
+  1095 000008C0 E6A0                <1> 	OUT		IO_DMA_INITIALIZE,AL
+  1096 000008C2 B000                <1> 	MOV		AL,DMA_CHANNEL_FDC
+  1097 000008C4 E6A1                <1> 	OUT		IO_DMA_CHANNEL,AL
+  1098 000008C6 B020                <1> 	MOV		AL,20H	; DMA enable
+  1099 000008C8 E6A8                <1> 	OUT		IO_DMA_DEVICE_CTRL_LOW,AL
+  1100 000008CA C3                  <1> 	RET
+  1101                              <1> 
+  1102                              <1> 
+  1103                              <1> 
+  1104                              <1> ; by CaptainYS <<
+  1105                              <1> 
+  1106                              <1> 
+  1107                              <1> ;---------------------------------------------------------------------
+  1108                              <1> ; ドライブの状態をチェック
+  1109                              <1> 
+  1110                              <1> fd_command_0e:
+  1111 000008CB C3                  <1> 	ret
+  1112                              <1> 
+   817                                  %include "sys_hd.asm"
    818                              <1> ; version 2003.03.04.1
    819                              <1> ;---------------------------------------------------------------------
    820                              <1> ;
    821                              <1> ; FM TOWNS 互換 ROM シリーズ
    822                              <1> ;
-   823                              <1> ; FMT_SYS.ROM : RAM/ROMドライブアクセス
+   823                              <1> ; FMT_SYS.ROM : HDアクセス
    824                              <1> ;
    825                              <1> ; by Kasanova
    826                              <1> ;
    827                              <1> ;---------------------------------------------------------------------
    828                              <1> ; ※単独ではアセンブルしません
    829                              <1> 
-   830                              <1> ;---------------------------------------------------------------------
-   831                              <1> ;■備考■
-   832                              <1> ; ・メディア番号 0x40 はRAMあるいはROMに振られたメディア番号である
-   833                              <1> ; ・アクセス先の物理アドレスは、メディア番号の下位4ビットによって決まる
-   834                              <1> ; ・将来的には386SX系のメモリマップも考慮すること
-   835                              <1> ;
-   836                              <1> ;   0: 00000000h- 7fffffffh
-   837                              <1> ;   1: 無効
-   838                              <1> ;   2: c2000000h- c207ffffh (書き込み禁止)
-   839                              <1> ;   3: 無効
-   840                              <1> ;   4: 無効
-   841                              <1> ;   5: 無効
-   842                              <1> ;   6: 無効
-   843                              <1> ;   7: 00000000h- ffffffffh (BYTEアクセス)
-   844                              <1> ;   8: 00000000h- ffffffffh (DWORDアクセス)
-   845                              <1> ;   9: c2000000h- c207ffffh (書き込み禁止)
-   846                              <1> ;   a: c0000000h- c007ffffh ICメモリ存在チェックあり
-   847                              <1> ;   b: fffc0000h- ffffffffh (書き込み禁止)
-   848                              <1> ;   c: 80000000h- 8007ffffh
-   849                              <1> ;   d: 80100000h- 8017ffffh
-   850                              <1> ;   e: c2140000h- c2141fffh
-   851                              <1> ;   f: 無効
-   852                              <1> ;
-   853                              <1> ;---------------------------------------------------------------------
-   854                              <1> 
-   855                              <1> ;---------------------------------------------------------------------
-   856                              <1> ; 読み込み＆書き込み
-   857                              <1> 
-   858                              <1> osrom_command_05:
-   859                              <1> osrom_command_06:
-   860 00000756 8A04                <1> 	mov	al,[si]
-   861 00000758 240F                <1> 	and	al,0fh
-   862                              <1> 
-   863 0000075A 3C08                <1> 	cmp	al,8 ; とりあえず、これだけ対応
-   864 0000075C 7402                <1> 	jz	.ok
-   865 0000075E EBFE                <1> 	jmp $
-   866                              <1> .ok:
-   867                              <1> 	; レジスタの上位16ビットを変更してはいけない
-   868 00000760 6660                <1> 	pushad
-   869                              <1> 
-   870 00000762 6631D2              <1> 	xor	edx,edx
-   871 00000765 660FB7F6            <1> 	movzx	esi,si
-   872 00000769 8CDA                <1> 	mov	dx,ds
-   873 0000076B 66C1E204            <1> 	shl	edx,4
-   874 0000076F 6601D6              <1> 	add	esi,edx
-   875                              <1> 
-   876 00000772 6631D2              <1> 	xor	edx,edx
-   877 00000775 660FB7FF            <1> 	movzx	edi,di
-   878 00000779 8CC2                <1> 	mov	dx,es
-   879 0000077B 66C1E204            <1> 	shl	edx,4
-   880 0000077F 6601D7              <1> 	add	edi,edx
-   881                              <1> 
-   882                              <1> 	; もう少しスマートな方法を考えましょう
-   883 00000782 B80400              <1> 	mov	ax,PMODE_TRANSFERMEM
-   884 00000785 83EC06              <1> 	sub	sp,6
-   885 00000788 89E5                <1> 	mov	bp,sp
-   886 0000078A 0F014600            <1> 	sgdt	[bp]
-   887 0000078E 55                  <1> 	push	bp
-   888 0000078F E812FA              <1> 	call	set_gdt
-   889 00000792 E853FA              <1> 	call	call_pmode
-   890 00000795 5D                  <1> 	pop	bp
-   891 00000796 0F015600            <1> 	lgdt	[bp]
-   892 0000079A 83C406              <1> 	add	sp,6
-   893                              <1> 
-   894 0000079D 6661                <1> 	popad
-   895 0000079F C3                  <1> 	ret
-   896                              <1> 
-   897                              <1> 
-   818                                  
-   819                                  %include "sys_cmos.asm"
-   820                              <1> ; version 2003.03.04.1
-   821                              <1> ;---------------------------------------------------------------------
-   822                              <1> ;
-   823                              <1> ; FM TOWNS 互換 ROM シリーズ
-   824                              <1> ;
-   825                              <1> ; FMT_SYS.ROM : CMOS BIOS
-   826                              <1> ;
-   827                              <1> ; by Kasanova
-   828                              <1> ;
-   829                              <1> ;---------------------------------------------------------------------
-   830                              <1> ; ※単独ではアセンブルしません
-   831                              <1> 
+   830                              <1> ; SCSIコントロールは面倒くさいので、HDアクセスはうんづに投げられる
+   831                              <1> ; ようにする予定
    832                              <1> 
    833                              <1> ;---------------------------------------------------------------------
-   834                              <1> 
-   835                              <1> cmos_command_xx:
-   836 000007A0 EBFE                <1> 	jmp	$
-   837                              <1> 
-   838                              <1> ;---------------------------------------------------------------------
-   839                              <1> 
-   840                              <1> cmos_command_fd:
-   841 000007A2 EBFE                <1> 	jmp	$
-   842                              <1> 
-   843                              <1> ;---------------------------------------------------------------------
-   844                              <1> 
-   845                              <1> ; init. cmos
-   846                              <1> cmos_command_00:
-   847 000007A4 8CC8                <1> 	mov	ax,cs
-   848 000007A6 8ED8                <1> 	mov	ds,ax
+   834                              <1> ; 読み込み
+   835                              <1> ; cl+dx : 読み込み開始セクタ番号(16進)
+   836                              <1> ; bx    : 読み込むセクタ数
+   837                              <1> ; ds:di : 転送先アドレス
+   838                              <1> ; [リターンコード]
+   839                              <1> ;  ah : 0(正常終了)、bx : 読み残したセクタ数
+   840                              <1> 
+   841                              <1> hd_command_05:
+   842 000008CC C3                  <1> 	ret
+   843                              <1> 
+   844                              <1> ;---------------------------------------------------------------------
+   845                              <1> ; ドライブの状態をチェック
+   846                              <1> 
+   847                              <1> hd_command_0e:
+   848 000008CD C3                  <1> 	ret
    849                              <1> 
-   850                              <1> 	; まずクリア
-   851 000007A8 31D2                <1> 	xor	dx,dx
-   852 000007AA 30C0                <1> 	xor	al,al
-   853 000007AC B9A800              <1> 	mov	cx,0a8h
-   854                              <1> .loop1:
-   855 000007AF E89001              <1> 	call	cmos_write1byte
-   856 000007B2 42                  <1> 	inc	dx
-   857 000007B3 E2FA                <1> 	loop	.loop1
-   858                              <1> 
-   859                              <1> 	; 初期データ転送
-   860 000007B5 31D2                <1> 	xor	dx,dx
-   861 000007B7 BE[0808]            <1> 	mov	si,.initdata
-   862 000007BA B93C00              <1> 	mov	cx,.initdata_end-.initdata
-   863                              <1> .loop2:
-   864 000007BD AC                  <1> 	lodsb
-   865 000007BE E88101              <1> 	call	cmos_write1byte
-   866 000007C1 42                  <1> 	inc	dx
-   867 000007C2 E2F9                <1> 	loop	.loop2
-   868                              <1> 
-   869 000007C4 BAA000              <1> 	mov	dx,0a0h
-   870 000007C7 BE[4408]            <1> 	mov	si,.initdata2
-   871 000007CA B90800              <1> 	mov	cx,8
-   872                              <1> .loop3:
-   873 000007CD AC                  <1> 	lodsb
-   874 000007CE E87101              <1> 	call	cmos_write1byte
-   875 000007D1 42                  <1> 	inc	dx
-   876 000007D2 E2F9                <1> 	loop	.loop3
-   877                              <1> 
-   878 000007D4 BAA000              <1> 	mov	dx,0a0h
-   879 000007D7 E85601              <1> 	call	cmos_read2byte
-   880 000007DA 89C2                <1> 	mov	dx,ax
-   881                              <1> .loop4:
-   882 000007DC 52                  <1> 	push	dx
-   883 000007DD 31C0                <1> 	xor	ax,ax
-   884 000007DF E86001              <1> 	call	cmos_write1byte
-   885 000007E2 5A                  <1> 	pop	dx
-   886 000007E3 42                  <1> 	inc	dx
-   887 000007E4 81FAC107            <1> 	cmp	dx,7c1h
-   888 000007E8 72F2                <1> 	jc	.loop4
-   889                              <1> 
-   890 000007EA E82C02              <1> 	call	cmos_init_blocknotable
-   891                              <1> 
-   892 000007ED E84902              <1> 	call	cmos_get_cmosheadersum
-   893 000007F0 BAA400              <1> 	mov	dx,0a4h
-   894 000007F3 E85501              <1> 	call	cmos_write2byte
-   895                              <1> 
-   896                              <1> 	; チェックサムテーブル初期化
-   897 000007F6 31C0                <1> 	xor	ax,ax
-   898 000007F8 30C9                <1> 	xor	cl,cl
-   899                              <1> .loop5:
-   900 000007FA 50                  <1> 	push	ax
-   901 000007FB E86801              <1> 	call	cmos_write_3f82
-   902 000007FE 58                  <1> 	pop	ax
-   903 000007FF FEC0                <1> 	inc	al
-   904 00000801 3C10                <1> 	cmp	al,10h
-   905 00000803 72F5                <1> 	jc	.loop5
-   906                              <1> 
-   907 00000805 30E4                <1> 	xor	ah,ah
-   908 00000807 C3                  <1> 	ret
-   909                              <1> 
-   910                              <1> 	; cmos上のデータブロックを定義データ
-   911                              <1> .initdata:
-   912 00000808 01FF                <1> 	db	1,0ffh       ; ブロック存在フラグ＋ブロック番号？
-   913 0000080A 424F4F54            <1> 	db	'BOOT'       ; 識別子
-   914 0000080E A8004000            <1> 	dw	00a8h, 0040h ; cmos上のアドレスとサイズ
-   915                              <1> 
-   916 00000812 01FE                <1> 	db	1,0feh
-   917 00000814 53455455            <1> 	db	'SETU'
-   918 00000818 E8000001            <1> 	dw	00e8h, 0100h
-   919                              <1> 
-   920 0000081C 01FD                <1> 	db	1,0fdh
-   921 0000081E 4C4F4720            <1> 	db	'LOG '
-   922 00000822 E8011003            <1> 	dw	01e8h, 0310h
-   923                              <1> 	
-   924 00000826 01FC                <1> 	db	1,0fch
-   925 00000828 4F415359            <1> 	db	'OASY'
-   926 0000082C F8042000            <1> 	dw	04f8h, 0020h
-   927                              <1> 
-   928 00000830 01FB                <1> 	db	1,0fbh
-   929 00000832 58454E49            <1> 	db	'XENI'
-   930 00000836 18051000            <1> 	dw	0518h, 0010h
-   931                              <1> 
-   932 0000083A 01FA                <1> 	db	1,0fah
-   933 0000083C 544F574E            <1> 	db	'TOWN'
-   934 00000840 28050001            <1> 	dw	0528h, 0100h
-   935                              <1> .initdata_end:
-   936                              <1> 
-   937                              <1> .initdata2:
-   938 00000844 2806990100007941    <1> 	db	28h,06h,99h,01h, 00h,00h,79h,41h
-   939                              <1> 
-   940                              <1> ;---------------------------------------------------------------------
-   941                              <1> 
-   942                              <1> cmos_command_01:
-   943 0000084C EBFE                <1> 	jmp	$
-   944                              <1> 
-   945                              <1> ;---------------------------------------------------------------------
-   946                              <1> 
-   947                              <1> cmos_command_02:
-   948 0000084E EBFE                <1> 	jmp	$
-   949                              <1> 
-   950                              <1> ;---------------------------------------------------------------------
-   951                              <1> 
-   952                              <1> cmos_command_03:
-   953 00000850 EBFE                <1> 	jmp	$
-   954                              <1> 
-   955                              <1> ;---------------------------------------------------------------------
-   956                              <1> 
-   957                              <1> cmos_command_04:
-   958 00000852 EBFE                <1> 	jmp	$
-   959                              <1> 
-   960                              <1> ;---------------------------------------------------------------------
-   961                              <1> 
-   962                              <1> ; CMOSのa2h番地の情報をbxに返すだけ
-   963                              <1> cmos_command_05:
-   964 00000854 BAA200              <1> 	mov	dx,0a2h
-   965 00000857 E8D600              <1> 	call	cmos_read2byte
-   966 0000085A 894604              <1> 	mov	[bp+4],ax      ; bx
-   967 0000085D 30E4                <1> 	xor	ah,ah
-   968 0000085F C3                  <1> 	ret
-   969                              <1> 
-   970                              <1> ;---------------------------------------------------------------------
-   971                              <1> 
-   972                              <1> cmos_command_06:
-   973 00000860 EBFE                <1> 	jmp	$
-   974                              <1> 
-   975                              <1> ;---------------------------------------------------------------------
-   976                              <1> 
-   977                              <1> ; transfer block to cmos
-   978                              <1> cmos_command_10:
-   979                              <1> 	; 範囲チェック
-   980 00000862 8A4E06              <1> 	mov	cl,[bp+6] ; cl
-   981 00000865 8A4602              <1> 	mov	al,[bp+2] ; al
-   982 00000868 E85901              <1> 	call	cmos_check_blockvalidity
-   983 0000086B 08E4                <1> 	or	ah,ah
-   984 0000086D 750B                <1> 	jnz	.exit1
-   985 0000086F E88401              <1> 	call	cmos_check_transferrange
-   986 00000872 08E4                <1> 	or	ah,ah
-   987 00000874 7504                <1> 	jnz	.exit1
-   988                              <1> 
-   989                              <1> 	; 転送量が 0 なら何もしない
-   990 00000876 09DB                <1> 	or	bx,bx
-   991 00000878 7501                <1> 	jnz	.starttransfer
-   992                              <1> .exit1:
-   993 0000087A C3                  <1> 	ret
-   994                              <1> 
-   995                              <1> .starttransfer:
-   996 0000087B 8B760E              <1> 	mov	si,[bp+0eh] ; di
-   997 0000087E 8E5E10              <1> 	mov	ds,[bp+10h] ; ds
-   998 00000881 89D9                <1> 	mov	cx,bx
-   999                              <1> .loop:
-  1000 00000883 AC                  <1> 	lodsb
-  1001 00000884 E8BB00              <1> 	call	cmos_write1byte
-  1002 00000887 42                  <1> 	inc	dx
-  1003 00000888 E2F9                <1> 	loop	.loop
-  1004                              <1> 
-  1005 0000088A 0FB64602            <1> 	movzx	ax,byte [bp+2]
-  1006 0000088E 89C2                <1> 	mov	dx,ax
-  1007 00000890 01D2                <1> 	add	dx,dx ; dx<-ax*10
-  1008 00000892 01D2                <1> 	add	dx,dx
-  1009 00000894 01D2                <1> 	add	dx,dx
-  1010 00000896 01C2                <1> 	add	dx,ax
-  1011 00000898 01C2                <1> 	add	dx,ax
-  1012 0000089A E88C00              <1> 	call	cmos_read1byte
-  1013 0000089D 08C0                <1> 	or	al,al
-  1014 0000089F 790B                <1> 	jns	.exit2
-  1015                              <1> 
-  1016 000008A1 E8E300              <1> 	call	cmos_calc_checksum
-  1017 000008A4 88C1                <1> 	mov	cl,al
-  1018 000008A6 8A4602              <1> 	mov	al,[bp+2]
-  1019 000008A9 E8BA00              <1> 	call	cmos_write_3f82
-  1020                              <1> .exit2:
-  1021 000008AC 30E4                <1> 	xor	ah,ah
-  1022 000008AE C3                  <1> 	ret
-  1023                              <1> 
-  1024                              <1> ;---------------------------------------------------------------------
-  1025                              <1> 
-  1026                              <1> ; transfer block from cmos
-  1027                              <1> cmos_command_11:
-  1028                              <1> 	; 範囲チェック
-  1029 000008AF 8A4E06              <1> 	mov	cl,[bp+6] ; cl
-  1030 000008B2 8A4602              <1> 	mov	al,[bp+2] ; al
-  1031 000008B5 E80C01              <1> 	call	cmos_check_blockvalidity
-  1032 000008B8 08E4                <1> 	or	ah,ah
-  1033 000008BA 750B                <1> 	jnz	.exit1
-  1034 000008BC E83701              <1> 	call	cmos_check_transferrange
-  1035 000008BF 08E4                <1> 	or	ah,ah
-  1036 000008C1 7504                <1> 	jnz	.exit1
-  1037                              <1> 
-  1038                              <1> 	; 転送量が 0 なら何もしない
-  1039 000008C3 09DB                <1> 	or	bx,bx
-  1040 000008C5 7501                <1> 	jnz	.starttransfer
-  1041                              <1> .exit1:
-  1042 000008C7 C3                  <1> 	ret
-  1043                              <1> 
-  1044                              <1> .starttransfer:
-  1045 000008C8 8B7E0E              <1> 	mov	di,[bp+0eh] ; di
-  1046 000008CB 8E4610              <1> 	mov	es,[bp+10h] ; ds
-  1047 000008CE 89D9                <1> 	mov	cx,bx
-  1048                              <1> .loop:
-  1049 000008D0 E85600              <1> 	call	cmos_read1byte
-  1050 000008D3 AA                  <1> 	stosb
-  1051 000008D4 42                  <1> 	inc	dx
-  1052 000008D5 E2F9                <1> 	loop	.loop
-  1053 000008D7 30E4                <1> 	xor	ah,ah
-  1054 000008D9 C3                  <1> 	ret
-  1055                              <1> 
-  1056                              <1> ;---------------------------------------------------------------------
-  1057                              <1> ; cmosヘッダと各ブロックのチェック
-  1058                              <1> ; out: ah != 0 : ヘッダ異常
-  1059                              <1> ;      ah == 0 : ヘッダ正常、bxにチェックサムが合わなかった
-  1060                              <1> ;                ブロックがビット単位でセットされる
-  1061                              <1> cmos_command_20:
-  1062 000008DA BAA600              <1> 	mov	dx,0a6h
-  1063 000008DD E85000              <1> 	call	cmos_read2byte
-  1064 000008E0 3D7941              <1> 	cmp	ax,4179h        ; ヘッダの識別子？値自体に意味があるか不明
-  1065 000008E3 7403                <1> 	jz	.next
-  1066 000008E5 B403                <1> 	mov	ah,3
-  1067 000008E7 C3                  <1> 	ret
-  1068                              <1> .next:
-  1069 000008E8 E84E01              <1> 	call	cmos_get_cmosheadersum
-  1070 000008EB 89C3                <1> 	mov	bx,ax
-  1071 000008ED BAA400              <1> 	mov	dx,0a4h
-  1072 000008F0 E83D00              <1> 	call	cmos_read2byte
-  1073 000008F3 39C3                <1> 	cmp	bx,ax
-  1074 000008F5 B92000              <1> 	mov	cx,20h
-  1075 000008F8 B480                <1> 	mov	ah,80h
-  1076 000008FA 7503                <1> 	jnz	.j1
-  1077 000008FC E85001              <1> 	call	cmos_check_allblocks
-  1078                              <1> .j1:
-  1079 000008FF 895E04              <1> 	mov	[bp+4],bx ; bx
-  1080 00000902 C3                  <1> 	ret
-  1081                              <1> 
-  1082                              <1> ;---------------------------------------------------------------------
-  1083                              <1> ; CMOS BIOS 下請け
-  1084                              <1> 
-  1085                              <1> ; CMOSアドレスをI/Oアドレスに変換
-  1086                              <1> ; in dx:cmos address -> out dx:i/o address
-  1087                              <1> cmos_getaddress:
-  1088 00000903 81FAC007            <1> 	cmp	dx,7c0h
-  1089 00000907 7709                <1> 	ja	.over
-  1090                              <1> 
-  1091 00000909 01D2                <1> 	add	dx,dx
-  1092 0000090B 81C20030            <1> 	add	dx,3000h
-  1093 0000090F 31C0                <1> 	xor	ax,ax
-  1094 00000911 C3                  <1> 	ret
-  1095                              <1> .over:
-  1096 00000912 51                  <1> 	push	cx
-  1097 00000913 81EAC107            <1> 	sub	dx,7c1h
-  1098 00000917 B90008              <1> 	mov	cx,800h
-  1099 0000091A 89D0                <1> 	mov	ax,dx
-  1100 0000091C 31D2                <1> 	xor	dx,dx
-  1101 0000091E F7F1                <1> 	div	cx
-  1102 00000920 40                  <1> 	inc	ax
-  1103 00000921 01D2                <1> 	add	dx,dx
-  1104 00000923 81C20030            <1> 	add	dx,3000h
-  1105 00000927 59                  <1> 	pop	cx
-  1106 00000928 C3                  <1> 	ret
-  1107                              <1> 
-  1108                              <1> ;--------------------------------------
-  1109                              <1> 
-  1110                              <1> cmos_read1byte:
-  1111 00000929 52                  <1> 	push	dx
-  1112 0000092A E8D6FF              <1> 	call	cmos_getaddress
-  1113 0000092D EC                  <1> 	in	al,dx
-  1114 0000092E 5A                  <1> 	pop	dx
-  1115 0000092F C3                  <1> 	ret
-  1116                              <1> 
-  1117                              <1> ;--------------------------------------
-  1118                              <1> 
-  1119                              <1> cmos_read2byte:
-  1120 00000930 51                  <1> 	push	cx
-  1121 00000931 52                  <1> 	push	dx
-  1122 00000932 E8F4FF              <1> 	call	cmos_read1byte
-  1123 00000935 88C1                <1> 	mov	cl,al
-  1124 00000937 42                  <1> 	inc	dx
-  1125 00000938 E8EEFF              <1> 	call	cmos_read1byte
-  1126 0000093B 88CC                <1> 	mov	ah,cl
-  1127 0000093D 86C4                <1> 	xchg	al,ah
-  1128 0000093F 5A                  <1> 	pop	dx
-  1129 00000940 59                  <1> 	pop	cx
-  1130 00000941 C3                  <1> 	ret
-  1131                              <1> 
-  1132                              <1> ;--------------------------------------
-  1133                              <1> 
-  1134                              <1> cmos_write1byte:
-  1135 00000942 52                  <1> 	push	dx
-  1136 00000943 50                  <1> 	push	ax
-  1137 00000944 E8BCFF              <1> 	call	cmos_getaddress
-  1138 00000947 58                  <1> 	pop	ax
-  1139 00000948 EE                  <1> 	out	dx,al
-  1140 00000949 5A                  <1> 	pop	dx
-  1141 0000094A C3                  <1> 	ret
-  1142                              <1> 
-  1143                              <1> ;--------------------------------------
-  1144                              <1> 
-  1145                              <1> cmos_write2byte:
-  1146 0000094B 52                  <1> 	push	dx
-  1147 0000094C 50                  <1> 	push	ax
-  1148 0000094D E8F2FF              <1> 	call	cmos_write1byte
-  1149 00000950 42                  <1> 	inc	dx
-  1150 00000951 88E0                <1> 	mov	al,ah
-  1151 00000953 E8ECFF              <1> 	call	cmos_write1byte
-  1152                              <1> 	
-  1153 00000956 58                  <1> 	pop	ax
-  1154 00000957 5A                  <1> 	pop	dx
-  1155 00000958 C3                  <1> 	ret
-  1156                              <1> 
-  1157                              <1> ;--------------------------------------
-  1158                              <1> ; チェックサムテーブル読み込み
-  1159                              <1> 
-  1160                              <1> cmos_read_3f82:
-  1161 00000959 0FBED0              <1> 	movsx	dx,al
-  1162 0000095C 01D2                <1> 	add	dx,dx
-  1163 0000095E 81C2823F            <1> 	add	dx,3f82h
-  1164 00000962 EC                  <1> 	in	al,dx
-  1165 00000963 88C1                <1> 	mov	cl,al
-  1166 00000965 C3                  <1> 	ret
-  1167                              <1> 
-  1168                              <1> ;--------------------------------------
-  1169                              <1> ; チェックサムテーブル書き込み
-  1170                              <1> 
-  1171                              <1> cmos_write_3f82:
-  1172 00000966 0FBED0              <1> 	movsx	dx,al
-  1173 00000969 01D2                <1> 	add	dx,dx
-  1174 0000096B 81C2823F            <1> 	add	dx,3f82h
-  1175 0000096F 88C8                <1> 	mov	al,cl
-  1176 00000971 EE                  <1> 	out	dx,al
-  1177 00000972 C3                  <1> 	ret
-  1178                              <1> 
-  1179                              <1> ;--------------------------------------
-  1180                              <1> ; ブロック番号テーブル読み込み
-  1181                              <1> 
-  1182                              <1> cmos_read_3fa2:
-  1183 00000973 52                  <1> 	push	dx
-  1184 00000974 01D2                <1> 	add	dx,dx
-  1185 00000976 81C2A23F            <1> 	add	dx,3fa2h
-  1186 0000097A EC                  <1> 	in	al,dx
-  1187 0000097B 5A                  <1> 	pop	dx
-  1188 0000097C C3                  <1> 	ret
-  1189                              <1> 
-  1190                              <1> ;--------------------------------------
-  1191                              <1> ; ブロック番号テーブル書き込み
-  1192                              <1> 
-  1193                              <1> cmos_write_3fa2:
-  1194 0000097D 52                  <1> 	push	dx
-  1195 0000097E 01D2                <1> 	add	dx,dx
-  1196 00000980 81C2A23F            <1> 	add	dx,3fa2h
-  1197 00000984 EE                  <1> 	out	dx,al
-  1198 00000985 5A                  <1> 	pop	dx
-  1199 00000986 C3                  <1> 	ret
-  1200                              <1> 
-  1201                              <1> ;--------------------------------------
-  1202                              <1> 
-  1203                              <1> ; 指定されたcmosブロックのチェックサムを返す
-  1204                              <1> ; in al: block no
-  1205                              <1> cmos_calc_checksum:
-  1206 00000987 53                  <1> 	push	bx
-  1207 00000988 E81000              <1> 	call	cmos_getaddlength
-  1208 0000098B 30DB                <1> 	xor	bl,bl
-  1209                              <1> .loop:
-  1210 0000098D E899FF              <1> 	call	cmos_read1byte
-  1211 00000990 00C3                <1> 	add	bl,al
-  1212 00000992 42                  <1> 	inc	dx
-  1213 00000993 E2F8                <1> 	loop	.loop
-  1214 00000995 31C0                <1> 	xor	ax,ax
-  1215 00000997 28D8                <1> 	sub	al,bl
-  1216 00000999 5B                  <1> 	pop	bx
-  1217 0000099A C3                  <1> 	ret
-  1218                              <1> 
-  1219                              <1> ;--------------------------------------
-  1220                              <1> 
-  1221                              <1> ; 指定されたcmosブロックのアドレスと長さを返す
-  1222                              <1> ; in : al: no
-  1223                              <1> ; out: cx:length, dx:cmos address
-  1224                              <1> cmos_getaddlength:
-  1225 0000099B 30E4                <1> 	xor	ah,ah ; dx<-ax*10
-  1226 0000099D 89C2                <1> 	mov	dx,ax
-  1227 0000099F 01D2                <1> 	add	dx,dx
-  1228 000009A1 01D2                <1> 	add	dx,dx
-  1229 000009A3 01D2                <1> 	add	dx,dx
-  1230 000009A5 01C2                <1> 	add	dx,ax
-  1231 000009A7 01C2                <1> 	add	dx,ax
-  1232                              <1> 
-  1233 000009A9 83C208              <1> 	add	dx,8
-  1234 000009AC E881FF              <1> 	call	cmos_read2byte
-  1235 000009AF 89C1                <1> 	mov	cx,ax ; length
-  1236                              <1> 
-  1237 000009B1 83EA02              <1> 	sub	dx,2
-  1238 000009B4 E879FF              <1> 	call	cmos_read2byte
-  1239 000009B7 89C2                <1> 	mov	dx,ax ; address
-  1240 000009B9 C3                  <1> 	ret
-  1241                              <1> 
-  1242                              <1> ;--------------------------------------
-  1243                              <1> 
-  1244                              <1> cmos_check_blockrange:
-  1245 000009BA 3C10                <1> 	cmp	al,10h
-  1246 000009BC 7203                <1> 	jc	.j1
-  1247 000009BE B402                <1> 	mov	ah,2
-  1248 000009C0 C3                  <1> 	ret
-  1249                              <1> .j1:
-  1250 000009C1 30E4                <1> 	xor	ah,ah
-  1251 000009C3 C3                  <1> 	ret
-  1252                              <1> 
-  1253                              <1> ;--------------------------------------
-  1254                              <1> 
-  1255                              <1> ; ブロックの有効性をチェック
-  1256                              <1> ; in: al, cl
-  1257                              <1> cmos_check_blockvalidity:
-  1258 000009C4 E8F3FF              <1> 	call	cmos_check_blockrange
-  1259 000009C7 08E4                <1> 	or	ah,ah
-  1260 000009C9 7401                <1> 	jz	.j1
-  1261 000009CB C3                  <1> 	ret
-  1262                              <1> .j1:
-  1263 000009CC 30E4                <1> 	xor	ah,ah ; dx<-ax*10
-  1264 000009CE 89C2                <1> 	mov	dx,ax
-  1265 000009D0 01D2                <1> 	add	dx,dx
-  1266 000009D2 01D2                <1> 	add	dx,dx
-  1267 000009D4 01D2                <1> 	add	dx,dx
-  1268 000009D6 01C2                <1> 	add	dx,ax
-  1269 000009D8 01C2                <1> 	add	dx,ax
-  1270                              <1> 
-  1271 000009DA 88CB                <1> 	mov	bl,cl
-  1272 000009DC 52                  <1> 	push	dx
-  1273 000009DD E850FF              <1> 	call	cmos_read2byte
-  1274                              <1> 	; ブロックが有効か？
-  1275 000009E0 A801                <1> 	test	al,1
-  1276 000009E2 740B                <1> 	jz	.error
-  1277                              <1> 
-  1278 000009E4 B90800              <1> 	mov	cx,8
-  1279 000009E7 38DC                <1> 	cmp	ah,bl
-  1280 000009E9 7504                <1> 	jnz	.error
-  1281                              <1> 
-  1282 000009EB 30E4                <1> 	xor	ah,ah
-  1283 000009ED 5A                  <1> 	pop	dx
-  1284 000009EE C3                  <1> 	ret
-  1285                              <1> .error:
-  1286 000009EF B94000              <1> 	mov	cx,40h
-  1287 000009F2 B480                <1> 	mov	ah,80h
-  1288 000009F4 5A                  <1> 	pop	dx
-  1289 000009F5 C3                  <1> 	ret
-  1290                              <1> 
-  1291                              <1> ;--------------------------------------
-  1292                              <1> 
-  1293                              <1> ; 転送範囲の有効性をチェック
-  1294                              <1> cmos_check_transferrange:
-  1295 000009F6 8A4602              <1> 	mov	al,[bp+2] ; al
-  1296 000009F9 E89FFF              <1> 	call	cmos_getaddlength
-  1297 000009FC 8B7E08              <1> 	mov	di,[bp+8] ; dx
-  1298 000009FF 037E04              <1> 	add	di,[bp+4] ; bx
-  1299 00000A02 720F                <1> 	jc	.error
-  1300 00000A04 39F9                <1> 	cmp	cx,di
-  1301 00000A06 720B                <1> 	jc	.error
-  1302 00000A08 8B4608              <1> 	mov	ax,[bp+8] ; dx
-  1303 00000A0B 01C2                <1> 	add	dx,ax
-  1304 00000A0D 8B5E04              <1> 	mov	bx,[bp+4] ; bx
-  1305 00000A10 30E4                <1> 	xor	ah,ah
-  1306 00000A12 C3                  <1> 	ret
-  1307                              <1> .error:
-  1308 00000A13 B90400              <1> 	mov	cx,4
-  1309 00000A16 B480                <1> 	mov	ah,80h
-  1310 00000A18 C3                  <1> 	ret
-  1311                              <1> 
-  1312                              <1> ;--------------------------------------
-  1313                              <1> 
-  1314                              <1> ; ブロック番号テーブル初期化
-  1315                              <1> cmos_init_blocknotable:
-  1316 00000A19 BE[290A]            <1> 	mov	si,.initdata
-  1317 00000A1C 31D2                <1> 	xor	dx,dx
-  1318                              <1> .loop:
-  1319 00000A1E AC                  <1> 	lodsb
-  1320 00000A1F E85BFF              <1> 	call	cmos_write_3fa2
-  1321 00000A22 42                  <1> 	inc	dx
-  1322 00000A23 83FA10              <1> 	cmp	dx,10h
-  1323 00000A26 72F6                <1> 	jc	.loop
-  1324 00000A28 C3                  <1> 	ret
-  1325                              <1> 
-  1326                              <1> .initdata:
-  1327 00000A29 0001020304FFFFFF    <1> 	db	0,1,2,3,4, 255,255,255
-  1328 00000A31 FFFFFFFFFFFFFFFF    <1> 	db	255,255,255,255, 255,255,255,255
-  1329                              <1> 
-  1330                              <1> ;--------------------------------------
-  1331                              <1> 
-  1332                              <1> ; 0-a4までの値を加算した値を得る
-  1333                              <1> cmos_get_cmosheadersum:
-  1334 00000A39 31D2                <1> 	xor	dx,dx
-  1335 00000A3B B95200              <1> 	mov	cx,52h
-  1336 00000A3E 31DB                <1> 	xor	bx,bx
-  1337                              <1> .loop:
-  1338 00000A40 51                  <1> 	push	cx
-  1339 00000A41 E8ECFE              <1> 	call	cmos_read2byte
-  1340 00000A44 59                  <1> 	pop	cx
-  1341 00000A45 01C3                <1> 	add	bx,ax
-  1342 00000A47 83C202              <1> 	add	dx,2
-  1343 00000A4A E2F4                <1> 	loop	.loop
-  1344 00000A4C 89D8                <1> 	mov	ax,bx
-  1345 00000A4E C3                  <1> 	ret
-  1346                              <1> 
-  1347                              <1> ;--------------------------------------
-  1348                              <1> 
-  1349                              <1> ; 全ブロックをチェック
-  1350                              <1> cmos_check_allblocks:
-  1351 00000A4F 31C0                <1> 	xor	ax,ax
-  1352 00000A51 31FF                <1> 	xor	di,di
-  1353 00000A53 31F6                <1> 	xor	si,si
-  1354                              <1> .loop:
-  1355 00000A55 89F2                <1> 	mov	dx,si
-  1356 00000A57 01D2                <1> 	add	dx,dx
-  1357 00000A59 01D2                <1> 	add	dx,dx
-  1358 00000A5B 01D2                <1> 	add	dx,dx
-  1359 00000A5D 01F2                <1> 	add	dx,si
-  1360 00000A5F 01F2                <1> 	add	dx,si
-  1361 00000A61 E8C5FE              <1> 	call	cmos_read1byte
-  1362 00000A64 08C0                <1> 	or	al,al
-  1363 00000A66 7919                <1> 	jns	.next
-  1364                              <1> 
-  1365 00000A68 89F0                <1> 	mov	ax,si
-  1366 00000A6A E8ECFE              <1> 	call	cmos_read_3f82
-  1367 00000A6D 89F0                <1> 	mov	ax,si
-  1368 00000A6F 51                  <1> 	push	cx
-  1369 00000A70 E814FF              <1> 	call	cmos_calc_checksum
-  1370 00000A73 59                  <1> 	pop	cx
-  1371                              <1> 
-  1372 00000A74 38C8                <1> 	cmp	al,cl
-  1373 00000A76 7409                <1> 	jz	.next
-  1374                              <1> 
-  1375                              <1> 	; チェックサムエラーのあったブロックのbitをon
-  1376 00000A78 89F1                <1> 	mov	cx,si
-  1377 00000A7A B80100              <1> 	mov	ax,1
-  1378 00000A7D D3E0                <1> 	shl	ax,cl
-  1379 00000A7F 09C7                <1> 	or	di,ax
-  1380                              <1> .next:
-  1381 00000A81 46                  <1> 	inc	si
-  1382 00000A82 83FE10              <1> 	cmp	si,10h
-  1383 00000A85 72CE                <1> 	jc	.loop
-  1384 00000A87 89FB                <1> 	mov	bx,di
-  1385 00000A89 30E4                <1> 	xor	ah,ah
-  1386 00000A8B C3                  <1> 	ret
-  1387                              <1> 
-  1388                              <1> 
-   820                                  
-   821                                  %include "sys_p32.asm"
-   822                              <1> ; version 2003.03.04.1
-   823                              <1> ;---------------------------------------------------------------------
-   824                              <1> ;
-   825                              <1> ; FM TOWNS 互換 ROM シリーズ
-   826                              <1> ;
-   827                              <1> ; FMT_SYS.ROM : プロテクトモード・プロシジャ(EXT-BOOT部分に相当)
-   828                              <1> ;
-   829                              <1> ; by Kasanova
-   830                              <1> ;
+   818                                  %include "sys_osr.asm"
+   819                              <1> ; version 2003.03.04.1
+   820                              <1> ;---------------------------------------------------------------------
+   821                              <1> ;
+   822                              <1> ; FM TOWNS 互換 ROM シリーズ
+   823                              <1> ;
+   824                              <1> ; FMT_SYS.ROM : RAM/ROMドライブアクセス
+   825                              <1> ;
+   826                              <1> ; by Kasanova
+   827                              <1> ;
+   828                              <1> ;---------------------------------------------------------------------
+   829                              <1> ; ※単独ではアセンブルしません
+   830                              <1> 
    831                              <1> ;---------------------------------------------------------------------
-   832                              <1> ; ※単独ではアセンブルしません
-   833                              <1> 
-   834                              <1> ; コードが長くなってきたら、実機と同様に 0xFFFE0000-0xFFFE7FFF に
-   835                              <1> ; 移してもいいかも
-   836                              <1> 
-   837                              <1> [BITS 32]
-   838                              <1> pmode_entry:
-   839 00000A8C 0FB7E4              <1> 	movzx	esp,sp
-   840 00000A8F 89E5                <1> 	mov	ebp,esp
-   841 00000A91 668CD0              <1> 	mov	ax,ss
-   842 00000A94 0FB7C0              <1> 	movzx	eax,ax
-   843 00000A97 C1E004              <1> 	shl	eax,4
-   844 00000A9A 01C4                <1> 	add	esp,eax
-   845                              <1> 
-   846 00000A9C 66B81000            <1> 	mov	ax,10h
-   847 00000AA0 8ED0                <1> 	mov	ss,ax
-   848 00000AA2 8ED8                <1> 	mov	ds,ax
-   849 00000AA4 8EC0                <1> 	mov	es,ax
-   850                              <1> 
-   851 00000AA6 55                  <1> 	push	ebp
-   852 00000AA7 0FB6C3              <1> 	movzx	eax,bl
-   853 00000AAA 2EFF1485[D5CAFFFF]  <1> 	call	[cs:pmode_jmptable+BOOTCODE_BASE+eax*4]
-   854 00000AB2 5D                  <1> 	pop	ebp
+   832                              <1> ;■備考■
+   833                              <1> ; ・メディア番号 0x40 はRAMあるいはROMに振られたメディア番号である
+   834                              <1> ; ・アクセス先の物理アドレスは、メディア番号の下位4ビットによって決まる
+   835                              <1> ; ・将来的には386SX系のメモリマップも考慮すること
+   836                              <1> ;
+   837                              <1> ;   0: 00000000h- 7fffffffh
+   838                              <1> ;   1: 無効
+   839                              <1> ;   2: c2000000h- c207ffffh (書き込み禁止)
+   840                              <1> ;   3: 無効
+   841                              <1> ;   4: 無効
+   842                              <1> ;   5: 無効
+   843                              <1> ;   6: 無効
+   844                              <1> ;   7: 00000000h- ffffffffh (BYTEアクセス)
+   845                              <1> ;   8: 00000000h- ffffffffh (DWORDアクセス)
+   846                              <1> ;   9: c2000000h- c207ffffh (書き込み禁止)
+   847                              <1> ;   a: c0000000h- c007ffffh ICメモリ存在チェックあり
+   848                              <1> ;   b: fffc0000h- ffffffffh (書き込み禁止)
+   849                              <1> ;   c: 80000000h- 8007ffffh
+   850                              <1> ;   d: 80100000h- 8017ffffh
+   851                              <1> ;   e: c2140000h- c2141fffh
+   852                              <1> ;   f: 無効
+   853                              <1> ;
+   854                              <1> ;---------------------------------------------------------------------
    855                              <1> 
-   856 00000AB3 89EC                <1> 	mov	esp,ebp
-   857 00000AB5 66B82000            <1> 	mov	ax,20h
-   858 00000AB9 8ED8                <1> 	mov	ds,ax
-   859 00000ABB 8EC0                <1> 	mov	es,ax
-   860 00000ABD 8ED0                <1> 	mov	ss,ax
-   861                              <1> 
-   862 00000ABF EA                  <1> 	db	0eah
-   863 00000AC0 [C60A0000]          <1> 	dd	.flush
-   864 00000AC4 1800                <1> 	dw	18h
-   865                              <1> .flush:
-   866                              <1> 
-   867                              <1> [BITS 16]
-   868 00000AC6 0F20C0              <1> 	mov	eax,cr0
-   869 00000AC9 24FE                <1> 	and	al,0xfe
-   870 00000ACB 0F22C0              <1> 	mov	cr0,eax
-   871 00000ACE EB00                <1> 	jmp	short $+2
-   872                              <1> 
-   873 00000AD0 EA                  <1> 	db	0eah
-   874 00000AD1 [0802]              <1> 	dw	return_from_pmode
-   875 00000AD3 00FC                <1> 	dw	0fc00h
+   856                              <1> ;---------------------------------------------------------------------
+   857                              <1> ; 読み込み＆書き込み
+   858                              <1> 
+   859                              <1> osrom_command_05:
+   860                              <1> osrom_command_06:
+   861 000008CE 8A04                <1> 	mov	al,[si]
+   862 000008D0 240F                <1> 	and	al,0fh
+   863                              <1> 
+   864 000008D2 3C08                <1> 	cmp	al,8 ; とりあえず、これだけ対応
+   865 000008D4 7402                <1> 	jz	.ok
+   866 000008D6 EBFE                <1> 	jmp $
+   867                              <1> .ok:
+   868                              <1> 	; レジスタの上位16ビットを変更してはいけない
+   869 000008D8 6660                <1> 	pushad
+   870                              <1> 
+   871 000008DA 6631D2              <1> 	xor	edx,edx
+   872 000008DD 660FB7F6            <1> 	movzx	esi,si
+   873 000008E1 8CDA                <1> 	mov	dx,ds
+   874 000008E3 66C1E204            <1> 	shl	edx,4
+   875 000008E7 6601D6              <1> 	add	esi,edx
    876                              <1> 
-   877                              <1> 
-   878                              <1> pmode_jmptable:
-   879 00000AD5 [E9CAFFFF]          <1> 	dd	BOOTCODE_BASE+ pm_puticon
-   880 00000AD9 [20CBFFFF]          <1> 	dd	BOOTCODE_BASE+ pm_memorycheck
-   881 00000ADD [7DCBFFFF]          <1> 	dd	BOOTCODE_BASE+ pm_drawlogo
-   882 00000AE1 [D9CBFFFF]          <1> 	dd	BOOTCODE_BASE+ pm_setpalette
-   883 00000AE5 [43CCFFFF]          <1> 	dd	BOOTCODE_BASE+ pm_transfermemory
-   884                              <1> 
-   885                              <1> 
-   886                              <1> [BITS 32]
-   887                              <1> 
-   888                              <1> ;---------------------------------------------------------------------
-   889                              <1> ; 32x32アイコン表示
-   890                              <1> ;
-   891                              <1> ; cl = 0-127 : システムアイコン
-   892                              <1> ; cl = 128-  : 起動用アイコン
-   893                              <1> pm_puticon:
-   894 00000AE9 0FB6C9              <1> 	movzx	ecx,cl
-   895 00000AEC 80F980              <1> 	cmp	cl,128
-   896 00000AEF 7211                <1> 	jc	.sysicon
+   877 000008EA 6631D2              <1> 	xor	edx,edx
+   878 000008ED 660FB7FF            <1> 	movzx	edi,di
+   879 000008F1 8CC2                <1> 	mov	dx,es
+   880 000008F3 66C1E204            <1> 	shl	edx,4
+   881 000008F7 6601D7              <1> 	add	edi,edx
+   882                              <1> 
+   883                              <1> 	; もう少しスマートな方法を考えましょう
+   884 000008FA B80400              <1> 	mov	ax,PMODE_TRANSFERMEM
+   885 000008FD 83EC06              <1> 	sub	sp,6
+   886 00000900 89E5                <1> 	mov	bp,sp
+   887 00000902 0F014600            <1> 	sgdt	[bp]
+   888 00000906 55                  <1> 	push	bp
+   889 00000907 E89AF8              <1> 	call	set_gdt
+   890 0000090A E8DBF8              <1> 	call	call_pmode
+   891 0000090D 5D                  <1> 	pop	bp
+   892 0000090E 0F015600            <1> 	lgdt	[bp]
+   893 00000912 83C406              <1> 	add	sp,6
+   894                              <1> 
+   895 00000915 6661                <1> 	popad
+   896 00000917 C3                  <1> 	ret
    897                              <1> 
-   898                              <1> 	; 起動用アイコンの場合
-   899 00000AF1 81E980000000        <1> 	sub	ecx,128
-   900 00000AF7 C1E107              <1> 	shl	ecx,7
-   901 00000AFA 8DB100BCFFFF        <1> 	lea	esi,[0ffffbc00h+ecx]
-   902 00000B00 EB09                <1> 	jmp	.draw
-   903                              <1> 
-   904                              <1> 	; システムアイコンの場合
-   905                              <1> .sysicon:
-   906 00000B02 C1E108              <1> 	shl	ecx,8
-   907 00000B05 8DB10080FEFF        <1> 	lea	esi,[0fffe8000h+ecx]
-   908                              <1> .draw:
-   909 00000B0B 0FB7FA              <1> 	movzx	edi,dx
-   910 00000B0E 81C700000C00        <1> 	add	edi,0c0000h
-   911 00000B14 B920000000          <1> 	mov	ecx,20h
-   912                              <1> .loop:
-   913 00000B19 A5                  <1> 	movsd
-   914 00000B1A 83C74C              <1> 	add	edi,VRAM_PITCH-4
-   915 00000B1D E2FA                <1> 	loop	.loop
-   916 00000B1F C3                  <1> 	ret
-   917                              <1> 
-   918                              <1> 
-   919                              <1> ;---------------------------------------------------------------------
-   920                              <1> ; メモリチェックとCMOSへの書き出し
-   921                              <1> ;
-   922                              <1> ; ※メモリカウントもここで行えるように、32ビットコードで書いてます
-   923                              <1> pm_memorycheck:
-   924                              <1> 	; 3150h-317ehは、メモリの実装状態を示すらしい
-   925 00000B20 30C0                <1> 	xor	al,al
-   926 00000B22 66BA5031            <1> 	mov	dx,3150h
-   927 00000B26 B918000000          <1> 	mov	ecx,30h/2
-   928                              <1> .loop:
-   929 00000B2B EE                  <1> 	out	dx,al
-   930 00000B2C 6683C202            <1> 	add	dx,2
-   931 00000B30 E2F9                <1> 	loop	.loop
+   898                              <1> 
+   819                                  
+   820                                  %include "sys_cmos.asm"
+   821                              <1> ; version 2003.03.04.1
+   822                              <1> ;---------------------------------------------------------------------
+   823                              <1> ;
+   824                              <1> ; FM TOWNS 互換 ROM シリーズ
+   825                              <1> ;
+   826                              <1> ; FMT_SYS.ROM : CMOS BIOS
+   827                              <1> ;
+   828                              <1> ; by Kasanova
+   829                              <1> ;
+   830                              <1> ;---------------------------------------------------------------------
+   831                              <1> ; ※単独ではアセンブルしません
+   832                              <1> 
+   833                              <1> 
+   834                              <1> ;---------------------------------------------------------------------
+   835                              <1> 
+   836                              <1> cmos_command_xx:
+   837 00000918 EBFE                <1> 	jmp	$
+   838                              <1> 
+   839                              <1> ;---------------------------------------------------------------------
+   840                              <1> 
+   841                              <1> cmos_command_fd:
+   842 0000091A EBFE                <1> 	jmp	$
+   843                              <1> 
+   844                              <1> ;---------------------------------------------------------------------
+   845                              <1> 
+   846                              <1> ; init. cmos
+   847                              <1> cmos_command_00:
+   848 0000091C 8CC8                <1> 	mov	ax,cs
+   849 0000091E 8ED8                <1> 	mov	ds,ax
+   850                              <1> 
+   851                              <1> 	; まずクリア
+   852 00000920 31D2                <1> 	xor	dx,dx
+   853 00000922 30C0                <1> 	xor	al,al
+   854 00000924 B9A800              <1> 	mov	cx,0a8h
+   855                              <1> .loop1:
+   856 00000927 E89001              <1> 	call	cmos_write1byte
+   857 0000092A 42                  <1> 	inc	dx
+   858 0000092B E2FA                <1> 	loop	.loop1
+   859                              <1> 
+   860                              <1> 	; 初期データ転送
+   861 0000092D 31D2                <1> 	xor	dx,dx
+   862 0000092F BE[8009]            <1> 	mov	si,.initdata
+   863 00000932 B93C00              <1> 	mov	cx,.initdata_end-.initdata
+   864                              <1> .loop2:
+   865 00000935 AC                  <1> 	lodsb
+   866 00000936 E88101              <1> 	call	cmos_write1byte
+   867 00000939 42                  <1> 	inc	dx
+   868 0000093A E2F9                <1> 	loop	.loop2
+   869                              <1> 
+   870 0000093C BAA000              <1> 	mov	dx,0a0h
+   871 0000093F BE[BC09]            <1> 	mov	si,.initdata2
+   872 00000942 B90800              <1> 	mov	cx,8
+   873                              <1> .loop3:
+   874 00000945 AC                  <1> 	lodsb
+   875 00000946 E87101              <1> 	call	cmos_write1byte
+   876 00000949 42                  <1> 	inc	dx
+   877 0000094A E2F9                <1> 	loop	.loop3
+   878                              <1> 
+   879 0000094C BAA000              <1> 	mov	dx,0a0h
+   880 0000094F E85601              <1> 	call	cmos_read2byte
+   881 00000952 89C2                <1> 	mov	dx,ax
+   882                              <1> .loop4:
+   883 00000954 52                  <1> 	push	dx
+   884 00000955 31C0                <1> 	xor	ax,ax
+   885 00000957 E86001              <1> 	call	cmos_write1byte
+   886 0000095A 5A                  <1> 	pop	dx
+   887 0000095B 42                  <1> 	inc	dx
+   888 0000095C 81FAC107            <1> 	cmp	dx,7c1h
+   889 00000960 72F2                <1> 	jc	.loop4
+   890                              <1> 
+   891 00000962 E82C02              <1> 	call	cmos_init_blocknotable
+   892                              <1> 
+   893 00000965 E84902              <1> 	call	cmos_get_cmosheadersum
+   894 00000968 BAA400              <1> 	mov	dx,0a4h
+   895 0000096B E85501              <1> 	call	cmos_write2byte
+   896                              <1> 
+   897                              <1> 	; チェックサムテーブル初期化
+   898 0000096E 31C0                <1> 	xor	ax,ax
+   899 00000970 30C9                <1> 	xor	cl,cl
+   900                              <1> .loop5:
+   901 00000972 50                  <1> 	push	ax
+   902 00000973 E86801              <1> 	call	cmos_write_3f82
+   903 00000976 58                  <1> 	pop	ax
+   904 00000977 FEC0                <1> 	inc	al
+   905 00000979 3C10                <1> 	cmp	al,10h
+   906 0000097B 72F5                <1> 	jc	.loop5
+   907                              <1> 
+   908 0000097D 30E4                <1> 	xor	ah,ah
+   909 0000097F C3                  <1> 	ret
+   910                              <1> 
+   911                              <1> 	; cmos上のデータブロックを定義データ
+   912                              <1> .initdata:
+   913 00000980 01FF                <1> 	db	1,0ffh       ; ブロック存在フラグ＋ブロック番号？
+   914 00000982 424F4F54            <1> 	db	'BOOT'       ; 識別子
+   915 00000986 A8004000            <1> 	dw	00a8h, 0040h ; cmos上のアドレスとサイズ
+   916                              <1> 
+   917 0000098A 01FE                <1> 	db	1,0feh
+   918 0000098C 53455455            <1> 	db	'SETU'
+   919 00000990 E8000001            <1> 	dw	00e8h, 0100h
+   920                              <1> 
+   921 00000994 01FD                <1> 	db	1,0fdh
+   922 00000996 4C4F4720            <1> 	db	'LOG '
+   923 0000099A E8011003            <1> 	dw	01e8h, 0310h
+   924                              <1> 	
+   925 0000099E 01FC                <1> 	db	1,0fch
+   926 000009A0 4F415359            <1> 	db	'OASY'
+   927 000009A4 F8042000            <1> 	dw	04f8h, 0020h
+   928                              <1> 
+   929 000009A8 01FB                <1> 	db	1,0fbh
+   930 000009AA 58454E49            <1> 	db	'XENI'
+   931 000009AE 18051000            <1> 	dw	0518h, 0010h
    932                              <1> 
-   933                              <1> 	; 5e8hは、うんづでは必ず利用可能
-   934 00000B32 66BAE805            <1> 	mov	dx,5e8h
-   935                              <1> 
-   936 00000B36 EC                  <1> 	in	al,dx
-   937 00000B37 247F                <1> 	and	al,7fh
-   938 00000B39 66BA5C3A            <1> 	mov	dx,3a5ch
-   939 00000B3D EE                  <1> 	out	dx,al
-   940 00000B3E 0FB6C8              <1> 	movzx	ecx,al
-   941                              <1> 
-   942 00000B41 B001                <1> 	mov	al,1
-   943 00000B43 66BA8631            <1> 	mov	dx,3186h
-   944 00000B47 EE                  <1> 	out	dx,al
+   933 000009B2 01FA                <1> 	db	1,0fah
+   934 000009B4 544F574E            <1> 	db	'TOWN'
+   935 000009B8 28050001            <1> 	dw	0528h, 0100h
+   936                              <1> .initdata_end:
+   937                              <1> 
+   938                              <1> .initdata2:
+   939 000009BC 2806990100007941    <1> 	db	28h,06h,99h,01h, 00h,00h,79h,41h
+   940                              <1> 
+   941                              <1> ;---------------------------------------------------------------------
+   942                              <1> 
+   943                              <1> cmos_command_01:
+   944 000009C4 EBFE                <1> 	jmp	$
    945                              <1> 
-   946 00000B48 89C8                <1> 	mov	eax,ecx
-   947 00000B4A C1E004              <1> 	shl	eax,4
-   948 00000B4D 48                  <1> 	dec	eax
-   949 00000B4E 66BA8A31            <1> 	mov	dx,318ah
-   950 00000B52 EE                  <1> 	out	dx,al
-   951 00000B53 6683EA02            <1> 	sub	dx,2
-   952 00000B57 88E0                <1> 	mov	al,ah
-   953 00000B59 EE                  <1> 	out	dx,al
-   954                              <1> 
-   955 00000B5A 49                  <1> 	dec	ecx
-   956 00000B5B 7415                <1> 	jz	.zero ; メモリが1MBしかない！
+   946                              <1> ;---------------------------------------------------------------------
+   947                              <1> 
+   948                              <1> cmos_command_02:
+   949 000009C6 EBFE                <1> 	jmp	$
+   950                              <1> 
+   951                              <1> ;---------------------------------------------------------------------
+   952                              <1> 
+   953                              <1> cmos_command_03:
+   954 000009C8 EBFE                <1> 	jmp	$
+   955                              <1> 
+   956                              <1> ;---------------------------------------------------------------------
    957                              <1> 
-   958 00000B5D B0FF                <1> 	mov	al,0ffh
-   959 00000B5F 66BA5031            <1> 	mov	dx,3150h
-   960                              <1> .loop2:
-   961 00000B63 EE                  <1> 	out	dx,al
-   962 00000B64 49                  <1> 	dec	ecx
-   963 00000B65 740B                <1> 	jz	.zero
-   964 00000B67 6683C202            <1> 	add	dx,2
-   965 00000B6B 6681FA8031          <1> 	cmp	dx,3180h
-   966 00000B70 72F1                <1> 	jc	.loop2
-   967                              <1> .zero:
-   968 00000B72 66BAAC31            <1> 	mov	dx,31ach
-   969 00000B76 EE                  <1> 	out	dx,al
-   970 00000B77 6683C202            <1> 	add	dx,2
-   971 00000B7B EE                  <1> 	out	dx,al
+   958                              <1> cmos_command_04:
+   959 000009CA EBFE                <1> 	jmp	$
+   960                              <1> 
+   961                              <1> ;---------------------------------------------------------------------
+   962                              <1> 
+   963                              <1> ; CMOSのa2h番地の情報をbxに返すだけ
+   964                              <1> cmos_command_05:
+   965 000009CC BAA200              <1> 	mov	dx,0a2h
+   966 000009CF E8D600              <1> 	call	cmos_read2byte
+   967 000009D2 894604              <1> 	mov	[bp+4],ax      ; bx
+   968 000009D5 30E4                <1> 	xor	ah,ah
+   969 000009D7 C3                  <1> 	ret
+   970                              <1> 
+   971                              <1> ;---------------------------------------------------------------------
    972                              <1> 
-   973                              <1> 	; TOWNS名物メモリカウントを入れるなら、ここ
-   974                              <1> 
-   975 00000B7C C3                  <1> 	ret
-   976                              <1> 
+   973                              <1> cmos_command_06:
+   974 000009D8 EBFE                <1> 	jmp	$
+   975                              <1> 
+   976                              <1> ;---------------------------------------------------------------------
    977                              <1> 
-   978                              <1> ;---------------------------------------------------------------------
-   979                              <1> ; 起動ロゴ表示
-   980                              <1> pm_drawlogo:
-   981                              <1> 	; ds = es
-   982 00000B7D BE0080FFFF          <1> 	mov	esi,LOGO_ADDRESS
-   983 00000B82 BFA0280C00          <1> 	mov	edi,0c0000h+VRAM_PITCH*130
-   984 00000B87 0FB71E              <1> 	movzx	ebx,word [esi] ; 水平ドット数
-   985 00000B8A 83C307              <1> 	add	ebx,7
-   986 00000B8D C1EB03              <1> 	shr	ebx,3
-   987 00000B90 B950000000          <1> 	mov	ecx,VRAM_PITCH ; 表示位置を画面中央へ
-   988 00000B95 29D9                <1> 	sub	ecx,ebx
-   989 00000B97 D1E9                <1> 	shr	ecx,1
-   990 00000B99 01CF                <1> 	add	edi,ecx
-   991 00000B9B 0FB74E02            <1> 	movzx	ecx,word [esi+2] ; 垂直ドット数
-   992                              <1> 
-   993 00000B9F 83C604              <1> 	add	esi,4
-   994                              <1> 
-   995 00000BA2 BA81FF0C00          <1> 	mov	edx,0cff81h
-   996 00000BA7 8A02                <1> 	mov	al,[edx]
-   997 00000BA9 24CF                <1> 	and	al,0cfh
-   998                              <1> .loop:
-   999 00000BAB 51                  <1> 	push	ecx
-  1000                              <1> 	; plane B
-  1001 00000BAC 57                  <1> 	push	edi
-  1002 00000BAD 89D9                <1> 	mov	ecx,ebx
-  1003 00000BAF C60201              <1> 	mov	byte [edx],1
-  1004 00000BB2 F3A4                <1> 	rep movsb
-  1005 00000BB4 5F                  <1> 	pop	edi
-  1006                              <1> 
-  1007                              <1> 	; plane R
-  1008 00000BB5 57                  <1> 	push	edi
-  1009 00000BB6 89D9                <1> 	mov	ecx,ebx
-  1010 00000BB8 C60202              <1> 	mov	byte [edx],2
-  1011 00000BBB F3A4                <1> 	rep movsb
-  1012 00000BBD 5F                  <1> 	pop	edi
-  1013                              <1> 
-  1014                              <1> 	; plane G
-  1015 00000BBE 57                  <1> 	push	edi
-  1016 00000BBF 89D9                <1> 	mov	ecx,ebx
-  1017 00000BC1 C60204              <1> 	mov	byte [edx],4
-  1018 00000BC4 F3A4                <1> 	rep movsb
-  1019 00000BC6 5F                  <1> 	pop	edi
-  1020                              <1> 
-  1021                              <1> %if(LOGO_USEPLANES==4)
-  1022                              <1> 	; plane I
-  1023 00000BC7 57                  <1> 	push	edi
-  1024 00000BC8 89D9                <1> 	mov	ecx,ebx
-  1025 00000BCA C60208              <1> 	mov	byte [edx],8
-  1026 00000BCD F3A4                <1> 	rep movsb
-  1027 00000BCF 5F                  <1> 	pop	edi
-  1028                              <1> %endif
-  1029                              <1> 
-  1030 00000BD0 8D7F50              <1> 	lea	edi,[edi+VRAM_PITCH]
-  1031 00000BD3 59                  <1> 	pop	ecx
-  1032 00000BD4 E2D5                <1> 	loop	.loop
-  1033                              <1> 
-  1034 00000BD6 8802                <1> 	mov	[edx],al
-  1035 00000BD8 C3                  <1> 	ret
-  1036                              <1> 
-  1037                              <1> ;---------------------------------------------------------------------
-  1038                              <1> ; パレット初期化
-  1039                              <1> ;
-  1040                              <1> ; ※リボンの絵のパレットが化けるので、デフォルト固定にしたほうがいい
-  1041                              <1> ;   かもしれない・・・
-  1042                              <1> 
-  1043                              <1> pm_setpalette:
-  1044 00000BD9 BE80BBFFFF          <1> 	mov	esi,LOGO_PAL_ADDRESS
-  1045 00000BDE 833EFF              <1> 	cmp	dword [esi], 0ffffffffh ; うんづ特有のパレットがあるか？
-  1046 00000BE1 7505                <1> 	jnz	.palexist
-  1047 00000BE3 BE[13CCFFFF]        <1> 	mov	esi,pm_def_palette+BOOTCODE_BASE
-  1048                              <1> .palexist:
-  1049 00000BE8 B910000000          <1> 	mov	ecx,16
-  1050                              <1> .loop:
-  1051 00000BED B010                <1> 	mov	al,16
-  1052 00000BEF 28C8                <1> 	sub	al,cl
-  1053 00000BF1 66BA90FD            <1> 	mov	dx,0fd90h
-  1054 00000BF5 EE                  <1> 	out	dx,al
-  1055 00000BF6 8A06                <1> 	mov	al,[esi]
-  1056 00000BF8 6683C202            <1> 	add	dx,2
-  1057 00000BFC EE                  <1> 	out	dx,al
-  1058 00000BFD 8A4601              <1> 	mov	al,[esi+1]
-  1059 00000C00 6683C202            <1> 	add	dx,2
-  1060 00000C04 EE                  <1> 	out	dx,al
-  1061 00000C05 8A4602              <1> 	mov	al,[esi+2]
-  1062 00000C08 6683C202            <1> 	add	dx,2
-  1063 00000C0C EE                  <1> 	out	dx,al
-  1064 00000C0D 83C603              <1> 	add	esi,3
-  1065 00000C10 E2DB                <1> 	loop	.loop
-  1066 00000C12 C3                  <1> 	ret
-  1067                              <1> 
-  1068                              <1> pm_def_palette: ; B  - R  - G      B  - R  - G
-  1069 00000C13 000000800000        <1> 	db	  0h,  0h,  0h,   80h,  0h,  0h
-  1070 00000C19 008000808000        <1> 	db	  0h, 80h,  0h,   80h, 80h,  0h
-  1071 00000C1F 000080800080        <1> 	db	  0h,  0h, 80h,   80h,  0h, 80h
-  1072 00000C25 008080808080        <1> 	db	  0h, 80h, 80h,   80h, 80h, 80h
-  1073                              <1> 
-  1074 00000C2B 000000FF0000        <1> 	db	  0h,  0h,  0h,  0ffh,  0h,  0h
-  1075 00000C31 00FF00FFFF00        <1> 	db	  0h,0ffh,  0h,  0ffh,0ffh,  0h
-  1076 00000C37 0000FFFF00FF        <1> 	db	  0h,  0h,0ffh,  0ffh,  0h,0ffh
-  1077 00000C3D 00FFFFFFFFFF        <1> 	db	  0h,0ffh,0ffh,  0ffh,0ffh,0ffh
-  1078                              <1> 
-  1079                              <1> 
-  1080                              <1> ;---------------------------------------------------------------------
-  1081                              <1> ; メモリ間転送(sys_osr.asmから呼ばれる)
-  1082                              <1> pm_transfermemory:
-  1083 00000C43 0FB66E01            <1> 	movzx	ebp, byte [esi+1] ; ahの値。転送方向をこれで判定する
-  1084                              <1> 
-  1085 00000C47 0FB75F04            <1> 	movzx	ebx,word [edi+4]
-  1086 00000C4B C1E310              <1> 	shl	ebx,16
-  1087 00000C4E 668B5E02            <1> 	mov	bx,[esi+2]
-  1088 00000C52 C1E30A              <1> 	shl	ebx,10           ; source
-  1089                              <1> 
-  1090 00000C55 56                  <1> 	push	esi
-  1091 00000C56 57                  <1> 	push	edi
-  1092                              <1> 
-  1093 00000C57 0FB7770C            <1> 	movzx	esi,word [edi+0ch]
-  1094 00000C5B C1E604              <1> 	shl	esi,4
-  1095 00000C5E 0FB74F0A            <1> 	movzx	ecx,word [edi+0ah]
-  1096 00000C62 01CE                <1> 	add	esi,ecx          ; dest.
-  1097                              <1> 
-  1098 00000C64 B900040000          <1> 	mov	ecx,400h
-  1099 00000C69 0FB74702            <1> 	movzx	eax,word [edi+2] ; block count
-  1100 00000C6D F7E1                <1> 	mul	ecx
-  1101 00000C6F 89C1                <1> 	mov	ecx,eax
-  1102                              <1> 
-  1103 00000C71 89F7                <1> 	mov	edi,esi
-  1104 00000C73 89DE                <1> 	mov	esi,ebx
-  1105                              <1> 
-  1106 00000C75 83FD05              <1> 	cmp	ebp,5
-  1107 00000C78 7402                <1> 	jz	.noxchg
-  1108 00000C7A 87F7                <1> 	xchg	esi,edi ; 書き込みコマンドなら転送元と転送先を入れ替える
-  1109                              <1> .noxchg:
+   978                              <1> ; transfer block to cmos
+   979                              <1> cmos_command_10:
+   980                              <1> 	; 範囲チェック
+   981 000009DA 8A4E06              <1> 	mov	cl,[bp+6] ; cl
+   982 000009DD 8A4602              <1> 	mov	al,[bp+2] ; al
+   983 000009E0 E85901              <1> 	call	cmos_check_blockvalidity
+   984 000009E3 08E4                <1> 	or	ah,ah
+   985 000009E5 750B                <1> 	jnz	.exit1
+   986 000009E7 E88401              <1> 	call	cmos_check_transferrange
+   987 000009EA 08E4                <1> 	or	ah,ah
+   988 000009EC 7504                <1> 	jnz	.exit1
+   989                              <1> 
+   990                              <1> 	; 転送量が 0 なら何もしない
+   991 000009EE 09DB                <1> 	or	bx,bx
+   992 000009F0 7501                <1> 	jnz	.starttransfer
+   993                              <1> .exit1:
+   994 000009F2 C3                  <1> 	ret
+   995                              <1> 
+   996                              <1> .starttransfer:
+   997 000009F3 8B760E              <1> 	mov	si,[bp+0eh] ; di
+   998 000009F6 8E5E10              <1> 	mov	ds,[bp+10h] ; ds
+   999 000009F9 89D9                <1> 	mov	cx,bx
+  1000                              <1> .loop:
+  1001 000009FB AC                  <1> 	lodsb
+  1002 000009FC E8BB00              <1> 	call	cmos_write1byte
+  1003 000009FF 42                  <1> 	inc	dx
+  1004 00000A00 E2F9                <1> 	loop	.loop
+  1005                              <1> 
+  1006 00000A02 0FB64602            <1> 	movzx	ax,byte [bp+2]
+  1007 00000A06 89C2                <1> 	mov	dx,ax
+  1008 00000A08 01D2                <1> 	add	dx,dx ; dx<-ax*10
+  1009 00000A0A 01D2                <1> 	add	dx,dx
+  1010 00000A0C 01D2                <1> 	add	dx,dx
+  1011 00000A0E 01C2                <1> 	add	dx,ax
+  1012 00000A10 01C2                <1> 	add	dx,ax
+  1013 00000A12 E88C00              <1> 	call	cmos_read1byte
+  1014 00000A15 08C0                <1> 	or	al,al
+  1015 00000A17 790B                <1> 	jns	.exit2
+  1016                              <1> 
+  1017 00000A19 E8E300              <1> 	call	cmos_calc_checksum
+  1018 00000A1C 88C1                <1> 	mov	cl,al
+  1019 00000A1E 8A4602              <1> 	mov	al,[bp+2]
+  1020 00000A21 E8BA00              <1> 	call	cmos_write_3f82
+  1021                              <1> .exit2:
+  1022 00000A24 30E4                <1> 	xor	ah,ah
+  1023 00000A26 C3                  <1> 	ret
+  1024                              <1> 
+  1025                              <1> ;---------------------------------------------------------------------
+  1026                              <1> 
+  1027                              <1> ; transfer block from cmos
+  1028                              <1> cmos_command_11:
+  1029                              <1> 	; 範囲チェック
+  1030 00000A27 8A4E06              <1> 	mov	cl,[bp+6] ; cl
+  1031 00000A2A 8A4602              <1> 	mov	al,[bp+2] ; al
+  1032 00000A2D E80C01              <1> 	call	cmos_check_blockvalidity
+  1033 00000A30 08E4                <1> 	or	ah,ah
+  1034 00000A32 750B                <1> 	jnz	.exit1
+  1035 00000A34 E83701              <1> 	call	cmos_check_transferrange
+  1036 00000A37 08E4                <1> 	or	ah,ah
+  1037 00000A39 7504                <1> 	jnz	.exit1
+  1038                              <1> 
+  1039                              <1> 	; 転送量が 0 なら何もしない
+  1040 00000A3B 09DB                <1> 	or	bx,bx
+  1041 00000A3D 7501                <1> 	jnz	.starttransfer
+  1042                              <1> .exit1:
+  1043 00000A3F C3                  <1> 	ret
+  1044                              <1> 
+  1045                              <1> .starttransfer:
+  1046 00000A40 8B7E0E              <1> 	mov	di,[bp+0eh] ; di
+  1047 00000A43 8E4610              <1> 	mov	es,[bp+10h] ; ds
+  1048 00000A46 89D9                <1> 	mov	cx,bx
+  1049                              <1> .loop:
+  1050 00000A48 E85600              <1> 	call	cmos_read1byte
+  1051 00000A4B AA                  <1> 	stosb
+  1052 00000A4C 42                  <1> 	inc	dx
+  1053 00000A4D E2F9                <1> 	loop	.loop
+  1054 00000A4F 30E4                <1> 	xor	ah,ah
+  1055 00000A51 C3                  <1> 	ret
+  1056                              <1> 
+  1057                              <1> ;---------------------------------------------------------------------
+  1058                              <1> ; cmosヘッダと各ブロックのチェック
+  1059                              <1> ; out: ah != 0 : ヘッダ異常
+  1060                              <1> ;      ah == 0 : ヘッダ正常、bxにチェックサムが合わなかった
+  1061                              <1> ;                ブロックがビット単位でセットされる
+  1062                              <1> cmos_command_20:
+  1063 00000A52 BAA600              <1> 	mov	dx,0a6h
+  1064 00000A55 E85000              <1> 	call	cmos_read2byte
+  1065 00000A58 3D7941              <1> 	cmp	ax,4179h        ; ヘッダの識別子？値自体に意味があるか不明
+  1066 00000A5B 7403                <1> 	jz	.next
+  1067 00000A5D B403                <1> 	mov	ah,3
+  1068 00000A5F C3                  <1> 	ret
+  1069                              <1> .next:
+  1070 00000A60 E84E01              <1> 	call	cmos_get_cmosheadersum
+  1071 00000A63 89C3                <1> 	mov	bx,ax
+  1072 00000A65 BAA400              <1> 	mov	dx,0a4h
+  1073 00000A68 E83D00              <1> 	call	cmos_read2byte
+  1074 00000A6B 39C3                <1> 	cmp	bx,ax
+  1075 00000A6D B92000              <1> 	mov	cx,20h
+  1076 00000A70 B480                <1> 	mov	ah,80h
+  1077 00000A72 7503                <1> 	jnz	.j1
+  1078 00000A74 E85001              <1> 	call	cmos_check_allblocks
+  1079                              <1> .j1:
+  1080 00000A77 895E04              <1> 	mov	[bp+4],bx ; bx
+  1081 00000A7A C3                  <1> 	ret
+  1082                              <1> 
+  1083                              <1> ;---------------------------------------------------------------------
+  1084                              <1> ; CMOS BIOS 下請け
+  1085                              <1> 
+  1086                              <1> ; CMOSアドレスをI/Oアドレスに変換
+  1087                              <1> ; in dx:cmos address -> out dx:i/o address
+  1088                              <1> cmos_getaddress:
+  1089 00000A7B 81FAC007            <1> 	cmp	dx,7c0h
+  1090 00000A7F 7709                <1> 	ja	.over
+  1091                              <1> 
+  1092 00000A81 01D2                <1> 	add	dx,dx
+  1093 00000A83 81C20030            <1> 	add	dx,3000h
+  1094 00000A87 31C0                <1> 	xor	ax,ax
+  1095 00000A89 C3                  <1> 	ret
+  1096                              <1> .over:
+  1097 00000A8A 51                  <1> 	push	cx
+  1098 00000A8B 81EAC107            <1> 	sub	dx,7c1h
+  1099 00000A8F B90008              <1> 	mov	cx,800h
+  1100 00000A92 89D0                <1> 	mov	ax,dx
+  1101 00000A94 31D2                <1> 	xor	dx,dx
+  1102 00000A96 F7F1                <1> 	div	cx
+  1103 00000A98 40                  <1> 	inc	ax
+  1104 00000A99 01D2                <1> 	add	dx,dx
+  1105 00000A9B 81C20030            <1> 	add	dx,3000h
+  1106 00000A9F 59                  <1> 	pop	cx
+  1107 00000AA0 C3                  <1> 	ret
+  1108                              <1> 
+  1109                              <1> ;--------------------------------------
   1110                              <1> 
-  1111                              <1> 	; 転送する際は、バイトアクセスのみ可能な領域を考慮すること
-  1112 00000C7C F3A4                <1> 	rep movsb
-  1113                              <1> 
-  1114 00000C7E 5F                  <1> 	pop	edi
-  1115 00000C7F 5E                  <1> 	pop	esi
-  1116 00000C80 C3                  <1> 	ret
+  1111                              <1> cmos_read1byte:
+  1112 00000AA1 52                  <1> 	push	dx
+  1113 00000AA2 E8D6FF              <1> 	call	cmos_getaddress
+  1114 00000AA5 EC                  <1> 	in	al,dx
+  1115 00000AA6 5A                  <1> 	pop	dx
+  1116 00000AA7 C3                  <1> 	ret
   1117                              <1> 
+  1118                              <1> ;--------------------------------------
+  1119                              <1> 
+  1120                              <1> cmos_read2byte:
+  1121 00000AA8 51                  <1> 	push	cx
+  1122 00000AA9 52                  <1> 	push	dx
+  1123 00000AAA E8F4FF              <1> 	call	cmos_read1byte
+  1124 00000AAD 88C1                <1> 	mov	cl,al
+  1125 00000AAF 42                  <1> 	inc	dx
+  1126 00000AB0 E8EEFF              <1> 	call	cmos_read1byte
+  1127 00000AB3 88CC                <1> 	mov	ah,cl
+  1128 00000AB5 86C4                <1> 	xchg	al,ah
+  1129 00000AB7 5A                  <1> 	pop	dx
+  1130 00000AB8 59                  <1> 	pop	cx
+  1131 00000AB9 C3                  <1> 	ret
+  1132                              <1> 
+  1133                              <1> ;--------------------------------------
+  1134                              <1> 
+  1135                              <1> cmos_write1byte:
+  1136 00000ABA 52                  <1> 	push	dx
+  1137 00000ABB 50                  <1> 	push	ax
+  1138 00000ABC E8BCFF              <1> 	call	cmos_getaddress
+  1139 00000ABF 58                  <1> 	pop	ax
+  1140 00000AC0 EE                  <1> 	out	dx,al
+  1141 00000AC1 5A                  <1> 	pop	dx
+  1142 00000AC2 C3                  <1> 	ret
+  1143                              <1> 
+  1144                              <1> ;--------------------------------------
+  1145                              <1> 
+  1146                              <1> cmos_write2byte:
+  1147 00000AC3 52                  <1> 	push	dx
+  1148 00000AC4 50                  <1> 	push	ax
+  1149 00000AC5 E8F2FF              <1> 	call	cmos_write1byte
+  1150 00000AC8 42                  <1> 	inc	dx
+  1151 00000AC9 88E0                <1> 	mov	al,ah
+  1152 00000ACB E8ECFF              <1> 	call	cmos_write1byte
+  1153                              <1> 	
+  1154 00000ACE 58                  <1> 	pop	ax
+  1155 00000ACF 5A                  <1> 	pop	dx
+  1156 00000AD0 C3                  <1> 	ret
+  1157                              <1> 
+  1158                              <1> ;--------------------------------------
+  1159                              <1> ; チェックサムテーブル読み込み
+  1160                              <1> 
+  1161                              <1> cmos_read_3f82:
+  1162 00000AD1 0FBED0              <1> 	movsx	dx,al
+  1163 00000AD4 01D2                <1> 	add	dx,dx
+  1164 00000AD6 81C2823F            <1> 	add	dx,3f82h
+  1165 00000ADA EC                  <1> 	in	al,dx
+  1166 00000ADB 88C1                <1> 	mov	cl,al
+  1167 00000ADD C3                  <1> 	ret
+  1168                              <1> 
+  1169                              <1> ;--------------------------------------
+  1170                              <1> ; チェックサムテーブル書き込み
+  1171                              <1> 
+  1172                              <1> cmos_write_3f82:
+  1173 00000ADE 0FBED0              <1> 	movsx	dx,al
+  1174 00000AE1 01D2                <1> 	add	dx,dx
+  1175 00000AE3 81C2823F            <1> 	add	dx,3f82h
+  1176 00000AE7 88C8                <1> 	mov	al,cl
+  1177 00000AE9 EE                  <1> 	out	dx,al
+  1178 00000AEA C3                  <1> 	ret
+  1179                              <1> 
+  1180                              <1> ;--------------------------------------
+  1181                              <1> ; ブロック番号テーブル読み込み
+  1182                              <1> 
+  1183                              <1> cmos_read_3fa2:
+  1184 00000AEB 52                  <1> 	push	dx
+  1185 00000AEC 01D2                <1> 	add	dx,dx
+  1186 00000AEE 81C2A23F            <1> 	add	dx,3fa2h
+  1187 00000AF2 EC                  <1> 	in	al,dx
+  1188 00000AF3 5A                  <1> 	pop	dx
+  1189 00000AF4 C3                  <1> 	ret
+  1190                              <1> 
+  1191                              <1> ;--------------------------------------
+  1192                              <1> ; ブロック番号テーブル書き込み
+  1193                              <1> 
+  1194                              <1> cmos_write_3fa2:
+  1195 00000AF5 52                  <1> 	push	dx
+  1196 00000AF6 01D2                <1> 	add	dx,dx
+  1197 00000AF8 81C2A23F            <1> 	add	dx,3fa2h
+  1198 00000AFC EE                  <1> 	out	dx,al
+  1199 00000AFD 5A                  <1> 	pop	dx
+  1200 00000AFE C3                  <1> 	ret
+  1201                              <1> 
+  1202                              <1> ;--------------------------------------
+  1203                              <1> 
+  1204                              <1> ; 指定されたcmosブロックのチェックサムを返す
+  1205                              <1> ; in al: block no
+  1206                              <1> cmos_calc_checksum:
+  1207 00000AFF 53                  <1> 	push	bx
+  1208 00000B00 E81000              <1> 	call	cmos_getaddlength
+  1209 00000B03 30DB                <1> 	xor	bl,bl
+  1210                              <1> .loop:
+  1211 00000B05 E899FF              <1> 	call	cmos_read1byte
+  1212 00000B08 00C3                <1> 	add	bl,al
+  1213 00000B0A 42                  <1> 	inc	dx
+  1214 00000B0B E2F8                <1> 	loop	.loop
+  1215 00000B0D 31C0                <1> 	xor	ax,ax
+  1216 00000B0F 28D8                <1> 	sub	al,bl
+  1217 00000B11 5B                  <1> 	pop	bx
+  1218 00000B12 C3                  <1> 	ret
+  1219                              <1> 
+  1220                              <1> ;--------------------------------------
+  1221                              <1> 
+  1222                              <1> ; 指定されたcmosブロックのアドレスと長さを返す
+  1223                              <1> ; in : al: no
+  1224                              <1> ; out: cx:length, dx:cmos address
+  1225                              <1> cmos_getaddlength:
+  1226 00000B13 30E4                <1> 	xor	ah,ah ; dx<-ax*10
+  1227 00000B15 89C2                <1> 	mov	dx,ax
+  1228 00000B17 01D2                <1> 	add	dx,dx
+  1229 00000B19 01D2                <1> 	add	dx,dx
+  1230 00000B1B 01D2                <1> 	add	dx,dx
+  1231 00000B1D 01C2                <1> 	add	dx,ax
+  1232 00000B1F 01C2                <1> 	add	dx,ax
+  1233                              <1> 
+  1234 00000B21 83C208              <1> 	add	dx,8
+  1235 00000B24 E881FF              <1> 	call	cmos_read2byte
+  1236 00000B27 89C1                <1> 	mov	cx,ax ; length
+  1237                              <1> 
+  1238 00000B29 83EA02              <1> 	sub	dx,2
+  1239 00000B2C E879FF              <1> 	call	cmos_read2byte
+  1240 00000B2F 89C2                <1> 	mov	dx,ax ; address
+  1241 00000B31 C3                  <1> 	ret
+  1242                              <1> 
+  1243                              <1> ;--------------------------------------
+  1244                              <1> 
+  1245                              <1> cmos_check_blockrange:
+  1246 00000B32 3C10                <1> 	cmp	al,10h
+  1247 00000B34 7203                <1> 	jc	.j1
+  1248 00000B36 B402                <1> 	mov	ah,2
+  1249 00000B38 C3                  <1> 	ret
+  1250                              <1> .j1:
+  1251 00000B39 30E4                <1> 	xor	ah,ah
+  1252 00000B3B C3                  <1> 	ret
+  1253                              <1> 
+  1254                              <1> ;--------------------------------------
+  1255                              <1> 
+  1256                              <1> ; ブロックの有効性をチェック
+  1257                              <1> ; in: al, cl
+  1258                              <1> cmos_check_blockvalidity:
+  1259 00000B3C E8F3FF              <1> 	call	cmos_check_blockrange
+  1260 00000B3F 08E4                <1> 	or	ah,ah
+  1261 00000B41 7401                <1> 	jz	.j1
+  1262 00000B43 C3                  <1> 	ret
+  1263                              <1> .j1:
+  1264 00000B44 30E4                <1> 	xor	ah,ah ; dx<-ax*10
+  1265 00000B46 89C2                <1> 	mov	dx,ax
+  1266 00000B48 01D2                <1> 	add	dx,dx
+  1267 00000B4A 01D2                <1> 	add	dx,dx
+  1268 00000B4C 01D2                <1> 	add	dx,dx
+  1269 00000B4E 01C2                <1> 	add	dx,ax
+  1270 00000B50 01C2                <1> 	add	dx,ax
+  1271                              <1> 
+  1272 00000B52 88CB                <1> 	mov	bl,cl
+  1273 00000B54 52                  <1> 	push	dx
+  1274 00000B55 E850FF              <1> 	call	cmos_read2byte
+  1275                              <1> 	; ブロックが有効か？
+  1276 00000B58 A801                <1> 	test	al,1
+  1277 00000B5A 740B                <1> 	jz	.error
+  1278                              <1> 
+  1279 00000B5C B90800              <1> 	mov	cx,8
+  1280 00000B5F 38DC                <1> 	cmp	ah,bl
+  1281 00000B61 7504                <1> 	jnz	.error
+  1282                              <1> 
+  1283 00000B63 30E4                <1> 	xor	ah,ah
+  1284 00000B65 5A                  <1> 	pop	dx
+  1285 00000B66 C3                  <1> 	ret
+  1286                              <1> .error:
+  1287 00000B67 B94000              <1> 	mov	cx,40h
+  1288 00000B6A B480                <1> 	mov	ah,80h
+  1289 00000B6C 5A                  <1> 	pop	dx
+  1290 00000B6D C3                  <1> 	ret
+  1291                              <1> 
+  1292                              <1> ;--------------------------------------
+  1293                              <1> 
+  1294                              <1> ; 転送範囲の有効性をチェック
+  1295                              <1> cmos_check_transferrange:
+  1296 00000B6E 8A4602              <1> 	mov	al,[bp+2] ; al
+  1297 00000B71 E89FFF              <1> 	call	cmos_getaddlength
+  1298 00000B74 8B7E08              <1> 	mov	di,[bp+8] ; dx
+  1299 00000B77 037E04              <1> 	add	di,[bp+4] ; bx
+  1300 00000B7A 720F                <1> 	jc	.error
+  1301 00000B7C 39F9                <1> 	cmp	cx,di
+  1302 00000B7E 720B                <1> 	jc	.error
+  1303 00000B80 8B4608              <1> 	mov	ax,[bp+8] ; dx
+  1304 00000B83 01C2                <1> 	add	dx,ax
+  1305 00000B85 8B5E04              <1> 	mov	bx,[bp+4] ; bx
+  1306 00000B88 30E4                <1> 	xor	ah,ah
+  1307 00000B8A C3                  <1> 	ret
+  1308                              <1> .error:
+  1309 00000B8B B90400              <1> 	mov	cx,4
+  1310 00000B8E B480                <1> 	mov	ah,80h
+  1311 00000B90 C3                  <1> 	ret
+  1312                              <1> 
+  1313                              <1> ;--------------------------------------
+  1314                              <1> 
+  1315                              <1> ; ブロック番号テーブル初期化
+  1316                              <1> cmos_init_blocknotable:
+  1317 00000B91 BE[A10B]            <1> 	mov	si,.initdata
+  1318 00000B94 31D2                <1> 	xor	dx,dx
+  1319                              <1> .loop:
+  1320 00000B96 AC                  <1> 	lodsb
+  1321 00000B97 E85BFF              <1> 	call	cmos_write_3fa2
+  1322 00000B9A 42                  <1> 	inc	dx
+  1323 00000B9B 83FA10              <1> 	cmp	dx,10h
+  1324 00000B9E 72F6                <1> 	jc	.loop
+  1325 00000BA0 C3                  <1> 	ret
+  1326                              <1> 
+  1327                              <1> .initdata:
+  1328 00000BA1 0001020304FFFFFF    <1> 	db	0,1,2,3,4, 255,255,255
+  1329 00000BA9 FFFFFFFFFFFFFFFF    <1> 	db	255,255,255,255, 255,255,255,255
+  1330                              <1> 
+  1331                              <1> ;--------------------------------------
+  1332                              <1> 
+  1333                              <1> ; 0-a4までの値を加算した値を得る
+  1334                              <1> cmos_get_cmosheadersum:
+  1335 00000BB1 31D2                <1> 	xor	dx,dx
+  1336 00000BB3 B95200              <1> 	mov	cx,52h
+  1337 00000BB6 31DB                <1> 	xor	bx,bx
+  1338                              <1> .loop:
+  1339 00000BB8 51                  <1> 	push	cx
+  1340 00000BB9 E8ECFE              <1> 	call	cmos_read2byte
+  1341 00000BBC 59                  <1> 	pop	cx
+  1342 00000BBD 01C3                <1> 	add	bx,ax
+  1343 00000BBF 83C202              <1> 	add	dx,2
+  1344 00000BC2 E2F4                <1> 	loop	.loop
+  1345 00000BC4 89D8                <1> 	mov	ax,bx
+  1346 00000BC6 C3                  <1> 	ret
+  1347                              <1> 
+  1348                              <1> ;--------------------------------------
+  1349                              <1> 
+  1350                              <1> ; 全ブロックをチェック
+  1351                              <1> cmos_check_allblocks:
+  1352 00000BC7 31C0                <1> 	xor	ax,ax
+  1353 00000BC9 31FF                <1> 	xor	di,di
+  1354 00000BCB 31F6                <1> 	xor	si,si
+  1355                              <1> .loop:
+  1356 00000BCD 89F2                <1> 	mov	dx,si
+  1357 00000BCF 01D2                <1> 	add	dx,dx
+  1358 00000BD1 01D2                <1> 	add	dx,dx
+  1359 00000BD3 01D2                <1> 	add	dx,dx
+  1360 00000BD5 01F2                <1> 	add	dx,si
+  1361 00000BD7 01F2                <1> 	add	dx,si
+  1362 00000BD9 E8C5FE              <1> 	call	cmos_read1byte
+  1363 00000BDC 08C0                <1> 	or	al,al
+  1364 00000BDE 7919                <1> 	jns	.next
+  1365                              <1> 
+  1366 00000BE0 89F0                <1> 	mov	ax,si
+  1367 00000BE2 E8ECFE              <1> 	call	cmos_read_3f82
+  1368 00000BE5 89F0                <1> 	mov	ax,si
+  1369 00000BE7 51                  <1> 	push	cx
+  1370 00000BE8 E814FF              <1> 	call	cmos_calc_checksum
+  1371 00000BEB 59                  <1> 	pop	cx
+  1372                              <1> 
+  1373 00000BEC 38C8                <1> 	cmp	al,cl
+  1374 00000BEE 7409                <1> 	jz	.next
+  1375                              <1> 
+  1376                              <1> 	; チェックサムエラーのあったブロックのbitをon
+  1377 00000BF0 89F1                <1> 	mov	cx,si
+  1378 00000BF2 B80100              <1> 	mov	ax,1
+  1379 00000BF5 D3E0                <1> 	shl	ax,cl
+  1380 00000BF7 09C7                <1> 	or	di,ax
+  1381                              <1> .next:
+  1382 00000BF9 46                  <1> 	inc	si
+  1383 00000BFA 83FE10              <1> 	cmp	si,10h
+  1384 00000BFD 72CE                <1> 	jc	.loop
+  1385 00000BFF 89FB                <1> 	mov	bx,di
+  1386 00000C01 30E4                <1> 	xor	ah,ah
+  1387 00000C03 C3                  <1> 	ret
+  1388                              <1> 
+  1389                              <1> 
+   821                                  
+   822                                  %include "sys_p32.asm"
+   823                              <1> ; version 2003.03.04.1
+   824                              <1> ;---------------------------------------------------------------------
+   825                              <1> ;
+   826                              <1> ; FM TOWNS 互換 ROM シリーズ
+   827                              <1> ;
+   828                              <1> ; FMT_SYS.ROM : プロテクトモード・プロシジャ(EXT-BOOT部分に相当)
+   829                              <1> ;
+   830                              <1> ; by Kasanova
+   831                              <1> ;
+   832                              <1> ;---------------------------------------------------------------------
+   833                              <1> ; ※単独ではアセンブルしません
+   834                              <1> 
+   835                              <1> ; コードが長くなってきたら、実機と同様に 0xFFFE0000-0xFFFE7FFF に
+   836                              <1> ; 移してもいいかも
+   837                              <1> 
+   838                              <1> [BITS 32]
+   839                              <1> pmode_entry:
+   840 00000C04 0FB7E4              <1> 	movzx	esp,sp
+   841 00000C07 89E5                <1> 	mov	ebp,esp
+   842 00000C09 668CD0              <1> 	mov	ax,ss
+   843 00000C0C 0FB7C0              <1> 	movzx	eax,ax
+   844 00000C0F C1E004              <1> 	shl	eax,4
+   845 00000C12 01C4                <1> 	add	esp,eax
+   846                              <1> 
+   847 00000C14 66B81000            <1> 	mov	ax,10h
+   848 00000C18 8ED0                <1> 	mov	ss,ax
+   849 00000C1A 8ED8                <1> 	mov	ds,ax
+   850 00000C1C 8EC0                <1> 	mov	es,ax
+   851                              <1> 
+   852 00000C1E 55                  <1> 	push	ebp
+   853 00000C1F 0FB6C3              <1> 	movzx	eax,bl
+   854 00000C22 2EFF1485[4DCCFFFF]  <1> 	call	[cs:pmode_jmptable+BOOTCODE_BASE+eax*4]
+   855 00000C2A 5D                  <1> 	pop	ebp
+   856                              <1> 
+   857 00000C2B 89EC                <1> 	mov	esp,ebp
+   858 00000C2D 66B82000            <1> 	mov	ax,20h
+   859 00000C31 8ED8                <1> 	mov	ds,ax
+   860 00000C33 8EC0                <1> 	mov	es,ax
+   861 00000C35 8ED0                <1> 	mov	ss,ax
+   862                              <1> 
+   863 00000C37 EA                  <1> 	db	0eah
+   864 00000C38 [3E0C0000]          <1> 	dd	.flush
+   865 00000C3C 1800                <1> 	dw	18h
+   866                              <1> .flush:
+   867                              <1> 
+   868                              <1> [BITS 16]
+   869 00000C3E 0F20C0              <1> 	mov	eax,cr0
+   870 00000C41 24FE                <1> 	and	al,0xfe
+   871 00000C43 0F22C0              <1> 	mov	cr0,eax
+   872 00000C46 EB00                <1> 	jmp	short $+2
+   873                              <1> 
+   874 00000C48 EA                  <1> 	db	0eah
+   875 00000C49 [0802]              <1> 	dw	return_from_pmode
+   876 00000C4B 00FC                <1> 	dw	0fc00h
+   877                              <1> 
+   878                              <1> 
+   879                              <1> pmode_jmptable:
+   880 00000C4D [61CCFFFF]          <1> 	dd	BOOTCODE_BASE+ pm_puticon
+   881 00000C51 [98CCFFFF]          <1> 	dd	BOOTCODE_BASE+ pm_memorycheck
+   882 00000C55 [F5CCFFFF]          <1> 	dd	BOOTCODE_BASE+ pm_drawlogo
+   883 00000C59 [51CDFFFF]          <1> 	dd	BOOTCODE_BASE+ pm_setpalette
+   884 00000C5D [BBCDFFFF]          <1> 	dd	BOOTCODE_BASE+ pm_transfermemory
+   885                              <1> 
+   886                              <1> 
+   887                              <1> [BITS 32]
+   888                              <1> 
+   889                              <1> ;---------------------------------------------------------------------
+   890                              <1> ; 32x32アイコン表示
+   891                              <1> ;
+   892                              <1> ; cl = 0-127 : システムアイコン
+   893                              <1> ; cl = 128-  : 起動用アイコン
+   894                              <1> pm_puticon:
+   895 00000C61 0FB6C9              <1> 	movzx	ecx,cl
+   896 00000C64 80F980              <1> 	cmp	cl,128
+   897 00000C67 7211                <1> 	jc	.sysicon
+   898                              <1> 
+   899                              <1> 	; 起動用アイコンの場合
+   900 00000C69 81E980000000        <1> 	sub	ecx,128
+   901 00000C6F C1E107              <1> 	shl	ecx,7
+   902 00000C72 8DB100BCFFFF        <1> 	lea	esi,[0ffffbc00h+ecx]
+   903 00000C78 EB09                <1> 	jmp	.draw
+   904                              <1> 
+   905                              <1> 	; システムアイコンの場合
+   906                              <1> .sysicon:
+   907 00000C7A C1E108              <1> 	shl	ecx,8
+   908 00000C7D 8DB10080FEFF        <1> 	lea	esi,[0fffe8000h+ecx]
+   909                              <1> .draw:
+   910 00000C83 0FB7FA              <1> 	movzx	edi,dx
+   911 00000C86 81C700000C00        <1> 	add	edi,0c0000h
+   912 00000C8C B920000000          <1> 	mov	ecx,20h
+   913                              <1> .loop:
+   914 00000C91 A5                  <1> 	movsd
+   915 00000C92 83C74C              <1> 	add	edi,VRAM_PITCH-4
+   916 00000C95 E2FA                <1> 	loop	.loop
+   917 00000C97 C3                  <1> 	ret
+   918                              <1> 
+   919                              <1> 
+   920                              <1> ;---------------------------------------------------------------------
+   921                              <1> ; メモリチェックとCMOSへの書き出し
+   922                              <1> ;
+   923                              <1> ; ※メモリカウントもここで行えるように、32ビットコードで書いてます
+   924                              <1> pm_memorycheck:
+   925                              <1> 	; 3150h-317ehは、メモリの実装状態を示すらしい
+   926 00000C98 30C0                <1> 	xor	al,al
+   927 00000C9A 66BA5031            <1> 	mov	dx,3150h
+   928 00000C9E B918000000          <1> 	mov	ecx,30h/2
+   929                              <1> .loop:
+   930 00000CA3 EE                  <1> 	out	dx,al
+   931 00000CA4 6683C202            <1> 	add	dx,2
+   932 00000CA8 E2F9                <1> 	loop	.loop
+   933                              <1> 
+   934                              <1> 	; 5e8hは、うんづでは必ず利用可能
+   935 00000CAA 66BAE805            <1> 	mov	dx,5e8h
+   936                              <1> 
+   937 00000CAE EC                  <1> 	in	al,dx
+   938 00000CAF 247F                <1> 	and	al,7fh
+   939 00000CB1 66BA5C3A            <1> 	mov	dx,3a5ch
+   940 00000CB5 EE                  <1> 	out	dx,al
+   941 00000CB6 0FB6C8              <1> 	movzx	ecx,al
+   942                              <1> 
+   943 00000CB9 B001                <1> 	mov	al,1
+   944 00000CBB 66BA8631            <1> 	mov	dx,3186h
+   945 00000CBF EE                  <1> 	out	dx,al
+   946                              <1> 
+   947 00000CC0 89C8                <1> 	mov	eax,ecx
+   948 00000CC2 C1E004              <1> 	shl	eax,4
+   949 00000CC5 48                  <1> 	dec	eax
+   950 00000CC6 66BA8A31            <1> 	mov	dx,318ah
+   951 00000CCA EE                  <1> 	out	dx,al
+   952 00000CCB 6683EA02            <1> 	sub	dx,2
+   953 00000CCF 88E0                <1> 	mov	al,ah
+   954 00000CD1 EE                  <1> 	out	dx,al
+   955                              <1> 
+   956 00000CD2 49                  <1> 	dec	ecx
+   957 00000CD3 7415                <1> 	jz	.zero ; メモリが1MBしかない！
+   958                              <1> 
+   959 00000CD5 B0FF                <1> 	mov	al,0ffh
+   960 00000CD7 66BA5031            <1> 	mov	dx,3150h
+   961                              <1> .loop2:
+   962 00000CDB EE                  <1> 	out	dx,al
+   963 00000CDC 49                  <1> 	dec	ecx
+   964 00000CDD 740B                <1> 	jz	.zero
+   965 00000CDF 6683C202            <1> 	add	dx,2
+   966 00000CE3 6681FA8031          <1> 	cmp	dx,3180h
+   967 00000CE8 72F1                <1> 	jc	.loop2
+   968                              <1> .zero:
+   969 00000CEA 66BAAC31            <1> 	mov	dx,31ach
+   970 00000CEE EE                  <1> 	out	dx,al
+   971 00000CEF 6683C202            <1> 	add	dx,2
+   972 00000CF3 EE                  <1> 	out	dx,al
+   973                              <1> 
+   974                              <1> 	; TOWNS名物メモリカウントを入れるなら、ここ
+   975                              <1> 
+   976 00000CF4 C3                  <1> 	ret
+   977                              <1> 
+   978                              <1> 
+   979                              <1> ;---------------------------------------------------------------------
+   980                              <1> ; 起動ロゴ表示
+   981                              <1> pm_drawlogo:
+   982                              <1> 	; ds = es
+   983 00000CF5 BE0080FFFF          <1> 	mov	esi,LOGO_ADDRESS
+   984 00000CFA BFA0280C00          <1> 	mov	edi,0c0000h+VRAM_PITCH*130
+   985 00000CFF 0FB71E              <1> 	movzx	ebx,word [esi] ; 水平ドット数
+   986 00000D02 83C307              <1> 	add	ebx,7
+   987 00000D05 C1EB03              <1> 	shr	ebx,3
+   988 00000D08 B950000000          <1> 	mov	ecx,VRAM_PITCH ; 表示位置を画面中央へ
+   989 00000D0D 29D9                <1> 	sub	ecx,ebx
+   990 00000D0F D1E9                <1> 	shr	ecx,1
+   991 00000D11 01CF                <1> 	add	edi,ecx
+   992 00000D13 0FB74E02            <1> 	movzx	ecx,word [esi+2] ; 垂直ドット数
+   993                              <1> 
+   994 00000D17 83C604              <1> 	add	esi,4
+   995                              <1> 
+   996 00000D1A BA81FF0C00          <1> 	mov	edx,0cff81h
+   997 00000D1F 8A02                <1> 	mov	al,[edx]
+   998 00000D21 24CF                <1> 	and	al,0cfh
+   999                              <1> .loop:
+  1000 00000D23 51                  <1> 	push	ecx
+  1001                              <1> 	; plane B
+  1002 00000D24 57                  <1> 	push	edi
+  1003 00000D25 89D9                <1> 	mov	ecx,ebx
+  1004 00000D27 C60201              <1> 	mov	byte [edx],1
+  1005 00000D2A F3A4                <1> 	rep movsb
+  1006 00000D2C 5F                  <1> 	pop	edi
+  1007                              <1> 
+  1008                              <1> 	; plane R
+  1009 00000D2D 57                  <1> 	push	edi
+  1010 00000D2E 89D9                <1> 	mov	ecx,ebx
+  1011 00000D30 C60202              <1> 	mov	byte [edx],2
+  1012 00000D33 F3A4                <1> 	rep movsb
+  1013 00000D35 5F                  <1> 	pop	edi
+  1014                              <1> 
+  1015                              <1> 	; plane G
+  1016 00000D36 57                  <1> 	push	edi
+  1017 00000D37 89D9                <1> 	mov	ecx,ebx
+  1018 00000D39 C60204              <1> 	mov	byte [edx],4
+  1019 00000D3C F3A4                <1> 	rep movsb
+  1020 00000D3E 5F                  <1> 	pop	edi
+  1021                              <1> 
+  1022                              <1> %if(LOGO_USEPLANES==4)
+  1023                              <1> 	; plane I
+  1024 00000D3F 57                  <1> 	push	edi
+  1025 00000D40 89D9                <1> 	mov	ecx,ebx
+  1026 00000D42 C60208              <1> 	mov	byte [edx],8
+  1027 00000D45 F3A4                <1> 	rep movsb
+  1028 00000D47 5F                  <1> 	pop	edi
+  1029                              <1> %endif
+  1030                              <1> 
+  1031 00000D48 8D7F50              <1> 	lea	edi,[edi+VRAM_PITCH]
+  1032 00000D4B 59                  <1> 	pop	ecx
+  1033 00000D4C E2D5                <1> 	loop	.loop
+  1034                              <1> 
+  1035 00000D4E 8802                <1> 	mov	[edx],al
+  1036 00000D50 C3                  <1> 	ret
+  1037                              <1> 
+  1038                              <1> ;---------------------------------------------------------------------
+  1039                              <1> ; パレット初期化
+  1040                              <1> ;
+  1041                              <1> ; ※リボンの絵のパレットが化けるので、デフォルト固定にしたほうがいい
+  1042                              <1> ;   かもしれない・・・
+  1043                              <1> 
+  1044                              <1> pm_setpalette:
+  1045 00000D51 BE80BBFFFF          <1> 	mov	esi,LOGO_PAL_ADDRESS
+  1046 00000D56 833EFF              <1> 	cmp	dword [esi], 0ffffffffh ; うんづ特有のパレットがあるか？
+  1047 00000D59 7505                <1> 	jnz	.palexist
+  1048 00000D5B BE[8BCDFFFF]        <1> 	mov	esi,pm_def_palette+BOOTCODE_BASE
+  1049                              <1> .palexist:
+  1050 00000D60 B910000000          <1> 	mov	ecx,16
+  1051                              <1> .loop:
+  1052 00000D65 B010                <1> 	mov	al,16
+  1053 00000D67 28C8                <1> 	sub	al,cl
+  1054 00000D69 66BA90FD            <1> 	mov	dx,0fd90h
+  1055 00000D6D EE                  <1> 	out	dx,al
+  1056 00000D6E 8A06                <1> 	mov	al,[esi]
+  1057 00000D70 6683C202            <1> 	add	dx,2
+  1058 00000D74 EE                  <1> 	out	dx,al
+  1059 00000D75 8A4601              <1> 	mov	al,[esi+1]
+  1060 00000D78 6683C202            <1> 	add	dx,2
+  1061 00000D7C EE                  <1> 	out	dx,al
+  1062 00000D7D 8A4602              <1> 	mov	al,[esi+2]
+  1063 00000D80 6683C202            <1> 	add	dx,2
+  1064 00000D84 EE                  <1> 	out	dx,al
+  1065 00000D85 83C603              <1> 	add	esi,3
+  1066 00000D88 E2DB                <1> 	loop	.loop
+  1067 00000D8A C3                  <1> 	ret
+  1068                              <1> 
+  1069                              <1> pm_def_palette: ; B  - R  - G      B  - R  - G
+  1070 00000D8B 000000800000        <1> 	db	  0h,  0h,  0h,   80h,  0h,  0h
+  1071 00000D91 008000808000        <1> 	db	  0h, 80h,  0h,   80h, 80h,  0h
+  1072 00000D97 000080800080        <1> 	db	  0h,  0h, 80h,   80h,  0h, 80h
+  1073 00000D9D 008080808080        <1> 	db	  0h, 80h, 80h,   80h, 80h, 80h
+  1074                              <1> 
+  1075 00000DA3 000000FF0000        <1> 	db	  0h,  0h,  0h,  0ffh,  0h,  0h
+  1076 00000DA9 00FF00FFFF00        <1> 	db	  0h,0ffh,  0h,  0ffh,0ffh,  0h
+  1077 00000DAF 0000FFFF00FF        <1> 	db	  0h,  0h,0ffh,  0ffh,  0h,0ffh
+  1078 00000DB5 00FFFFFFFFFF        <1> 	db	  0h,0ffh,0ffh,  0ffh,0ffh,0ffh
+  1079                              <1> 
+  1080                              <1> 
+  1081                              <1> ;---------------------------------------------------------------------
+  1082                              <1> ; メモリ間転送(sys_osr.asmから呼ばれる)
+  1083                              <1> pm_transfermemory:
+  1084 00000DBB 0FB66E01            <1> 	movzx	ebp, byte [esi+1] ; ahの値。転送方向をこれで判定する
+  1085                              <1> 
+  1086 00000DBF 0FB75F04            <1> 	movzx	ebx,word [edi+4]
+  1087 00000DC3 C1E310              <1> 	shl	ebx,16
+  1088 00000DC6 668B5E02            <1> 	mov	bx,[esi+2]
+  1089 00000DCA C1E30A              <1> 	shl	ebx,10           ; source
+  1090                              <1> 
+  1091 00000DCD 56                  <1> 	push	esi
+  1092 00000DCE 57                  <1> 	push	edi
+  1093                              <1> 
+  1094 00000DCF 0FB7770C            <1> 	movzx	esi,word [edi+0ch]
+  1095 00000DD3 C1E604              <1> 	shl	esi,4
+  1096 00000DD6 0FB74F0A            <1> 	movzx	ecx,word [edi+0ah]
+  1097 00000DDA 01CE                <1> 	add	esi,ecx          ; dest.
+  1098                              <1> 
+  1099 00000DDC B900040000          <1> 	mov	ecx,400h
+  1100 00000DE1 0FB74702            <1> 	movzx	eax,word [edi+2] ; block count
+  1101 00000DE5 F7E1                <1> 	mul	ecx
+  1102 00000DE7 89C1                <1> 	mov	ecx,eax
+  1103                              <1> 
+  1104 00000DE9 89F7                <1> 	mov	edi,esi
+  1105 00000DEB 89DE                <1> 	mov	esi,ebx
+  1106                              <1> 
+  1107 00000DED 83FD05              <1> 	cmp	ebp,5
+  1108 00000DF0 7402                <1> 	jz	.noxchg
+  1109 00000DF2 87F7                <1> 	xchg	esi,edi ; 書き込みコマンドなら転送元と転送先を入れ替える
+  1110                              <1> .noxchg:
+  1111                              <1> 
+  1112                              <1> 	; 転送する際は、バイトアクセスのみ可能な領域を考慮すること
+  1113 00000DF4 F3A4                <1> 	rep movsb
+  1114                              <1> 
+  1115 00000DF6 5F                  <1> 	pop	edi
+  1116 00000DF7 5E                  <1> 	pop	esi
+  1117 00000DF8 C3                  <1> 	ret
   1118                              <1> 
-   822                                  
-   823                                  %include "sys_print.asm" ; by CaptainYS
-   824                              <1> ; By CaptainYS
-   825                              <1> print_string:
-   826 00000C81 CB                  <1> 						RETF
-   827                              <1> 
-   824                                  
-   825                                  ;---------------------------------------------------------------------
-   826                                  ; ウェイト(うんづではあまり意味が無いので省略)
-   827                                  
-   828                                  waitloop:
-   829 00000C82 CB                      	retf
-   830                                  
-   831                                  ;---------------------------------------------------------------------
-   832                                  
-   833                                  invalid1:
-   834 00000C83 EBFE                    	jmp	invalid1
-   835                                  
-   836                                  invalid2:
-   837 00000C85 EBFE                    	jmp	invalid2
-   838                                  
-   839                                  invalid3:
-   840 00000C87 EBFE                    	jmp	invalid3
-   841                                  
-   842                                  invalid4:
-   843 00000C89 EBFE                    	jmp	invalid4
-   844                                  
-   845                                  invalid5:
-   846 00000C8B EBFE                    	jmp	invalid5
-   847                                  
+  1119                              <1> 
+   823                                  
+   824                                  %include "sys_print.asm" ; by CaptainYS
+   825                              <1> ; By CaptainYS
+   826                              <1> print_string:
+   827 00000DF9 CB                  <1> 						RETF
+   828                              <1> 
+   825                                  
+   826                                  ;---------------------------------------------------------------------
+   827                                  ; ウェイト(うんづではあまり意味が無いので省略)
+   828                                  
+   829                                  waitloop:
+   830 00000DFA CB                      	retf
+   831                                  
+   832                                  ;---------------------------------------------------------------------
+   833                                  
+   834                                  invalid1:
+   835 00000DFB EBFE                    	jmp	invalid1
+   836                                  
+   837                                  invalid2:
+   838 00000DFD EBFE                    	jmp	invalid2
+   839                                  
+   840                                  invalid3:
+   841 00000DFF EBFE                    	jmp	invalid3
+   842                                  
+   843                                  invalid4:
+   844 00000E01 EBFE                    	jmp	invalid4
+   845                                  
+   846                                  invalid5:
+   847 00000E03 EBFE                    	jmp	invalid5
    848                                  
-   849                                  ;---------------------------------------------------------------------
-   850                                  
-   851                                  	; CaptainYS >>
-   852                                  	PLACE	03FB0h	; FC000+03FB0=FFFB0
-   104 00000C8D 00<rep 3323h>       <1>  TIMES %1-($-$$) DB 0
-   853                                  	; CaptainYS <<
-   854                                  
+   849                                  
+   850                                  ;---------------------------------------------------------------------
+   851                                  
+   852                                  	; CaptainYS >>
+   853                                  	PLACE	03FB0h	; FC000+03FB0=FFFB0
+   104 00000E05 00<rep 31ABh>       <1>  TIMES %1-($-$$) DB 0
+   854                                  	; CaptainYS <<
    855                                  
-   856                                  	JMPFAR invalid1 ; 診断エラー?
+   856                                  
+   857                                  	JMPFAR invalid1 ; 診断エラー?
     64 00003FB0 EA                  <1>  db 0eah
-    65 00003FB1 [830C]              <1>  dw %1
+    65 00003FB1 [FB0D]              <1>  dw %1
     66 00003FB3 00FC                <1>  dw 0fc00h
-   857                                  	JMPFAR invalid2 ; 診断エラー?
+   858                                  	JMPFAR invalid2 ; 診断エラー?
     64 00003FB5 EA                  <1>  db 0eah
-    65 00003FB6 [850C]              <1>  dw %1
+    65 00003FB6 [FD0D]              <1>  dw %1
     66 00003FB8 00FC                <1>  dw 0fc00h
-   858                                  	JMPFAR invalid3 ; ?
+   859                                  	JMPFAR invalid3 ; ?
     64 00003FBA EA                  <1>  db 0eah
-    65 00003FBB [870C]              <1>  dw %1
+    65 00003FBB [FF0D]              <1>  dw %1
     66 00003FBD 00FC                <1>  dw 0fc00h
-   859                                  	JMPFAR invalid4 ; 文字列表示(未実装)
+   860                                  	JMPFAR invalid4 ; 文字列表示(未実装)
     64 00003FBF EA                  <1>  db 0eah
-    65 00003FC0 [890C]              <1>  dw %1
+    65 00003FC0 [010E]              <1>  dw %1
     66 00003FC2 00FC                <1>  dw 0fc00h
-   860                                  	JMPFAR disk_bios
+   861                                  	JMPFAR disk_bios
     64 00003FC4 EA                  <1>  db 0eah
     65 00003FC5 [6403]              <1>  dw %1
     66 00003FC7 00FC                <1>  dw 0fc00h
-   861                                  	JMPFAR cmos_bios
+   862                                  	JMPFAR cmos_bios
     64 00003FC9 EA                  <1>  db 0eah
     65 00003FCA [9404]              <1>  dw %1
     66 00003FCC 00FC                <1>  dw 0fc00h
-   862                                  	JMPFAR print_string ; by CaptainYS
+   863                                  	JMPFAR print_string ; by CaptainYS
     64 00003FCE EA                  <1>  db 0eah
-    65 00003FCF [810C]              <1>  dw %1
+    65 00003FCF [F90D]              <1>  dw %1
     66 00003FD1 00FC                <1>  dw 0fc00h
-   863                                  	JMPFAR waitloop
+   864                                  	JMPFAR waitloop
     64 00003FD3 EA                  <1>  db 0eah
-    65 00003FD4 [820C]              <1>  dw %1
+    65 00003FD4 [FA0D]              <1>  dw %1
     66 00003FD6 00FC                <1>  dw 0fc00h
-   864                                  
-   865 00003FD8 000000000000000000-     	dd 0,0, 0,0,0,0
-   865 00003FE1 000000000000000000-
-   865 00003FEA 000000000000       
-   866                                  
-   867                                  	JMPFAR startall ; ここからすべてが始まる
+   865                                  
+   866 00003FD8 000000000000000000-     	dd 0,0, 0,0,0,0
+   866 00003FE1 000000000000000000-
+   866 00003FEA 000000000000       
+   867                                  
+   868                                  	JMPFAR startall ; ここからすべてが始まる
     64 00003FF0 EA                  <1>  db 0eah
     65 00003FF1 [2000]              <1>  dw %1
     66 00003FF3 00FC                <1>  dw 0fc00h
-   868                                  
-   869                                  ; CaptainYS>>
-   870 00003FF5 51                      	db 051h		; This byte will be transferred to IO.SYS's DS:0000, and then returned as Machine Id to DS:[DI] by INT AFH AH=05H.  MX->51h
-   871 00003FF6 0000                    	db 0,0
-   872 00003FF8 0000000000000000        	dd 0,0
-   873                                  ; CaptainYS<<
+   869                                  
+   870                                  ; CaptainYS>>
+   871 00003FF5 51                      	db 051h		; This byte will be transferred to IO.SYS's DS:0000, and then returned as Machine Id to DS:[DI] by INT AFH AH=05H.  MX->51h
+   872 00003FF6 0000                    	db 0,0
+   873 00003FF8 0000000000000000        	dd 0,0
+   874                                  ; CaptainYS<<
