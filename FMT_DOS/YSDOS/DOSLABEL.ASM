@@ -167,7 +167,7 @@ UNKNOWN_FLAG_USED_IN_BUFWRITE	DB	077h
 ; BUFWRITE will refuse to write if it is zero.
 ; 0FFh is written in INT 21H AH=4Ch,31h,00h
 ; Proc 00005708 compares this byte against IO_BUF_DRIVE.
-
+; http://www.ctyme.com/intr/rb-3023.htm tells this byte is the drive on which critical error occured.
 						ORG		02D1h
 ERROR_LOCUS				DB		ERRLOCUS_UNKNOWN	; Referred by INT 21H AH=59H (CS:17D7)
 

@@ -6,10 +6,16 @@ INT_2FH_HANDLER:
 						JE		INT_2FH_1206H
 						CMP		AX,1600H
 						JE		INT_2FH_1600H
-						; REIPL.COM from Towns OS V2.1 L20 expects AX is not touched (return 4680H)
-						CMP		AX,4680H
-						JE		INT_2FH_JUST_IRET
 
+						; If AX=4680h, REIPL.COM from Towns OS V2.1 L20 expects AX is not touched (return 4680H)
+						CMP		AH,10h
+						JE		INT_2F_RELEVANT
+						CMP		AH,11h
+						JE		INT_2F_RELEVANT
+						CMP		AH,12h
+						JNE		INT_2FH_JUST_IRET
+
+INT_2F_RELEVANT:
 						PUSH	BP
 						MOV		BP,SP
 						; [BP] BP
