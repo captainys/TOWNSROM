@@ -99,12 +99,19 @@ fd_command_05:
 	out		dx,al
 
 	call	fd_wait_ready
+	push	ax
+	in		al,IO_DMA_MASK
+	and		al,0fh
+	or		al,01h	; bit0=Channel0=FDC
+	out		IO_DMA_MASK,al
+	pop		ax
+
 	test	al,08h	; CRC Error
-	je		.fd_crc_error
+	jne		.fd_crc_error
 	test	al,10h	; Record not found
-	je		.fd_record_not_found
+	jne		.fd_record_not_found
 	test	al,04h	; Lost data
-	je		.fd_lost_data
+	jne		.fd_lost_data
 
 	pop		edx
 	pop		cx
@@ -131,10 +138,6 @@ fd_command_05:
 	; Make sure to clear when exit.
 	xor		al,al
 	out		IO_DMA_ADDR_HIGH,AL
-
-
-.fd_trap:
-	jmp		.fd_trap		; by CaptainYS
 	; by CaptainYS <<
 
 	pop		eax
@@ -244,31 +247,22 @@ fd_wait_ready:
 ;   EDX=Physical Address
 ;   AX=Sector Length
 sys_setup_dma:
-	PUSH	EAX
-	MOV		EAX,EDX
-	MOV		DX,IO_DMA_ADDR_LOW
-	OUT		DX,AL
-
-	SHR		EAX,8
-	INC		DX
-	OUT		DX,AL
-
-	SHR		EAX,8
-	INC		DX
-	OUT		DX,AL
-
-	SHR		EAX,8
-	INC		DX
-	OUT		DX,AL
-
-	POP		EAX
-
-	MOV		DX,IO_DMA_COUNT_LOW
-	OUT		DX,AL
+	OUT		IO_DMA_COUNT_LOW,AL
 
 	SHR		AX,8
-	INC		DX
-	OUT		DX,AL
+	OUT		IO_DMA_COUNT_HIGH,AL
+
+	MOV		EAX,EDX
+	OUT		IO_DMA_ADDR_LOW,AL
+
+	SHR		EAX,8
+	OUT		IO_DMA_ADDR_MID_LOW,AL
+
+	SHR		EAX,8
+	OUT		IO_DMA_ADDR_MID_HIGH,AL
+
+	SHR		EAX,8
+	OUT		IO_DMA_ADDR_HIGH,AL
 
 	RET
 
