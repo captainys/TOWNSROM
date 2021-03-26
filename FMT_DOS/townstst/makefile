@@ -1,3 +1,7 @@
+build\doscall.obj : doscall.asm
+	386asm doscall.asm -OBJECT build\doscall.obj
+
+
 build\fibonaci.exp : fibonaci.c
 	hcd386 fibonaci.c -obj build\fibonaci.OBJ
 	386link build\fibonaci.obj @LIBS.LN -exe build\fibonaci.exp
@@ -21,6 +25,11 @@ build\makefrag.exp : makefrag.c
 build\fwrite.exp : fwrite.c
 	hcd386 fwrite.c -obj build\fwrite.OBJ
 	386link build\fwrite.obj @LIBS.LN -exe build\fwrite.exp
+
+
+build\rename.exp : rename.c
+	hcd386 rename.c -obj build\rename.OBJ
+	386link build\rename.obj build\doscall.obj @LIBS.LN -exe build\rename.exp
 
 
 build\return0.exp : return0.c

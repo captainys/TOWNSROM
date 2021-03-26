@@ -4,3 +4,4 @@ CDRIVE
 *.exe
 *.lst
 *.obj
+*.err
