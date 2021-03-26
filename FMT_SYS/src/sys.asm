@@ -332,6 +332,7 @@ try_cd_boot:
 	jnc	.cdok
 
 	; 手抜き(^^;
+	mov	al,PMODE_PUTICON	; by CaptainYS  Was missing.
 	mov	cl,ICON_CD
 	mov	dx, (VRAM_PITCH*368)+(VRAM_PITCH-4)
 	call	call_pmode
