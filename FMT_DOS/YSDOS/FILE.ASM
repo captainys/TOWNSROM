@@ -2851,6 +2851,7 @@ MKDIR_INIT_SECTOR_LOOP:
 						;   DX     LBA
 						;   AL     AL==0 Read sector
 						;          AL!=0 Don't read sector (Just make an available buffer)
+						MOV		EDX,EBX
 						CALL	GETBUFFER_REGULAR
 						; Output
 						;   CF=0   DS:DI=Buffer
