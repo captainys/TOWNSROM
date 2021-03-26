@@ -1667,7 +1667,7 @@ FWRITE_NO_GROWTH_IN_SIZE:
 
 						;   CF=0   DX=Cluster CXth cluster of the file
 						CMP		DX,GS:[BP+DPB_MAX_CLUSTER_NUM]
-						JAE		FWRITE_ERROR_END			; I think it's not supposed to happen, but... let it go.
+						JA		FWRITE_ERROR_END			; I think it's not supposed to happen, but... let it go.
 
 
 						; DX is also written in FS:[DI+SF_CUR_ABS_CLUSTER_NUM]
