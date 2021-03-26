@@ -373,7 +373,7 @@ SCAN_DIR_NORT_DIRENT_NEXT:
 						;   CF=0   DX=Next Cluster
 						;   CF=1   DX Destroyed
 						CMP		DX,GS:[BP+DPB_MAX_CLUSTER_NUM]
-						JG		SCAN_DIR_NORT_ERROR ; Not Found
+						JA		SCAN_DIR_NORT_ERROR ; Not Found
 
 						MOVZX	EAX,DX
 						JMP		SCAN_DIR_NORT_CLST_LOOP
