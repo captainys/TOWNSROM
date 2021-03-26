@@ -432,6 +432,37 @@ WRITE_BACK_BUFFER_END:
 
 
 
+; Input
+;  DS:SI=Buffer
+; Output
+;  Force Test Write and
+;    CF=0 AX=0 if success
+;    CF=1 AX=DOSERR if failed
+;  It won't change IO_BUF_FLAGS.
+BUFFER_TESTWRITE:
+						MOV		BL,BYTE PTR DS:[SI+IO_BUF_FLAGS]
+						OR		BYTE PTR DS:[SI+IO_BUF_FLAGS],IO_BUF_FLAG_DIRTY
+						PUSH	BX
+						CALL	WRITE_BACK_BUFFER
+						POP		BX
+						MOV		BYTE PTR DS:[SI+IO_BUF_FLAGS],BL
+
+						JC		BUFFER_TESTWRITE_ERROR
+
+						XOR		AX,AX
+						RET
+
+BUFFER_TESTWRITE_ERROR:
+						CALL	DEVERR_TO_DOSERR
+						STC
+						RET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
 ;Input
 ;  DS:SI  Buffer Header
 ;Output
