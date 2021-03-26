@@ -134,6 +134,8 @@ pm_memorycheck:
 	dec	ecx
 	jz	.zero ; メモリが1MBしかない！
 
+	shl	ecx,1	; Corrected by CaptainYS.  (RAMSizeInMB-1)*2 of FFs.
+
 	mov	al,0ffh
 	mov	dx,3150h
 .loop2:

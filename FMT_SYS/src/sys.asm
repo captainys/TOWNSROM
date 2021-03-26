@@ -266,7 +266,50 @@ startall:
 ; by CaptainYS >>
 ; al=Unit
 try_fd_boot:
+	and		al,0fh
+	or		al,20h		; BIOS Device Code
+
+	push	ax
+	mov		ah,03h		; Restore
+	CALLFAR	disk_bios
+	pop		ax
+	jc		.cannot_boot
+
+	mov		cx,0b000h
+	mov		ds,cx
+	mov		dword ds:[0],0
+	mov		byte ds:[4],0CBh	; RETF
+
+	push	ax
+	mov		ah,05h		; Read
+	xor		cx,cx		; Cylinder 0
+	mov		dx,1		; Side 0 Sector 1
+	mov		bx,1		; Number of Sectors
+	xor		di,di		; buffer DS:DI=B000:0000
+	CALLFAR	disk_bios
+	pop		ax
+	jc		.cannot_boot
+
+	push	ax
+	call	check_iplvalidity
+	pop		ax
+	jc		.cannot_boot
+
+	; BL:Device Type   1:SCSI  2:FD  8:CD
+	; BH:Unit Number
+	mov		bh,al
+	and		bh,0fh
+	mov		bl,2
+	mov	ax,0ffffh
+
+	; call	far 0B000h:0004h
+	DB		9AH
+	DW		 0004H
+	DW		0B000H
+
+.cannot_boot:
 	ret
+
 
 
 ; al=Unit
@@ -808,8 +851,22 @@ disk_command_02:
 	jmp	$
 
 disk_command_03:
+	; by CaptainYS >>
+	mov		al,[si]
+	and		al,0f0h
+	cmp		al,020h
+	je		.fd_command_03
+	; by CaptainYS <<
 	call	cd_command_0e ; 一応これで代替
 	ret
+
+; by CaptainYS >>
+.fd_command_03:
+	call	fd_command_03
+	ret
+; by CaptainYS <<
+
+
 
 disk_command_04:
 	jmp	$

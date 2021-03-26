@@ -11,6 +11,36 @@
 ; ※単独ではアセンブルしません
 
 ;---------------------------------------------------------------------
+
+; by CaptainYS >>
+; Restore
+;  al   : Device ID
+fd_command_03:
+	call	fd_wait_ready
+
+	mov		cl,ds:[si]
+	call	fd_select_drive_2hd
+
+	call	fd_wait_ready
+	call	fd_motor_on_select_side_2hd
+
+	mov		al,00h ; Restore
+	mov		dx,IO_FDC_COMMAND
+	out		dx,al
+
+	call	fd_wait_ready
+	test	al,010h
+	je		.fd_command_03_done
+	mov		ah,080h
+	mov		cx,BIOSERR_DETAIL_DISK_SEEK_ERROR
+	stc
+
+.fd_command_03_done:
+	ret
+; by CaptainYS <<
+
+
+
 ; 読み込み
 ; Corrected by CaptainYS >>
 ; al    : Device ID
