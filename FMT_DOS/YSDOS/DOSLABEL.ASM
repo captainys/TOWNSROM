@@ -350,7 +350,7 @@ PROB_FNAME_11BYTE		DB		0bH dup(' ') ; Probably 11-byte ' ' padded file name and 
 						; 0502h DD File Size
 
 						ORG		0506H
-PROB_SAVE_SF_ATTR		DB		0
+SAVE_FILE_ATTR			DB		0
 
 						ORG		0508H
 SATTR					DB		0

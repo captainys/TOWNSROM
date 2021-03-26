@@ -19,8 +19,6 @@ FILE_DRIVE					DB	0	; Used in RENAME
 FILE_RENAME_SRC_DIR_SECTOR	DD	0
 FILE_RENAME_SRC_DIR_OFFSET	DW	0
 FILE_RENAME_SRC_DIR_CLUSTER	DD	0
-FILE_RENAME_DST_DIR_SECTOR	DD	0
-FILE_RENAME_DST_DIR_OFFSET	DW	0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -2050,6 +2048,7 @@ CHECK_FILE_IS_CHARDEV_EXIT:
 						RET
 
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -3693,7 +3692,7 @@ TRUENAME_EXIT:
 ; Input
 ;   DS:SI=From
 ;   ES:DI=To
-RENAME:
+FRENAME:
 						MOV		CS:[FILE_INPUT_FILENAME],SI
 						MOV		CS:[FILE_INPUT_FILENAME+2],DS
 						MOV		CS:[FILE_FILENAME_2],DI
@@ -3702,13 +3701,13 @@ RENAME:
 						; Check From-Filename
 						CALL	CHECK_WILDCARD_PRESENCE_CSTR
 						MOV		AX,DOSERR_FILE_NOT_FOUND
-						JC		RENAME_EXIT
+						JC		FRENAME_EXIT
 
 						; Check To-Filename
 						_LDS	SI,CS:[FILE_FILENAME_2]
 						CALL	CHECK_WILDCARD_PRESENCE_CSTR
 						MOV		AX,DOSERR_FILE_NOT_FOUND
-						JC		RENAME_EXIT
+						JC		FRENAME_EXIT
 
 						_LDS	SI,CS:[FILE_FILENAME_2]
 						CALL	MAKE_FULLPATH_CRUNCH	; No wildcard
@@ -3726,32 +3725,32 @@ RENAME:
 
 						MOV		SI,OFFSET FILENAME_BUFFER_SECOND
 						CALL	SEEK_LAST_BACKSLASH  ; AX destroyed, DS:DI is last backslash.
-						CMP		BYTE PTR DS:[SI],0
-						JE		RENAME_ACCESS_DENIED	; Does dos have an error code for bad file name?
-						CMP		WORD PTR DS:[SI],'/'
-						JE		RENAME_ACCESS_DENIED	; Does dos have an error code for bad file name?
-						CMP		WORD PTR DS:[SI],'\'
-						JE		RENAME_ACCESS_DENIED	; Does dos have an error code for bad file name?
+						CMP		BYTE PTR DS:[DI],0
+						JE		FRENAME_ACCESS_DENIED	; Does dos have an error code for bad file name?
+						CMP		WORD PTR DS:[DI],'/'
+						JE		FRENAME_ACCESS_DENIED	; Does dos have an error code for bad file name?
+						CMP		WORD PTR DS:[DI],'\'
+						JE		FRENAME_ACCESS_DENIED	; Does dos have an error code for bad file name?
 
 						_LDS	SI,CS:[FILE_INPUT_FILENAME]
 						CALL	MAKE_FULLPATH_CRUNCH	; No wildcard
 
 						CALL	DRIVE_NUMBER_FROM_FILENAME_BUFFER
 						CMP		AL,BYTE PTR CS:[FILE_DRIVE]
-						JNE		RENAME_DIFFERENT_DRIVE
+						JNE		FRENAME_DIFFERENT_DRIVE
 
 						CALL	MEDIACHECK_READYCDS		; CF=1 Error  CF=0 AL=(0:No Change  1:Disk Changed)
 						MOV		AX,DOSERR_ACCESS_DENIED
-						JC		RENAME_EXIT
+						JC		FRENAME_EXIT
 
 
 						CALL	DRIVE_NUMBER_FROM_FILENAME_BUFFER
 						CALL	GET_DRIVE_CDS
-						JC		RENAME_INVALID_DRIVE
+						JC		FRENAME_INVALID_DRIVE
 
 						TEST	WORD PTR DS:[BX+CDS_DRIVE_TYPE],CDS_TYPE_REDIRECTED
-						JE		RENAME_NOT_REDIRECTED
-;RENAME_REDIRECTED:
+						JE		FRENAME_NOT_REDIRECTED
+;FRENAME_REDIRECTED:
 						MOV		WORD PTR CS:[CURRENT_CDS_STRUCT],BX
 						MOV		WORD PTR CS:[CURRENT_CDS_STRUCT+2],DS
 
@@ -3761,7 +3760,7 @@ RENAME:
 						RET
 
 
-RENAME_NOT_REDIRECTED:
+FRENAME_NOT_REDIRECTED:
 						_LGS	BP,DS:[BX+CDS_DRIVE_PARAM_BLOCK]
 
 						; Input
@@ -3777,18 +3776,21 @@ RENAME_NOT_REDIRECTED:
 						;   CF=1  Not Found.  AX is DOSERR_FILE_NOT_FOUND, DOSERR_DIR_NOT_FOUND, or DOSERR_ACCESS_DENIED
 						;   Lastly scanned directory cluster can be found in DIR_variables
 						; Don't expect registers are preserved.
-						_LDS	SI,CS:[FILENAME_BUFFER]
+						PUSh	CS
+						POP		DS
+						MOV		SI,OFFSET FILENAME_BUFFER
 						ADD		SI,3	; Again, not to worry about "\\Q.A." if it is, it is INT 2F drive.
 						XOR		EAX,EAX
 						MOV		CX,0ffffh-DIRENT_ATTR_VOLLABEL
 						CALL	FETCH_DIR
-						JC		RENAME_FILE_NOT_FOUND
+						MOV		CS:[SAVE_FILE_ATTR],AL
+						JC		FRENAME_FILE_NOT_FOUND
 
 						; I know it should be able to move a directory.
 						; Can I move SYSTEM and READONLY files?
 						; I make them movable for the time being.
 						; TEST	AL,DIRENT_ATTR_SYSTEM+DIRENT_ATTR_READONLY
-						; JNE	RENAME_ACCESS_DENIED
+						; JNE	FRENAME_ACCESS_DENIED
 
 						MOVZX	EAX,WORD PTR ES:[BX+IO_BUF_SECTOR_NUM]
 						MOV		CS:[FILE_RENAME_SRC_DIR_SECTOR],EAX
@@ -3801,19 +3803,21 @@ RENAME_NOT_REDIRECTED:
 						MOV		CS:[FILE_RENAME_SRC_DIR_CLUSTER],EAX
 
 
-						_LDS	SI,CS:[FILENAME_BUFFER_SECOND]
+						PUSH	CS
+						POP		DS
+						MOV		SI,OFFSET FILENAME_BUFFER_SECOND
 						ADD		SI,3	; Again, not to worry about "\\Q.A." if it is, it is INT 2F drive.
 						XOR		EAX,EAX
 						MOV		CX,0ffffh-DIRENT_ATTR_VOLLABEL
 						CALL	FETCH_DIR
-						JNC		RENAME_ACCESS_DENIED	; In this case, file already exists.
+						JNC		FRENAME_ACCESS_DENIED	; In this case, file already exists.
 
 						MOV		EAX,CS:[DIR_CLUSTER0]
 						CMP		EAX,CS:[FILE_RENAME_SRC_DIR_CLUSTER]
-						JNE		RENAME_DIFFERENT_DIR
+						JNE		FRENAME_DIFFERENT_DIR
 
 
-RENAME_SAME_DIR:
+FRENAME_SAME_DIR:
 						; Rename within the same directory.
 						; In this case, just overwrite the 11-byte filename of the DIRENT
 
@@ -3824,7 +3828,7 @@ RENAME_SAME_DIR:
 						;          AL!=0 Don't read sector (Just make an available buffer)
 						MOV		EDX,CS:[FILE_RENAME_SRC_DIR_SECTOR]
 						CALL	GETBUFFER_REGULAR
-						JC		RENAME_ACCESS_DENIED
+						JC		FRENAME_ACCESS_DENIED
 						; Output
 						;   CF=0   DS:DI=Buffer
 						;   CF=1   Error
@@ -3839,11 +3843,13 @@ RENAME_SAME_DIR:
 						ADD		DI,IO_BUF_INFO_size+DIRENT_FILENAME
 						ADD		DI,CS:[FILE_RENAME_SRC_DIR_OFFSET]
 
+						PUSH	DI
 						PUSH	CS
 						POP		DS
 						MOV		SI,OFFSET FILENAME_BUFFER_SECOND
 						CALL	SEEK_LAST_BACKSLASH  ; AX destroyed, DS:DI is last backslash.
-						INC		SI
+						LEA		SI,[DI+1]			; Already checked it is not empty.
+						POP		DI
 
 						; Input
 						;   DS:SI  Source File name
@@ -3858,29 +3864,59 @@ RENAME_SAME_DIR:
 						RET
 
 
-RENAME_DIFFERENT_DIR:
-						JMP		RENAME_DIFFERENT_DIR
+FRENAME_DIFFERENT_DIR:
+						MOV		CL,CS:[SAVE_FILE_ATTR]
+						PUSH	CS
+						POP		DS
+						MOV		SI,OFFSET FILENAME_BUFFER_SECOND
+						CALL	FCREATE_IF_NOT_EXIST
+						JC		FRENAME_EXIT
 
-						CLC
-RENAME_EXIT:
+						CALL	GET_SF_ENTRY_FROM_JFN	; Not supposed to fail.
+
+						PUSH	FS	; Save SF_ENTRY
+						PUSH	DI
+
+						MOV		EDX,CS:[FILE_RENAME_SRC_DIR_SECTOR]
+						CALL	GETBUFFER_REGULAR
+						MOV		SI,DI	; DS:DI is the sector buffer
+						POP		DI
+						POP		FS		; Recover SF_ENTRY
+						JC		FRENAME_ACCESS_DENIED
+
+						OR		BYTE PTR DS:[SI+IO_BUF_FLAGS],IO_BUF_FLAG_IS_DIR+IO_BUF_FLAG_WRITTEN
+						ADD		SI,IO_BUF_INFO_size+DIRENT_FILENAME
+						ADD		SI,CS:[FILE_RENAME_SRC_DIR_OFFSET]
+						MOV		BYTE PTR DS:[SI+DIRENT_FILENAME],DELETED_FILE_FIRST_BYTE
+
+						; Attribute is supposed to be already copied.
+						; File name is already given to FCREATE_IF_NOT_EXIST
+						; Need to copy date and time and set modified flag in SF_ENTRY
+						MOV		EAX,DS:[SI+DIRENT_TIME]
+						MOV		FS:[DI+SF_TIME],EAX
+						AND		WORD PTR FS:[DI+SF_DEVFLAGS],0ffffh-SF_DEVFLAG_BLOCK_NOT_WRITTEN
+
+						CALL	CLOSE_SF
+
+FRENAME_EXIT:
 						RET
 
-RENAME_INVALID_DRIVE:
+FRENAME_INVALID_DRIVE:
 						MOV		AX,DOSERR_INVALID_DRIVE
 						STC
 						RET
 
-RENAME_ACCESS_DENIED:
+FRENAME_ACCESS_DENIED:
 						MOV		AX,DOSERR_ACCESS_DENIED
 						STC
 						RET
 
-RENAME_FILE_NOT_FOUND:
+FRENAME_FILE_NOT_FOUND:
 						MOV		AX,DOSERR_FILE_NOT_FOUND
 						STC
 						RET
 
-RENAME_DIFFERENT_DRIVE:
+FRENAME_DIFFERENT_DRIVE:
 						MOV		AX,DOSERR_ACCESS_DENIED
 						STC
 						RET

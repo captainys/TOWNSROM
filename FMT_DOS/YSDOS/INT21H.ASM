@@ -234,6 +234,8 @@ INT_21H_REGISTERS_SAVED:
 						JE		INT_21H_4FH_FIND_NEXT
 						CMP		AH,55H
 						JE		INT_21H_55H_CREATE_CHILD_PSP
+						CMP		AH,56H
+						JE		INT_21H_56H_RENAME
 						CMP		AH,57H
 						JE		INT_21H_57H_SET_GET_TIME_STAMP
 						CMP		AH,5BH
@@ -1357,6 +1359,27 @@ INT_21H_51H_GET_PSP:
 INT_21H_55H_CREATE_CHILD_PSP:
 						CALL	CREATE_PDB	; PDB or PSP!?  WTF!?
 						JMP		INT_RESTORE_AND_IRET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; Input
+;   DS:DX=From Filename
+;   ES:DI=To Filename
+INT_21H_56H_RENAME:
+						MOV		SI,DX
+						CALL	FRENAME
+						SET_IF_NO_CARRY	AX,0
+
+						_LSS	SP,CS:[SP_RESTORE_POINT]
+						MOV		BP,SP
+
+						MOV		AX,DOSERR_INVALID_FUNC
+						RETURN_REGISTERW	AX
+						JMP		INT_RESTORE_AND_IRET_WITH_CF
 
 
 
