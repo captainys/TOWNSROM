@@ -3869,10 +3869,18 @@ FRENAME_DIFFERENT_DIR:
 						PUSH	CS
 						POP		DS
 						MOV		SI,OFFSET FILENAME_BUFFER_SECOND
+						PUSH	GS
+						PUSH	BP
 						CALL	FCREATE_IF_NOT_EXIST
+						POP		BP
+						POP		GS
 						JC		FRENAME_EXIT
 
+						PUSH	GS
+						PUSH	BP
 						CALL	GET_SF_ENTRY_FROM_JFN	; Not supposed to fail.
+						POP		BP
+						POP		GS
 
 						PUSH	FS	; Save SF_ENTRY
 						PUSH	DI
@@ -3891,9 +3899,12 @@ FRENAME_DIFFERENT_DIR:
 
 						; Attribute is supposed to be already copied.
 						; File name is already given to FCREATE_IF_NOT_EXIST
-						; Need to copy date and time and set modified flag in SF_ENTRY
 						MOV		EAX,DS:[SI+DIRENT_TIME]
 						MOV		FS:[DI+SF_TIME],EAX
+						MOV		EAX,DS:[SI+DIRENT_FILE_SIZE]
+						MOV		FS:[DI+SF_FILE_SIZE],EAX
+						MOV		AX,DS:[SI+DIRENT_FIRST_CLUSTER]
+						MOV		FS:[DI+SF_FIRST_CLUSTER_NUM],AX
 						AND		WORD PTR FS:[DI+SF_DEVFLAGS],0ffffh-SF_DEVFLAG_BLOCK_NOT_WRITTEN
 
 						CALL	CLOSE_SF

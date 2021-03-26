@@ -1369,6 +1369,8 @@ INT_21H_55H_CREATE_CHILD_PSP:
 ; Input
 ;   DS:DX=From Filename
 ;   ES:DI=To Filename
+; Return
+;   Probably undocumented behavior is AX=0 if CF=0
 INT_21H_56H_RENAME:
 						MOV		SI,DX
 						CALL	FRENAME
