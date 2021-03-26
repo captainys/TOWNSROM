@@ -298,12 +298,19 @@ INITBLOCK:
 ONE_BYTE_OUT_BUFFER:	; Used by one-byte out 1679:459B
 
 						ORG		0360H
+; According to http://www.ctyme.com/intr/rb-3023.htm, it is SDA+092h
+; SDA is 02CEh.  02CEh+092h=360h.  Consistent.
 FILENAME_BUFFER			DB		128 dup(0)
 ; Looks like used as a file-name buffer.  It overwrites PSP made in INITBLOCK during DOSINIT.
 ; SHSUCDX is taking this as FN1p.
 						; Confirmed.  FOPEN uses it as a qualified file-name buffer.
 						; 1679:000067CA BF6003                    MOV     DI,0360H
 
+; According to http://www.ctyme.com/intr/rb-3023.htm, it is SDA+0112h
+; SDA is 02CEh.  02CEh+0112h=3E0h.
+; It is contradicting with disassembly at 1679:6309.  (Good address, by the way.)
+						ORG		03E0h
+FILENAME_BUFFER_SECOND:
 						ORG		03E6h
 PROB_FILE_NAME_BUFFER2:
 						; While making a full path (fully-qualified) file name,

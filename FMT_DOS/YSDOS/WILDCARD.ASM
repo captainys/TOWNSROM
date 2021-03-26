@@ -277,6 +277,7 @@ SEEK_LAST_BACKSLASH_KANJI:
 ; Output
 ;   DS:SI  Points to one after '\' or last zero.
 ;   AL     Last found backslash (5Ch) or zero
+; All other registers preserved.
 SEEK_NEXT_BACKSLASH:
 						LODSB
 						JMP_IF_SLASH	AL,SEEK_NEXT_BACKSLASH_FOUND

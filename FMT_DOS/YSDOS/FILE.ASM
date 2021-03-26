@@ -8,12 +8,19 @@ FILE_READ_WRITE_POINTER		DD	0	; Linear address
 FILE_CURRENT_SECTOR			DD	0
 
 FILE_INPUT_FILENAME			DD	0
+FILE_FILENAME_2				DD	0
 FILE_CUR_SFN				DB	0
 FILE_CUR_JFN				DB	0
 FILE_OPENMODE				DB	0
 
 FILE_CREATE_ATTRIB			DB	0
 
+FILE_DRIVE					DB	0	; Used in RENAME
+FILE_RENAME_SRC_DIR_SECTOR	DD	0
+FILE_RENAME_SRC_DIR_OFFSET	DW	0
+FILE_RENAME_SRC_DIR_CLUSTER	DD	0
+FILE_RENAME_DST_DIR_SECTOR	DD	0
+FILE_RENAME_DST_DIR_OFFSET	DW	0
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -3678,6 +3685,205 @@ TRUENAME_EXIT:
 						RET
 
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; Input
+;   DS:SI=From
+;   ES:DI=To
+RENAME:
+						MOV		CS:[FILE_INPUT_FILENAME],SI
+						MOV		CS:[FILE_INPUT_FILENAME+2],DS
+						MOV		CS:[FILE_FILENAME_2],DI
+						MOV		CS:[FILE_FILENAME_2+2],ES
+
+						; Check From-Filename
+						CALL	CHECK_WILDCARD_PRESENCE_CSTR
+						MOV		AX,DOSERR_FILE_NOT_FOUND
+						JC		RENAME_EXIT
+
+						; Check To-Filename
+						_LDS	SI,CS:[FILE_FILENAME_2]
+						CALL	CHECK_WILDCARD_PRESENCE_CSTR
+						MOV		AX,DOSERR_FILE_NOT_FOUND
+						JC		RENAME_EXIT
+
+						_LDS	SI,CS:[FILE_FILENAME_2]
+						CALL	MAKE_FULLPATH_CRUNCH	; No wildcard
+
+						CALL	DRIVE_NUMBER_FROM_FILENAME_BUFFER
+						MOV		BYTE PTR CS:[FILE_DRIVE],AL
+
+						MOV		AX,CS
+						MOV		DS,AX
+						MOV		ES,AX
+						MOV		CX,FILENAME_BUFFER_LEN/4
+						MOV		SI,OFFSET FILENAME_BUFFER
+						MOV		DI,OFFSET FILENAME_BUFFER_SECOND
+						REP MOVSD
+
+						MOV		SI,OFFSET FILENAME_BUFFER_SECOND
+						CALL	SEEK_LAST_BACKSLASH  ; AX destroyed, DS:DI is last backslash.
+						CMP		BYTE PTR DS:[SI],0
+						JE		RENAME_ACCESS_DENIED	; Does dos have an error code for bad file name?
+						CMP		WORD PTR DS:[SI],'/'
+						JE		RENAME_ACCESS_DENIED	; Does dos have an error code for bad file name?
+						CMP		WORD PTR DS:[SI],'\'
+						JE		RENAME_ACCESS_DENIED	; Does dos have an error code for bad file name?
+
+						_LDS	SI,CS:[FILE_INPUT_FILENAME]
+						CALL	MAKE_FULLPATH_CRUNCH	; No wildcard
+
+						CALL	DRIVE_NUMBER_FROM_FILENAME_BUFFER
+						CMP		AL,BYTE PTR CS:[FILE_DRIVE]
+						JNE		RENAME_DIFFERENT_DRIVE
+
+						CALL	MEDIACHECK_READYCDS		; CF=1 Error  CF=0 AL=(0:No Change  1:Disk Changed)
+						MOV		AX,DOSERR_ACCESS_DENIED
+						JC		RENAME_EXIT
+
+
+						CALL	DRIVE_NUMBER_FROM_FILENAME_BUFFER
+						CALL	GET_DRIVE_CDS
+						JC		RENAME_INVALID_DRIVE
+
+						TEST	WORD PTR DS:[BX+CDS_DRIVE_TYPE],CDS_TYPE_REDIRECTED
+						JE		RENAME_NOT_REDIRECTED
+;RENAME_REDIRECTED:
+						MOV		WORD PTR CS:[CURRENT_CDS_STRUCT],BX
+						MOV		WORD PTR CS:[CURRENT_CDS_STRUCT+2],DS
+
+						MOV		AX,INT2F_RENAME
+						INT		2Fh
+
+						RET
+
+
+RENAME_NOT_REDIRECTED:
+						_LGS	BP,DS:[BX+CDS_DRIVE_PARAM_BLOCK]
+
+						; Input
+						;   GS:BP  DPB
+						;   DS:SI  Starting pointer in the fully-qualified file name.
+						;          If the file name is:
+						;            C:\COMMAND.COM
+						;               ^SI must point this.
+						;   EAX    Starting cluster (0->Root Dir)
+						;   CX     Attribute Filter, High-Byte ignored.
+						; Return
+						;   CF=0  Found.  AL is file attribute  AH=0,  ES:DI=DIRENT,  ES:BX=BUFFER HEADER
+						;   CF=1  Not Found.  AX is DOSERR_FILE_NOT_FOUND, DOSERR_DIR_NOT_FOUND, or DOSERR_ACCESS_DENIED
+						;   Lastly scanned directory cluster can be found in DIR_variables
+						; Don't expect registers are preserved.
+						_LDS	SI,CS:[FILENAME_BUFFER]
+						ADD		SI,3	; Again, not to worry about "\\Q.A." if it is, it is INT 2F drive.
+						XOR		EAX,EAX
+						MOV		CX,0ffffh-DIRENT_ATTR_VOLLABEL
+						CALL	FETCH_DIR
+						JC		RENAME_FILE_NOT_FOUND
+
+						; I know it should be able to move a directory.
+						; Can I move SYSTEM and READONLY files?
+						; I make them movable for the time being.
+						; TEST	AL,DIRENT_ATTR_SYSTEM+DIRENT_ATTR_READONLY
+						; JNE	RENAME_ACCESS_DENIED
+
+						MOVZX	EAX,WORD PTR ES:[BX+IO_BUF_SECTOR_NUM]
+						MOV		CS:[FILE_RENAME_SRC_DIR_SECTOR],EAX
+						MOV		AX,DI
+						SUB		AX,BX
+						SUB		AX,IO_BUF_INFO_size
+						MOV		CS:[FILE_RENAME_SRC_DIR_OFFSET],AX
+
+						MOV		EAX,CS:[DIR_CLUSTER0]
+						MOV		CS:[FILE_RENAME_SRC_DIR_CLUSTER],EAX
+
+
+						_LDS	SI,CS:[FILENAME_BUFFER_SECOND]
+						ADD		SI,3	; Again, not to worry about "\\Q.A." if it is, it is INT 2F drive.
+						XOR		EAX,EAX
+						MOV		CX,0ffffh-DIRENT_ATTR_VOLLABEL
+						CALL	FETCH_DIR
+						JNC		RENAME_ACCESS_DENIED	; In this case, file already exists.
+
+						MOV		EAX,CS:[DIR_CLUSTER0]
+						CMP		EAX,CS:[FILE_RENAME_SRC_DIR_CLUSTER]
+						JNE		RENAME_DIFFERENT_DIR
+
+
+RENAME_SAME_DIR:
+						; Rename within the same directory.
+						; In this case, just overwrite the 11-byte filename of the DIRENT
+
+						; Input
+						;   GS:BP  Drive Parameter Block
+						;   DX     LBA
+						;   AL     AL==0 Read sector
+						;          AL!=0 Don't read sector (Just make an available buffer)
+						MOV		EDX,CS:[FILE_RENAME_SRC_DIR_SECTOR]
+						CALL	GETBUFFER_REGULAR
+						JC		RENAME_ACCESS_DENIED
+						; Output
+						;   CF=0   DS:DI=Buffer
+						;   CF=1   Error
+						;   AX     Destroyed
+						;   DX     Destroyed
+						;   Hiword EDI  Destroyed
+
+						PUSH	DS
+
+						POP		ES
+						OR		BYTE PTR ES:[DI+IO_BUF_FLAGS],IO_BUF_FLAG_IS_DIR+IO_BUF_FLAG_WRITTEN
+						ADD		DI,IO_BUF_INFO_size+DIRENT_FILENAME
+						ADD		DI,CS:[FILE_RENAME_SRC_DIR_OFFSET]
+
+						PUSH	CS
+						POP		DS
+						MOV		SI,OFFSET FILENAME_BUFFER_SECOND
+						CALL	SEEK_LAST_BACKSLASH  ; AX destroyed, DS:DI is last backslash.
+						INC		SI
+
+						; Input
+						;   DS:SI  Source File name
+						;   ES:DI  Destination 11-byte file name.
+						; Destroys EAX,CX
+						CALL	MAKE_11BYTE_FILENAME
+
+						MOV		AL,GS:[BP+DPB_DRIVE_CODE]
+						CALL	FLUSH_BUFFERS_DRIVE_FAT
+
+						CLC
+						RET
+
+
+RENAME_DIFFERENT_DIR:
+						JMP		RENAME_DIFFERENT_DIR
+
+						CLC
+RENAME_EXIT:
+						RET
+
+RENAME_INVALID_DRIVE:
+						MOV		AX,DOSERR_INVALID_DRIVE
+						STC
+						RET
+
+RENAME_ACCESS_DENIED:
+						MOV		AX,DOSERR_ACCESS_DENIED
+						STC
+						RET
+
+RENAME_FILE_NOT_FOUND:
+						MOV		AX,DOSERR_FILE_NOT_FOUND
+						STC
+						RET
+
+RENAME_DIFFERENT_DRIVE:
+						MOV		AX,DOSERR_ACCESS_DENIED
+						STC
+						RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
