@@ -1521,6 +1521,7 @@ FWRITE_TO_JFN_ERROR:
 ; Pretty much every registers are destroyed.
 ; DS Destroyed from GET_NEXT_CLUSTER
 FWRITE:
+						MOV		DWORD PTR CS:[FILE_BYTES_DID_READ_WRITE],0	; In case ECX==0.
 						MOVZX	ECX,CX
 						OR		CX,CX
 						JE		FWRITE_END
