@@ -528,9 +528,9 @@ int RunBatchFile(char cmd[])
 
 					GetFirstArgument(argv0,nextBatch.cmdLine);
 					Capitalize(argv0);
-					if(FOUND==FindExecutableFromPath(batState.fName,argv0))
+					if(FOUND==FindExecutableFromPath(nextBatch.fName,argv0))
 					{
-						ParseString(&batArgc,batArgv,batState.cmdLine);
+						ParseString(&batArgc,batArgv,nextBatch.cmdLine);
 						batState=nextBatch;
 					}
 					else
