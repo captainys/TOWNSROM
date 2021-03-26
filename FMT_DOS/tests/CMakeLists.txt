@@ -18,8 +18,6 @@ add_test(
 		${ROM_DIR}
 		-FD0
 		"${DISK_IMAGE_DIR}/testset01.bin"
-		-BOOTKEY
-		F0
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
