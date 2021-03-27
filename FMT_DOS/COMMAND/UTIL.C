@@ -303,7 +303,7 @@ int ReplaceStringNF(char str[],unsigned int maxStrlen,const char from[],const ch
 				str[orgStrlen+growth]=0;
 				for(j=orgStrlen+growth-1; i+growth<=j; --j)
 				{
-					str[j]=str[j]-growth;
+					str[j]=str[j-growth];
 				}
 				for(j=0; j<toLen; ++j)
 				{
@@ -314,4 +314,143 @@ int ReplaceStringNF(char str[],unsigned int maxStrlen,const char from[],const ch
 		}
 		return i;
 	}
+}
+
+/*! Exactly same as ReplaceStringNF except that the last parameter is a far pointer. (Therefore _fstrlen -> strlen as well)
+    That's why 8086 was a disgusting processor.
+*/
+int ReplaceStringNN(char str[],unsigned int maxStrlen,const char from[],const char to[])
+{
+	unsigned int orgStrlen,fromLen,toLen;
+	orgStrlen=strlen(str);
+	fromLen=strlen(from);
+	toLen=strlen(to);
+
+	if(toLen<=fromLen) /* Shorten or no length change. */
+	{
+		int i;
+		for(i=0; 0!=str[i]; ++i)
+		{
+			int j;
+			for(j=0; j<fromLen; ++j)
+			{
+				if(0!=CaseInsensitiveCompare(str[i+j],from[j]))
+				{
+					break;
+				}
+			}
+			if(j==fromLen) /* Found a Match! */
+			{
+				for(j=0; j<toLen; ++j)
+				{
+					str[i+j]=to[j];
+				}
+				for(j=i+toLen; j+fromLen-toLen<orgStrlen; ++j)
+				{
+					str[j]=str[j+fromLen-toLen];
+				}
+				str[j]=0;
+			}
+		}
+		return i;
+	}
+	else
+	{
+		int i;
+		unsigned int growth=toLen-fromLen;
+		for(i=0; 0!=str[i]; ++i)
+		{
+			int j;
+			for(j=0; j<fromLen; ++j)
+			{
+				if(0!=CaseInsensitiveCompare(str[i+j],from[j]))
+				{
+					break;
+				}
+			}
+			if(j==fromLen) /* Found a Match! */
+			{
+				unsigned int newStrlen=orgStrlen+growth;
+				if(maxStrlen<newStrlen)
+				{
+					/* Cannot expand.  Give up. */
+					return 0;
+				}
+
+				str[orgStrlen+growth]=0;
+				for(j=orgStrlen+growth-1; i+growth<=j; --j)
+				{
+					str[j]=str[j-growth];
+				}
+				for(j=0; j<toLen; ++j)
+				{
+					str[i+j]=to[j];
+				}
+				orgStrlen+=growth;
+			}
+		}
+		return i;
+	}
+}
+
+int ExpandBatchArg(char lineBuf[],int batArgc,char *batArgv[],unsigned int lineBufLen)
+{
+	int i;
+	int state=0; /* 0:Outside Env Var   1:Inside Env Var */
+	int kanji=0;
+
+	for(i=0; 0!=lineBuf[i]; ++i)
+	{
+		if(IsKanji(lineBuf[i]))
+		{
+			kanji=1;
+			continue;
+		}
+		if(0!=kanji)
+		{
+			kanji=0;
+			continue;
+		}
+
+		if(0==state)
+		{
+			if('%'==lineBuf[i])
+			{
+				if('0'<=lineBuf[i+1] && lineBuf[i+1]<='9')
+				{
+					int j,num=0;
+					static char fromWord[8]={'%',0,0,0,0,0,0,0};
+					for(j=0; '0'<=lineBuf[i+1+j] && lineBuf[i+1+j]<='9' && j<6; ++j)
+					{
+						fromWord[1+j]=lineBuf[i+1+j];
+						num*=10;
+						num+=(lineBuf[i+1+j]-'0');
+					}
+					if(num<batArgc)
+					{
+						if(0==ReplaceStringNN(lineBuf,lineBufLen-1,fromWord,batArgv[num]))
+						{
+							return ERR;
+						}
+					}
+					else
+					{
+						ReplaceStringNN(lineBuf,lineBufLen-1,fromWord,"");
+					}
+				}
+				else
+				{
+					state=1;
+				}
+			}
+		}
+		else
+		{
+			if('%'==lineBuf[i])
+			{
+				state=0;
+			}
+		}
+	}
+	return OK;
 }

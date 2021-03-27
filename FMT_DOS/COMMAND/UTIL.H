@@ -42,6 +42,7 @@ int CaseInsensitiveCompare(char a,char b);
     If successful, it returns the length of the new string.
 */
 int ReplaceStringNF(char str[],unsigned int maxStrLen,const char from[],const char far to[]);
+int ReplaceStringNN(char str[],unsigned int maxStrLen,const char from[],const char to[]);
 
 
 /*! Substitute environment variables to %var%.
@@ -84,6 +85,11 @@ const char *GetExtension(const char *fName);
     If fName length exceeds MAX_PATH, this function won't do anything.
 */
 void ReplaceExtension(char fName[],const char ext[]);
+
+
+/*! Returns OK or ERR.
+*/
+int ExpandBatchArg(char lineBuf[],int batArgc,char *batArgv[],unsigned int lineBufLen);
 
 
 #endif

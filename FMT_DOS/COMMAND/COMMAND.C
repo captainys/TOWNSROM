@@ -504,7 +504,7 @@ int RunBatchFile(char cmd[],char param[])
 		return DOSERR_FILE_NOT_FOUND;
 	}
 
-	printf("BATCHFILE=%s\n",batState.fName);
+	/* printf("BATCHFILE=%s\n",batState.fName); */
 
 	while(0==batState.eof)
 	{
@@ -551,6 +551,15 @@ int RunBatchFile(char cmd[],char param[])
 			printf("%s$\n",lineBuf);
 		}
 
+		/* Batch arguments are restricted by line buffer length already.
+		   Hopefully it won't explode the lineBuf.
+		*/
+		if(OK!=ExpandBatchArg(lineBuf,batArgc,batArgv,LINEBUFLEN))
+		{
+			printf("Failed to expand batch parameters.\n");
+			continue;
+		}
+
 		/*
 		The command line shouldn't be expanded by environment variables here.  Too early to do so.
 		Why?  Imagine SET PATH=%PATH%;C:\EXE
@@ -560,7 +569,6 @@ int RunBatchFile(char cmd[],char param[])
 		argv0Len=GetFirstArgument(argv0,lineBuf);
 		afterArgv0=GetAfterFirstArgument(lineBuf,argv0Len);
 		Capitalize(argv0);
-		/* ExpandBatchArg(argv0,LINEBUFLEN,batArgc,batArgv); */
 		ExpandEnvVar(ENVSEG,argv0,LINEBUFLEN);
 		if(':'==argv0[0]) /* It's a jump label. */
 		{
@@ -578,25 +586,26 @@ int RunBatchFile(char cmd[],char param[])
 				It does JMP to another batch unless it is invoked from COMMAND.COM.
 				*/
 				{
-					struct BatchState nextBatch;
-					char argv0[MAX_PATH];
+					static struct BatchState nextBatch;
+					static char argv0[MAX_PATH];
+					static unsigned int argv0Len;
 
 					strncpy(nextBatch.cmdLine,lineBuf,LINEBUFLEN-1);
 					nextBatch.cmdLine[LINEBUFLEN-1]=0;
 					nextBatch.fPos=0;
 					nextBatch.eof=0;
 
-					GetFirstArgument(argv0,nextBatch.cmdLine);
+					argv0Len=GetFirstArgument(argv0,nextBatch.cmdLine);
 					Capitalize(argv0);
 					if(FOUND==FindExecutableFromPath(nextBatch.fName,argv0))
 					{
-						printf("GOTO %s\n",nextBatch.fName);
-						ParseString(&batArgc,batArgv,nextBatch.fName,nextBatch.cmdLine);
+						ParseString(&batArgc,batArgv,nextBatch.fName,GetAfterFirstArgument(nextBatch.cmdLine,argv0Len));
 						batState=nextBatch;
 					}
 					else
 					{
-						PrintDOSError(ERRORLEVEL=DOSERR_FILE_NOT_FOUND);
+						PrintDOSError(DOSERR_FILE_NOT_FOUND);
+						ERRORLEVEL=1;
 					}
 				}
 				break;
@@ -611,9 +620,11 @@ int RunBatchFile(char cmd[],char param[])
 				break;
 			case COMTYPE_BINARY32:
 				puts("Direct execution of .EXP not supported.");
+				ERRORLEVEL=1;
 				break;
 			default:
 				puts("Wrong Command or File Name.");
+				ERRORLEVEL=1
 				break;
 			}
 		}
@@ -644,7 +655,7 @@ int ExecExternalCommand(const char fName[],const char param[])
 
 int CommandMain(struct Option *option)
 {
-	struct BatchState batState;
+	static struct BatchState batState;
 	int returnCode=0;
 
 	InitBatchState(&batState);
@@ -675,8 +686,7 @@ int CommandMain(struct Option *option)
 			switch(comType)
 			{
 			case COMTYPE_BATCH:
-				PrepareExecParam(execParamBuf,afterArgv0,MAX_EXEPARAM);
-				RunBatchFile(exeCmd,execParamBuf);
+				RunBatchFile(exeCmd,afterArgv0);
 				break;
 			case COMTYPE_BINARY:
 				PrepareExecParam(execParamBuf,afterArgv0,MAX_EXEPARAM);
