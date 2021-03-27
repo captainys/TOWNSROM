@@ -2516,6 +2516,30 @@ CREATE_DISK_FILE:
 						; Mark Buffer Dirty
 						OR		BYTE PTR ES:[BX+IO_BUF_FLAGS],IO_BUF_FLAG_WRITTEN
 
+
+						; Check Drive Not Ready or Disk Write Protected
+						PUSH	GS
+						PUSH	BP
+						PUSH	DS
+						PUSH	SI
+						PUSH	BX
+						PUSH	DX
+
+						PUSH	ES
+						POP		DS
+						MOV		SI,BX
+						CALL	BUFFER_TESTWRITE
+
+						POP		DX
+						POP		BX
+						POP		SI
+						POP		DS
+						POP		BP
+						POP		GS
+
+						JC		CREATE_DISK_FILE_ERR
+
+
 						PUSH	ES
 						POP		DS
 						MOV		SI,DI
@@ -2596,6 +2620,28 @@ CREATE_DISK_FILE_NOT_EXIST:
 						SUB		DX,BX
 						SUB		DX,IO_BUF_INFO_size	; DX is bytes into sector.
 
+
+						; Check Drive Not Ready or Disk Write Protected
+						PUSH	GS
+						PUSH	BP
+						PUSH	DS
+						PUSH	SI
+						PUSH	BX
+						PUSH	DX
+
+						MOV		SI,BX
+						CALL	BUFFER_TESTWRITE
+
+						POP		DX
+						POP		BX
+						POP		SI
+						POP		DS
+						POP		BP
+						POP		GS
+
+						JC		CREATE_DISK_FILE_ERR
+
+
 						LFS		DI,CS:[CUR_SF_ENTRY]
 						MOV		AL,SF_MODE_WRITE	; Cannot read from a new file.
 						MOV		BX,DS:[BX+IO_BUF_SECTOR_NUM]
@@ -2609,6 +2655,10 @@ CREATE_DISK_FILE_NOT_EXIST:
 						CALL	MAKE_SF_ENTRY_FROM_DIRENT
 
 						CLC
+						RET
+
+CREATE_DISK_FILE_ERR:
+						STC
 						RET
 
 
