@@ -231,8 +231,18 @@ void ExecSet(char setParam[])
 	}
 	if(0==setParam[equal])
 	{
-		puts("Wrong Parameter");
-		/* Should I set errorlevel? */
+		const char far *ENVPtr=MAKEFARPTR(ENVSEG,0);
+		while(0!=*ENVPtr)
+		{
+			while(0!=*ENVPtr)
+			{
+				DOSPUTC(*ENVPtr);
+				++ENVPtr;
+			}
+			DOSPUTC(0x0D);
+			DOSPUTC(0x0A);
+			++ENVPtr;
+		}
 		return;
 	}
 	setParam[equal]=0;
@@ -383,6 +393,10 @@ int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char after
 	{
 		printf("HALTED\n");
 		for(;;);
+		return 1;
+	}
+	else if(0==strcmp(argv0,"REM"))
+	{
 		return 1;
 	}
 	else if(0==strcmp(argv0,"DIR") || 0==strcmp(argv0,"LS"))
