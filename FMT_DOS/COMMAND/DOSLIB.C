@@ -238,7 +238,7 @@ void SetEnv(unsigned int ENVSEG,const char var[],const char data[])
 			unsigned int j;
 			for(j=0; 0!=var[j] && i+j+1<ENVLen; j++)
 			{
-				if(var[j]!=ENVPtr[i+j])
+				if(0!=CaseInsensitiveCompare(var[j],ENVPtr[i+j]))
 				{
 					break;
 				}
@@ -246,6 +246,7 @@ void SetEnv(unsigned int ENVSEG,const char var[],const char data[])
 			if(0==var[j] && ENVPtr[i+j]=='=') /* Found it */
 			{
 				insPoint=i;
+				break;
 			}
 			else
 			{
@@ -278,7 +279,7 @@ void SetEnv(unsigned int ENVSEG,const char var[],const char data[])
 	for(nextPoint=insPoint; ENVPtr[nextPoint]!=0; ++nextPoint)
 	{
 		++nextPoint;
-		if(nextPoint+4<ENVLen)
+		if(ENVLen<=nextPoint+4)
 		{
 			/* ENVSEG broken. */
 			return;
