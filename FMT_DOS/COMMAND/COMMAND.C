@@ -13,7 +13,9 @@
 unsigned char echo=1;
 unsigned char isFirstLevel=0;
 unsigned int PSP=0,ENVSEG=0;
+unsigned int ERRORLEVEL=0; /* Error Level Cache */
 unsigned char far *PSPPtr=NULL;
+static struct Option opt;
 
 
 int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char afterArgv0[]);
@@ -173,7 +175,7 @@ void SetUp(struct Option *option,int argc,char *argv[])
 	}
 }
 
-void ExecEcho(const char afterArgv0[])
+void ExecEcho(const char *afterArgv0)
 {
 	if(0==strcmp(afterArgv0,"OFF"))
 	{
@@ -185,13 +187,43 @@ void ExecEcho(const char afterArgv0[])
 	}
 	else
 	{
-		puts(afterArgv0);
+		char expand[LINEBUFLEN];
+		while('\t'==*afterArgv0 || ' '==*afterArgv0)
+		{
+			++afterArgv0;
+		}
+		strncpy(expand,afterArgv0,LINEBUFLEN);
+		ExpandEnvVar(ENVSEG,expand,LINEBUFLEN-1);
+		puts(expand);
+	}
+}
+
+void ExecExit(struct BatchState *batState,const char afterArgv0[])
+{
+	char expand[LINEBUFLEN];
+	GetFirstArgument(expand,afterArgv0);
+	ExpandEnvVar(ENVSEG,expand,LINEBUFLEN-1);
+	if(0==strcmp(expand,"-f") || 0==strcmp(expand,"-F"))
+	{
+		puts("Exitting.");
+		exit(0);
+	}
+	else if(RUNMODE_FIRST_LEVEL==opt.runMode)
+	{
+		fprintf(stderr,"COMMAND.COM is running first level.\n");
+		fprintf(stderr,"Use EXIT -F to force exit.\n");
+	}
+	else
+	{
+		puts("Exitting.");
+		exit(0);
 	}
 }
 
 void ExecSet(char setParam[])
 {
-	char *var,*data;
+	char *var;
+	char data[LINEBUFLEN];
 	int equal=0;
 	while(0!=setParam[equal] && '='!=setParam[equal])
 	{
@@ -199,27 +231,36 @@ void ExecSet(char setParam[])
 	}
 	if(0==setParam[equal])
 	{
-		printf("Wrong Parameter");
+		puts("Wrong Parameter");
 		/* Should I set errorlevel? */
 		return;
 	}
 	setParam[equal]=0;
 	var=setParam;
-	data=setParam+equal+1;
-	if(data[0]=='\"')
+	Capitalize(var);
+	strcpy(data,setParam+equal+1);
+	if(OK==ExpandEnvVar(ENVSEG,data,LINEBUFLEN))
 	{
-		int i;
-		++data;
-		for(i=0; 0!=data[i]; ++i)
+		int skipByte=0;
+		if(data[0]=='\"')
 		{
-			if('\"'==data[i] && 0==data[i+1])
+			int i;
+			skipByte=1;
+			for(i=1; 0!=data[i]; ++i)
 			{
-				data[i]=0;
-				break;
+				if('\"'==data[i] && 0==data[i+1])
+				{
+					data[i]=0;
+					break;
+				}
 			}
 		}
+		SetEnv(ENVSEG,var,data+skipByte);
 	}
-	SetEnv(ENVSEG,var,data);
+	else
+	{
+		puts("Too long.");
+	}
 }
 
 void ExecGoto(struct BatchState *batState,char gotoLabel[])
@@ -258,14 +299,13 @@ void ExecIf(struct BatchState *batState,char *param)
 	Capitalize(wordBuf);
 	if(0==strcmp(wordBuf,"ERRORLEVEL"))
 	{
-		int compareLevel,errorLevel;
+		int compareLevel;
 		len=GetFirstArgument(wordBuf,param);
 		Capitalize(wordBuf);
 		param+=len;
 
 		compareLevel=atoi(wordBuf);
-		errorLevel=DOSGETERRORLEVEL();
-		if(compareLevel<=errorLevel)
+		if(compareLevel<=ERRORLEVEL)
 		{
 			/* To be safe for reentrance, don't look at wordBuf after ExecBuiltInCommand */
 			len=GetFirstArgument(wordBuf,param);
@@ -307,6 +347,11 @@ int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char after
 	if(0==strcmp(argv0,"ECHO"))
 	{
 		ExecEcho(afterArgv0);
+		return 1;
+	}
+	else if(0==strcmp(argv0,"EXIT"))
+	{
+		ExecExit(batState,afterArgv0);
 		return 1;
 	}
 	else if(0==strcmp(argv0,"SET"))
@@ -420,7 +465,7 @@ void PrepareExecParam(char execParamBuf[],const char param[],unsigned int execPa
 	execParamBuf[i+1]=0;
 }
 
-int RunBatchFile(char cmd[])
+int RunBatchFile(char cmd[],char param[])
 {
 	int returnCode=0;
 	int batArgc=0;
@@ -437,8 +482,8 @@ int RunBatchFile(char cmd[])
 	strncpy(batState.cmdLine,cmd,LINEBUFLEN-1);
 	batState.cmdLine[LINEBUFLEN-1]=0;
 
-	ExpandEnvVar(batState.cmdLine,LINEBUFLEN);
-	ParseString(&batArgc,batArgv,batState.cmdLine);
+	ExpandEnvVar(ENVSEG,batState.cmdLine,LINEBUFLEN);
+	ParseString(&batArgc,batArgv,cmd,param);
 	if(0==batArgc || FOUND!=FindExecutableFromPath(batState.fName,batArgv[0]))
 	{
 		return DOSERR_FILE_NOT_FOUND;
@@ -501,7 +546,7 @@ int RunBatchFile(char cmd[])
 		afterArgv0=GetAfterFirstArgument(lineBuf,argv0Len);
 		Capitalize(argv0);
 		/* ExpandBatchArg(argv0,LINEBUFLEN,batArgc,batArgv); */
-		ExpandEnvVar(argv0,LINEBUFLEN);
+		ExpandEnvVar(ENVSEG,argv0,LINEBUFLEN);
 		if(':'==argv0[0]) /* It's a jump label. */
 		{
 			continue;
@@ -530,22 +575,30 @@ int RunBatchFile(char cmd[])
 					Capitalize(argv0);
 					if(FOUND==FindExecutableFromPath(nextBatch.fName,argv0))
 					{
-						ParseString(&batArgc,batArgv,nextBatch.cmdLine);
+						printf("GOTO %s\n",nextBatch.fName);
+						ParseString(&batArgc,batArgv,nextBatch.fName,nextBatch.cmdLine);
 						batState=nextBatch;
 					}
 					else
 					{
-						/* ERRORLEVEL=DOSERR_FILE_NOT_FOUND; */
+						PrintDOSError(ERRORLEVEL=DOSERR_FILE_NOT_FOUND);
 					}
 				}
 				break;
 			case COMTYPE_BINARY:
-				PrepareExecParam(execParamBuf,afterArgv0,MAX_EXEPARAM);
-				DOSEXEC(PSP,ENVSEG,exeCmd,execParamBuf);
+				{
+					int DOSERR;
+					PrepareExecParam(execParamBuf,afterArgv0,MAX_EXEPARAM);
+					DOSERR=DOSEXEC(PSP,ENVSEG,exeCmd,execParamBuf);
+					ERRORLEVEL=DOSGETERRORLEVEL();
+					PrintDOSError(DOSERR);
+				}
 				break;
 			case COMTYPE_BINARY32:
+				puts("Direct execution of .EXP not supported.");
 				break;
 			default:
+				puts("Wrong Command or File Name.");
 				break;
 			}
 		}
@@ -561,21 +614,8 @@ int ExecExternalCommand(const char fName[],const char param[])
 	switch(comType)
 	{
 	case COMTYPE_BATCH:
-		{
-			int linePtr=0;
-			int i;
-			for(i=0; 0!=fName[i] && linePtr<LINEBUFLEN-1; ++i)
-			{
-				lineBuf[linePtr++]=fName[i];
-			}
-			for(i=0; 0!=param[i] && linePtr<LINEBUFLEN-1; ++i)
-			{
-				lineBuf[linePtr++]=param[i];
-			}
-			lineBuf[linePtr]=0;
-			return RunBatchFile(lineBuf);
-		}
-		break;
+		PrepareExecParam(execParamBuf,param,MAX_EXEPARAM);
+		return RunBatchFile(exeCmd,execParamBuf);
 	case COMTYPE_BINARY:
 		PrepareExecParam(execParamBuf,param,MAX_EXEPARAM);
 		DOSEXEC(PSP,ENVSEG,exeCmd,execParamBuf);
@@ -620,14 +660,18 @@ int CommandMain(struct Option *option)
 			switch(comType)
 			{
 			case COMTYPE_BATCH:
+				PrepareExecParam(execParamBuf,afterArgv0,MAX_EXEPARAM);
+				RunBatchFile(exeCmd,execParamBuf);
 				break;
 			case COMTYPE_BINARY:
 				PrepareExecParam(execParamBuf,afterArgv0,MAX_EXEPARAM);
 				DOSEXEC(PSP,ENVSEG,exeCmd,execParamBuf);
 				break;
 			case COMTYPE_BINARY32:
+				puts("Direct execution of .EXP not supported.");
 				break;
 			default:
+				puts("Wrong Command or File Name.");
 				break;
 			}
 		}
@@ -638,14 +682,13 @@ int CommandMain(struct Option *option)
 int main(int argc,char *argv[])
 {
 	int returnCode=0;
-	static struct Option opt;
 
 	printf("\n");
 	printf("COMMAND.COM for FM TOWNS Emulators.\n");
 	printf("By CaptainYS\n");
 	printf("\n");
 
-	Test(argc,argv);
+	/* Test(argc,argv); */
 
 	if(sizeof(int)!=2 || sizeof(unsigned int)!=2)
 	{
@@ -657,7 +700,7 @@ int main(int argc,char *argv[])
 	SetUp(&opt,argc,argv);
 	if(RUNMODE_FIRST_LEVEL==opt.runMode)
 	{
-		RunBatchFile("AUTOEXEC.BAT");
+		RunBatchFile("AUTOEXEC.BAT","");
 		CommandMain(&opt);
 	}
 	if(RUNMODE_EXEC_AND_STAY==opt.runMode)

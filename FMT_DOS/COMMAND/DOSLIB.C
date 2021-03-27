@@ -15,6 +15,118 @@ const char *YAMANDCOM="YAMAND.COM";
 static char doslibFNBuf[MAX_PATH];
 
 
+
+void PrintDOSError(int errCode)
+{
+	puts("");
+	switch(errCode)
+	{
+	case DOSERR_NO_ERROR:
+		break;
+	case DOSERR_INVALID_FUNC:
+		puts("DOSERR_INVALID_FUNC");
+		break;
+	case DOSERR_FILE_NOT_FOUND:
+		puts("DOSERR_FILE_NOT_FOUND");
+		break;
+	case DOSERR_DIR_NOT_FOUND:
+		puts("DOSERR_DIR_NOT_FOUND");
+		break;
+	case DOSERR_TOO_MANY_OPEN_FILES:
+		puts("DOSERR_TOO_MANY_OPEN_FILES");
+		break;
+	case DOSERR_ACCESS_DENIED:
+		puts("DOSERR_ACCESS_DENIED");
+		break;
+	case DOSERR_INVALID_HANDLE:
+		puts("DOSERR_INVALID_HANDLE");
+		break;
+	case DOSERR_MCB_BROKEN:
+		puts("DOSERR_MCB_BROKEN");
+		break;
+	case DOSERR_OUT_OF_MEMORY:
+		puts("DOSERR_OUT_OF_MEMORY");
+		break;
+	case DOSERR_INVALID_MCB:
+		puts("DOSERR_INVALID_MCB");
+		break;
+	case DOSERR_BAD_ENV:
+		puts("DOSERR_BAD_ENV");
+		break;
+	case DOSERR_BAD_FORMAT:
+		puts("DOSERR_BAD_FORMAT");
+		break;
+	case DOSERR_INVALID_ACCESS:
+		puts("DOSERR_INVALID_ACCESS");
+		break;
+	case DOSERR_INVALID_DATA:
+		puts("DOSERR_INVALID_DATA");
+		break;
+	case DOSERR_UNUSED:
+		puts("DOSERR_UNUSED");
+		break;
+	case DOSERR_INVALID_DRIVE:
+		puts("DOSERR_INVALID_DRIVE");
+		break;
+	case DOSERR_CANNOT_DEL_CUR_DIR:
+		puts("DOSERR_CANNOT_DEL_CUR_DIR");
+		break;
+	case DOSERR_NOT_SAME_DRIVE:
+		puts("DOSERR_NOT_SAME_DRIVE");
+		break;
+	case DOSERR_NO_MORE_FILES:
+		puts("DOSERR_NO_MORE_FILES");
+		break;
+	case DOSERR_WRITE_PROTEDTED:
+		puts("DOSERR_WRITE_PROTEDTED");
+		break;
+	case DOSERR_UNKNOWN_UNIT:
+		puts("DOSERR_UNKNOWN_UNIT");
+		break;
+	case DOSERR_DRIVE_NOT_READY:
+		puts("DOSERR_DRIVE_NOT_READY");
+		break;
+	case DOSERR_UNKNOWN_COMMAND:
+		puts("DOSERR_UNKNOWN_COMMAND");
+		break;
+	case DOSERR_CRC_ERROR:
+		puts("DOSERR_CRC_ERROR");
+		break;
+	case DOSERR_BAD_REQ_LEN:
+		puts("DOSERR_BAD_REQ_LEN");
+		break;
+	case DOSERR_SEEK_ERROR:
+		puts("DOSERR_SEEK_ERROR");
+		break;
+	case DOSERR_UNKNOWN_MEDIUM:
+		puts("DOSERR_UNKNOWN_MEDIUM");
+		break;
+	case DOSERR_SECTOR_NOT_FOUND:
+		puts("DOSERR_SECTOR_NOT_FOUND");
+		break;
+	case DOSERR_OUT_OT_PAPER:
+		puts("DOSERR_OUT_OT_PAPER");
+		break;
+	case DOSERR_WRITE_FAULT:
+		puts("DOSERR_WRITE_FAULT");
+		break;
+	case DOSERR_READ_FAULT:
+		puts("DOSERR_READ_FAULT");
+		break;
+	case DOSERR_GENERAL_FAULT:
+		puts("DOSERR_GENERAL_FAULT");
+		break;
+	case DOSERR_INVALID_DISK_CHANGE:
+		puts("DOSERR_INVALID_DISK_CHANGE");
+		break;
+	default:
+		puts("Undefined Error.");
+		break;
+	}
+}
+
+
+
 void InitENVSEG(unsigned int ENVSEG,unsigned int len,const char path[])
 {
 	int i,j;
@@ -281,6 +393,44 @@ void SetEnv(unsigned int ENVSEG,const char var[],const char data[])
 
 const char far *GetEnv(unsigned int ENVSEG,const char var[])
 {
+	char VAR[MAX_PATH];
+	const char far *envPtr;
+	unsigned int varLen;
+
+	envPtr=MAKEFARPTR(ENVSEG,0);
+
+	varLen=strncpy_close_nf(VAR,var,MAX_PATH);
+	for(;;)
+	{
+		if(envPtr[varLen]=='=')
+		{
+			int i;
+			for(i=0; i<varLen; ++i)
+			{
+				if(envPtr[i]!=VAR[i])
+				{
+					break;
+				}
+			}
+			if(i==varLen) /* Means found. */
+			{
+				return envPtr+varLen+1;
+			}
+		}
+		while(0!=(*envPtr))
+		{
+			++envPtr;
+		}
+		if(0==envPtr[1])
+		{
+			break;
+		}
+		else
+		{
+			++envPtr;
+		}
+	}
+
 	return "";
 }
 

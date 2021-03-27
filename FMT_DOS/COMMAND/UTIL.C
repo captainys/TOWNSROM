@@ -2,6 +2,7 @@
 #include <string.h>
 #include "UTIL.H"
 #include "DEF.H"
+#include "DOSLIB.H"
 
 
 
@@ -54,9 +55,50 @@ int IsKanji(char c)
 	return 0x81<=C;
 }
 
-int ExpandEnvVar(char lineBuf[],unsigned int lineBufLen)
+int ExpandEnvVar(unsigned int ENVSEG,char lineBuf[],unsigned int lineBufLen)
 {
-	return 0;
+	int i;
+	for(i=0; lineBuf[i]!=0; ++i)
+	{
+		if('%'==lineBuf[i])
+		{
+			if('0'<=lineBuf[i+1] && lineBuf[i+1]<='9') /* Command Argument.  Not Env Var. */
+			{
+			}
+			else
+			{
+				int j,k;
+				char var[MAX_PATH];
+				const char far *toRepl;
+				var[0]='%';
+				for(k=1,j=i+1; lineBuf[j]!=0 && lineBuf[j]!='%'; ++j)
+				{
+					if(k<MAX_PATH-2)
+					{
+						var[k++]=lineBuf[j];
+					}
+				}
+				var[k]=0;
+				if(0==lineBuf[j]) /* Variable not closed. */
+				{
+					lineBuf[i]=0;
+					return ERR;
+				}
+
+				Capitalize(var);
+				toRepl=GetEnv(ENVSEG,var+1); /* Don't forget to skip first '%' */
+
+				var[k]='%';
+				var[k+1]=0;
+
+				if(0==ReplaceStringNF(lineBuf,lineBufLen-1,var,toRepl))
+				{
+					return ERR;
+				}
+			}
+		}
+	}
+	return OK;
 }
 
 int GetFirstArgument(char argv0[],const char cmdLine[])
@@ -92,11 +134,18 @@ char *GetAfterFirstArgument(char cmdLine[],int argv0Len)
 	}
 }
 
-int ParseString(int *argc,char *argv[],char cmdLine[])
+int ParseString(int *argc,char *argv[],char exe[],char cmdLine[])
 {
 	int i;
 	int state=0;  /* 0:Not word  1:Word  2:Double-quote */
 	*argc=0;
+
+	if(NULL!=exe)
+	{
+		argv[0]=exe;
+		++(*argc);
+	}
+
 	for(i=0; 0!=cmdLine[i] && *argc<MAX_ARG; ++i)
 	{
 		switch(state)
@@ -166,5 +215,103 @@ void ReplaceExtension(char fName[],const char ext[])
 			fName[i++]='.';
 		}
 		strcpy(fName+i,ext);
+	}
+}
+
+unsigned int strncpy_close_nf(char *dst,char far *src,unsigned int dstLen)
+{
+	unsigned int i;
+	for(i=0; i<dstLen-1 && 0!=src[i]; ++i)
+	{
+		dst[i]=src[i];
+	}
+	dst[i]=0;
+	return i;
+}
+
+int CaseInsensitiveCompare(char a,char b)
+{
+	if('a'<=a && a<='z')
+	{
+		a=a+'A'-'a';
+	}
+	if('a'<=b && b<='z')
+	{
+		b=b+'A'-'a';
+	}
+	return a-b;
+}
+
+int ReplaceStringNF(char str[],unsigned int maxStrlen,const char from[],const char far to[])
+{
+	unsigned int orgStrlen,fromLen,toLen;
+	orgStrlen=strlen(str);
+	fromLen=strlen(from);
+	toLen=_fstrlen(to);
+
+	if(toLen<=fromLen) /* Shorten or no length change. */
+	{
+		int i;
+		for(i=0; 0!=str[i]; ++i)
+		{
+			int j;
+			for(j=0; j<fromLen; ++j)
+			{
+				if(0!=CaseInsensitiveCompare(str[i+j],from[j]))
+				{
+					break;
+				}
+			}
+			if(j==fromLen) /* Found a Match! */
+			{
+				for(j=0; j<toLen; ++j)
+				{
+					str[i+j]=to[j];
+				}
+				for(j=i+toLen; j+fromLen-toLen<orgStrlen; ++j)
+				{
+					str[j]=str[j+fromLen-toLen];
+				}
+				str[j]=0;
+			}
+		}
+		return i;
+	}
+	else
+	{
+		int i;
+		unsigned int growth=toLen-fromLen;
+		for(i=0; 0!=str[i]; ++i)
+		{
+			int j;
+			for(j=0; j<fromLen; ++j)
+			{
+				if(0!=CaseInsensitiveCompare(str[i+j],from[j]))
+				{
+					break;
+				}
+			}
+			if(j==fromLen) /* Found a Match! */
+			{
+				unsigned int newStrlen=orgStrlen+growth;
+				if(maxStrlen<newStrlen)
+				{
+					/* Cannot expand.  Give up. */
+					return 0;
+				}
+
+				str[orgStrlen+growth]=0;
+				for(j=orgStrlen+growth-1; i+growth<=j; --j)
+				{
+					str[j]=str[j]-growth;
+				}
+				for(j=0; j<toLen; ++j)
+				{
+					str[i+j]=to[j];
+				}
+				orgStrlen+=growth;
+			}
+		}
+		return i;
 	}
 }

@@ -40,7 +40,7 @@
 #define DOSERR_UNUSED					0x0E
 #define DOSERR_INVALID_DRIVE			0x0F
 #define DOSERR_CANNOT_DEL_CUR_DIR		0x10
-#define DOSERR_NOT_SAME_DRIVE			0x11	; ?
+#define DOSERR_NOT_SAME_DRIVE			0x11
 #define DOSERR_NO_MORE_FILES			0x12
 #define DOSERR_WRITE_PROTEDTED			0x13
 #define DOSERR_UNKNOWN_UNIT				0x14
@@ -56,6 +56,11 @@
 #define DOSERR_READ_FAULT				0x1E
 #define DOSERR_GENERAL_FAULT			0x1F
 #define DOSERR_INVALID_DISK_CHANGE		0x22
+
+
+
+void PrintDOSError(int errCode);
+
 
 
 /*! Initialize ENVSEG

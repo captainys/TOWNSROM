@@ -8,6 +8,10 @@
 #define SetUint16(ptr,data) {(ptr)[0]=((data)&255);(ptr)[1]=(((data)>>8)&255);}
 
 
+#define OK 1
+#define ERR 0
+
+
 
 /*! Drop ' ', '\t', and control code at the tail of the string.
 */
@@ -19,9 +23,31 @@ void Capitalize(char str[]);
 
 int IsKanji(char c);
 
-/*! Substitute environment variables to %var%.
+
+/*! Copy from src to dst up to dstLen-1.
+    It will always terminate by 0, while strlen may make the string open.
+    Returns actually copied length (excluding the last 0).
 */
-int ExpandEnvVar(char lineBuf[],unsigned int lineBufLen);
+unsigned int strncpy_close_nf(char *dst,char far *src,unsigned int dstLen);
+
+
+/*!
+*/
+int CaseInsensitiveCompare(char a,char b);
+
+
+/*! Replace String.
+    maxStrLen should be the length of the string excluding \0.
+    If the strLen is too short to replace, it will return 0.
+    If successful, it returns the length of the new string.
+*/
+int ReplaceStringNF(char str[],unsigned int maxStrLen,const char from[],const char far to[]);
+
+
+/*! Substitute environment variables to %var%.
+    Returns OK or ERR.
+*/
+int ExpandEnvVar(unsigned int ENVSEG,char lineBuf[],unsigned int lineBufLen);
 
 /*! Extract the first argument of the command line.
     Returns the first divider.
@@ -44,8 +70,9 @@ char *GetAfterFirstArgument(char cmdLine[],int argv0Len);
     Returns number of arguments.
     Separators will be replaced with 0.
     Aware of double-quote.
+	if exe!=NULL, argv[0] will point exe, and argv[1..] will be taken from cmdLine.
 */
-int ParseString(int *argc,char *argv[],char cmdLine[]);
+int ParseString(int *argc,char *argv[],char exe[],char cmdLine[]);
 
 /*! Returns a pointer to '.' in the file name.
     Or can point 0.
