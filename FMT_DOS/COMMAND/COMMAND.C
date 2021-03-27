@@ -391,8 +391,9 @@ int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char after
 	}
 	else if(0==strcmp(argv0,"PAUSE"))
 	{
-		printf("HALTED\n");
-		for(;;);
+		char lineBuf[LINEBUFLEN];
+		printf("<<Press Enter to Continue>>\n");
+		DOSGETS(lineBuf);
 		return 1;
 	}
 	else if(0==strcmp(argv0,"REM"))
