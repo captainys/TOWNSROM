@@ -2937,6 +2937,14 @@ MKDIR_INIT_SECTOR_LOOP:
 						MOV		CX,64
 						REP MOVSB
 
+						; There still is a possibility of disk write protected.
+						; It's a good time to check.
+						PUSH	ES
+						POP		DS
+						LEA		SI,[DI-(64+IO_BUF_INFO_size)]
+						CALL	BUFFER_TESTWRITE
+						JC		MKDIR_DISK_ERROR
+
 MKDIR_INIT_SECTOR_NEXT:
 						POP		EBX
 						POP		ECX
@@ -2962,6 +2970,12 @@ MKDIR_INIT_SECTOR_NEXT:
 						CALL	FCLOSE
 
 MKDIR_EXIT:
+						RET
+
+MKDIR_DISK_ERROR:
+						POP		EBX
+						POP		ECX
+						STC
 						RET
 
 MKDIR_DIR_NOT_FOUND:
