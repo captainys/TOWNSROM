@@ -76,6 +76,8 @@ FMT_SYS互換ROMは、FM TOWNSエミュレータUNZ開発者のKasanovaさんが
 
 - ロゴを津軽用とUNZ用に分けて、FMT_SYS.ROMも2バージョン作るようにした。
 
+- 抜けていたアイコンのビットマップを追加。ただし僕には絵心が無い。
+
 
 ## About FMT_SYS
 
@@ -93,6 +95,8 @@ If you have questions or comments on this modified version, please contact me (P
 - nasm apparently cannot deal with Shift-JIS encoding, and thinks some instructions are part of the comment in the previous line.  I've saved all .ASM files in UTF-8 encoding.
 
 - Added a logo for Tsugaru.  
+
+- Added some missing icon patterns.
 
 ---
 
