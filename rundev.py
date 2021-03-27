@@ -4,13 +4,15 @@ import shutil
 import sys
 import sys
 
+import prep
+
 
 
 TOWNSTYPE="DEV"
 
 THISFILE=os.path.realpath(__file__)
 THISDIR=os.path.dirname(THISFILE)
-TSUGARUDIR=os.path.join(THISDIR,"..","..","TOWNSEMU")
+TSUGARUDIR=os.path.join(THISDIR,"..","TOWNSEMU")
 
 BUILDDIR=os.path.join(TSUGARUDIR,"build")
 SRCDIR=os.path.join(TSUGARUDIR,"src")
@@ -82,59 +84,6 @@ def ErrorExit():
 
 
 
-def PrepRun(cmd):
-	proc=subprocess.Popen(cmd)
-	proc.communicate()
-	if 0!=proc.returncode:
-		ErrorExit()
-
-
-
-def Prep():
-	cwd=os.getcwd();
-	os.chdir(THISDIR)
-
-	if not os.path.isfile(os.path.join(THISDIR,"CDRIVE","COMMAND.COM")):
-		print("It still requires COMMAND.COM from the original TOWNS C-Drive.")
-		quit()
-
-	if not os.path.isfile(os.path.join(THISDIR,"YSDOS","YSDOS.SYS")):
-		print("Assemble YSDOS.")
-		quit()
-
-
-	shutil.copyfile(
-		os.path.join(THISDIR,"YSDOS","YSDOS.SYS"),
-		os.path.join(THISDIR,"makerom","files","YSDOS.SYS"))
-
-	# COMMAND.COM
-	shutil.copyfile(
-		os.path.join(THISDIR,"COMMAND","COMMAND.EXE"),
-		#os.path.join(THISDIR,"CDRIVE","COMMAND.COM"),
-		os.path.join(THISDIR,"makerom","files","COMMAND.COM"))
-
-	os.chdir("makerom")
-	PrepRun([
-			"cl",
-			"make.cpp",
-			"/EHsc"
-		])
-	PrepRun(["make"])
-	os.chdir(THISDIR)
-
-	shutil.copyfile(
-		os.path.join(THISDIR,"makerom","FMT_DOS.ROM"),
-		os.path.join(THISDIR,"..","..","TOWNSEMU_TEST","rom_dev","FMT_DOS.ROM"))
-
-	shutil.copyfile(
-		os.path.join(THISDIR,"townstst","TESTHD.H0"),
-		os.path.join(THISDIR,"scratch","TESTHD.H0")
-	)
-
-	os.chdir(cwd)
-
-
-
 if __name__=="__main__":
-	Prep()
+	prep.Prep()
 	Run(sys.argv[1:])
