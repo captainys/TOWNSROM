@@ -440,7 +440,11 @@ WRITE_BACK_BUFFER_END:
 ;    CF=1 AX=DOSERR if failed
 ;  It won't change IO_BUF_FLAGS.
 ;  If failed, it discards the buffer.  (Because nothing can be done.)
+; Preserves GS and BP
 BUFFER_TESTWRITE:
+						PUSH	GS
+						PUSH	BP
+
 						MOV		BL,BYTE PTR DS:[SI+IO_BUF_FLAGS]
 						OR		BYTE PTR DS:[SI+IO_BUF_FLAGS],IO_BUF_FLAG_DIRTY
 						PUSH	BX
@@ -450,12 +454,17 @@ BUFFER_TESTWRITE:
 
 						JC		BUFFER_TESTWRITE_ERROR
 
+						POP		BP
+						POP		GS
 						XOR		AX,AX
 						RET
 
 BUFFER_TESTWRITE_ERROR:
 						MOV		WORD PTR DS:[SI+IO_BUF_DRV_LOGICAL],IO_BUF_DRV_UNUSED ; Also clears the flags.
 						CALL	DEVERR_TO_DOSERR
+
+						POP		BP
+						POP		GS
 						STC
 						RET
 
