@@ -2881,18 +2881,20 @@ MKDIR_NOT_REDIRECTED:
 
 
 						; Input
-						;   GS:BP  Driver Parameter Block
-						;   ECX    Clusters needed
-						MOV		ECX,1
-						CALL	ALLOCATE_CLUSTER_CHAIN
+						;   DX     Cluster to start search
+						;   GS:BP  DPB
+						XOR		DX,DX
+						CALL	FIND_FREE_CLUSTER
+						; Output
+						;   CF=0   EDX=Free cluster
+						;   CF=1   EDX Destroyed
 						MOV		AX,DOSERR_DISK_FULL
 						JC		MKDIR_EXIT
 
-						;   CF=0   EBX First of the cluster chain, or tail-cluster ID if ECX=0
-						MOV		CS:[MKDIR_DIRENT_TMPL_CLST0],BX	; Save cluster in MKDIR_DIRENT_TMPL_CLST0
+						;   CF=0   Save cluster in MKDIR_DIRENT_TMPL_CLST0
+						MOV		CS:[MKDIR_DIRENT_TMPL_CLST0],DX
 
-						XCHG	EDX,EBX	; EDX=Cluster for the dir
-						CALL	CLUSTER_TO_SECTOR
+						CALL	CLUSTER_TO_SECTOR	; EDX in EBX out
 
 						; EBX=Sector
 
@@ -2955,8 +2957,19 @@ MKDIR_INIT_SECTOR_NEXT:
 
 						_LDS	SI,CS:[FILE_INPUT_FILENAME]
 						MOV		CX,DIRENT_ATTR_DIRECTORY
+						PUSH	GS	; Just in case, I think GS:BP is saved.
+						PUSH	BP
 						CALL	FCREATE_IF_NOT_EXIST
+						POP		BP
+						POP		GS
 						JC		MKDIR_EXIT
+
+						; Now reserve the cluster.
+						PUSH	AX
+						CALL	GET_TAIL_CLUSTER_THRESHOLD	; DX is terminator cluster.
+						MOV		BX,CS:[MKDIR_DIRENT_TMPL_CLST0]
+						CALL	WRITE_CLUSTER
+						POP		AX
 
 
 						PUSH	AX
