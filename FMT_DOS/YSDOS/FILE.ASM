@@ -2919,6 +2919,7 @@ MKDIR_INIT_SECTOR_LOOP:
 						;   AL     AL==0 Read sector
 						;          AL!=0 Don't read sector (Just make an available buffer)
 						MOV		EDX,EBX
+						XOR		AL,AL
 						CALL	GETBUFFER_REGULAR
 						; Output
 						;   CF=0   DS:DI=Buffer
@@ -3096,6 +3097,7 @@ RMDIR_SECTOR_LOOP:
 						;   AL     AL==0 Read sector
 						;          AL!=0 Don't read sector (Just make an available buffer)
 						MOV		EDX,EBX
+						XOR		AL,AL
 						CALL	GETBUFFER_REGULAR
 						; Output
 						;   CF=0   DS:DI=Buffer
@@ -3912,6 +3914,7 @@ FRENAME_SAME_DIR:
 						;   AL     AL==0 Read sector
 						;          AL!=0 Don't read sector (Just make an available buffer)
 						MOV		EDX,CS:[FILE_RENAME_SRC_DIR_SECTOR]
+						XOR		AL,AL
 						CALL	GETBUFFER_REGULAR
 						JC		FRENAME_ACCESS_DENIED
 						; Output
@@ -3971,6 +3974,7 @@ FRENAME_DIFFERENT_DIR:
 						PUSH	DI
 
 						MOV		EDX,CS:[FILE_RENAME_SRC_DIR_SECTOR]
+						XOR		AL,AL	; Actually Read
 						CALL	GETBUFFER_REGULAR
 						MOV		SI,DI	; DS:DI is the sector buffer
 						POP		DI
