@@ -2452,17 +2452,21 @@ FCREATE_IF_NOT_EXIST:
 						PUSH	DS
 						PUSH	SI
 						PUSH	CX
+						PUSH	DWORD PTR CS:[DMA_BUFFER_PTR]
 
 						; Input
 						;   DS:SI File Template
 						;   CX Attribute Mask (CH=0)
 						;   CS:[DMA_BUFFER_PTR] Pointer to store FINDSTRUCT
 						MOV		CX,0FFFFh-DIRENT_ATTR_VOLLABEL
+						MOV		WORD PTR CS:[DMA_BUFFER_PTR],OFFSET TEMP_FINDSTRUCT
+						MOV		WORD PTR CS:[DMA_BUFFER_PTR+2],CS
 						CALL	FIND_FIRST
 						; Output
 						;   CF=0 Success
 						;   CF=1 Error AX=Error Code DOSERR_FILE_NOT_FOUND,DOSERR_DIR_NOT_FOUND, or DOSERR_NO_MORE_FILES
 
+						POP		DWORD PTR CS:[DMA_BUFFER_PTR]
 						POP		CX
 						POP		SI
 						POP		DS
