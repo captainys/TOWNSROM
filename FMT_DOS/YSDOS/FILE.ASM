@@ -2548,7 +2548,9 @@ CREATE_DISK_FILE:
 						POP		DS
 						MOV		SI,DI
 						LFS		DI,CS:[CUR_SF_ENTRY]
-						MOV		AL,SF_MODE_WRITE	; No reading from a new file.
+						MOV		AL,SF_MODE_READ_WRITE
+						; No reading from a new file, so I thought, but looks like it needs to be READ_WRITE
+						; Towns OS Installer creates a file, and fully expecting it is readable.
 						MOV		DX,SI
 						SUB		DX,BX
 						SUB		DX,IO_BUF_INFO_size
@@ -2647,7 +2649,9 @@ CREATE_DISK_FILE_NOT_EXIST:
 
 
 						LFS		DI,CS:[CUR_SF_ENTRY]
-						MOV		AL,SF_MODE_WRITE	; Cannot read from a new file.
+						MOV		AL,SF_MODE_READ_WRITE
+						; No reading from a new file, so I thought, but looks like it needs to be READ_WRITE
+						; Towns OS Installer creates a file, and fully expecting it is readable.
 						MOV		BX,DS:[BX+IO_BUF_SECTOR_NUM]
 						; Make SF_ENTRY from DIRENT
 						;   DS:SI  DIRENT
