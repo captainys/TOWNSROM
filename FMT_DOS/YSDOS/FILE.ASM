@@ -2525,7 +2525,7 @@ CREATE_DISK_FILE:
 						PUSH	GS
 						PUSH	BP
 						PUSH	DS
-						PUSH	SI
+						PUSH	DI
 						PUSH	BX
 						PUSH	DX
 
@@ -2536,7 +2536,7 @@ CREATE_DISK_FILE:
 
 						POP		DX
 						POP		BX
-						POP		SI
+						POP		DI
 						POP		DS
 						POP		BP
 						POP		GS
