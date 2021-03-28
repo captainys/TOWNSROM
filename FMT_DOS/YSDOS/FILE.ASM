@@ -3964,11 +3964,16 @@ FRENAME_DIFFERENT_DIR:
 						POP		GS
 						JC		FRENAME_EXIT
 
+						PUSH	AX
 						PUSH	GS
 						PUSH	BP
 						CALL	GET_SF_ENTRY_FROM_JFN	; Not supposed to fail.
 						POP		BP
 						POP		GS
+
+						; I can skip the following two.
+						; POP		AX	; Recover File Handle
+						; PUSH	AX	; Save File Handle
 
 						PUSH	FS	; Save SF_ENTRY
 						PUSH	DI
@@ -3979,7 +3984,10 @@ FRENAME_DIFFERENT_DIR:
 						MOV		SI,DI	; DS:DI is the sector buffer
 						POP		DI
 						POP		FS		; Recover SF_ENTRY
-						JC		FRENAME_ACCESS_DENIED
+						POP		AX		; Recover File Handle
+						JC		FRENAME_ACCESS_DENIED_AFTER_FCREATE
+
+						PUSH	AX		; Save File Handle
 
 						OR		BYTE PTR DS:[SI+IO_BUF_FLAGS],IO_BUF_FLAG_IS_DIR+IO_BUF_FLAG_WRITTEN
 						ADD		SI,IO_BUF_INFO_size+DIRENT_FILENAME
@@ -3996,9 +4004,16 @@ FRENAME_DIFFERENT_DIR:
 						MOV		FS:[DI+SF_FIRST_CLUSTER_NUM],AX
 						AND		WORD PTR FS:[DI+SF_DEVFLAGS],0ffffh-SF_DEVFLAG_BLOCK_NOT_WRITTEN
 
-						CALL	CLOSE_SF
+						POP		AX		; Recover File Handle
+						CALL	FCLOSE
 
 FRENAME_EXIT:
+						RET
+
+FRENAME_ACCESS_DENIED_AFTER_FCREATE:
+						CALL	FCLOSE
+						MOV		AX,DOSERR_ACCESS_DENIED
+						STC
 						RET
 
 FRENAME_INVALID_DRIVE:
