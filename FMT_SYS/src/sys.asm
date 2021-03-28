@@ -314,7 +314,44 @@ try_fd_boot:
 
 ; al=Unit
 try_hd_boot:
+	and		al, 0fh
+	or		al,0b0h		; BIOS Device Code
+
+	mov		cx,0b000h
+	mov		ds,cx
+	mov		dword ds:[0],0
+	mov		byte ds:[4],0CBh	; RETF
+
+	push	ax
+	mov		ah,05h		; Read
+	xor		cx,cx		; Cylinder 0
+	mov		dx,0		; Side 0 Sector 1
+	mov		bx,4		; Number of Sectors
+	xor		di,di		; buffer DS:DI=B000:0000
+	CALLFAR	disk_bios
+	pop		ax
+	jc		.cannot_boot
+
+	push	ax
+	call	check_iplvalidity
+	pop		ax
+	jc		.cannot_boot
+
+	; BL:Device Type   1:SCSI  2:FD  8:CD
+	; BH:Unit Number
+	mov		bh,al
+	and		bh,0fh
+	mov		bl,1
+	mov	ax,0ffffh
+
+	; call	far 0B000h:0004h
+	DB		9AH
+	DW		 0004H
+	DW		0B000H
+
+.cannot_boot:
 	ret
+
 
 
 try_icm_boot:
@@ -877,6 +914,8 @@ disk_command_05:
 	and	al,0f0h
 	cmp	al,020h		; by CaptainYS
 	je	.fd			; by CaptainYS
+	cmp	al,0b0h		; by CaptainYS
+	je	.hd			; by CaptainYS
 	cmp	al,040h
 	jz	.rom
 	call	cd_command_05
@@ -887,6 +926,10 @@ disk_command_05:
 .fd:						; by CaptainYS
 	call	fd_command_05	; by CaptainYS
 	ret						; by CaptainYS
+.hd:						; by CaptainYS
+	call	hd_command_05	; by CaptainYS
+	ret
+
 
 disk_command_06:
 	mov	al,[si]
