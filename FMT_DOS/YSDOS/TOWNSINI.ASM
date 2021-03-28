@@ -180,6 +180,19 @@ DOSINIT_TOWNS_CLS:
 ;4848H
 ; 2Eh,8Eh,16h,56h,40h
 ; 2Eh,8Bh,26h,58h,40h
+;
+;
+; Also it destroys DOS segment:
+;0A7E:00004724 A36042                    MOV     [4260H],AX   <- Most likely CS:[4260H]
+;0A7E:00004727 89166242                  MOV     [4262H],DX   <- Most likely CS:[4262H]
+;0A7E:0000472B 53                        PUSH    BX
+;0A7E:0000472C 89265C42                  MOV     [425CH],SP
+;0A7E:00004730 2E803E6C4600              CMP     BYTE PTR CS:[466CH],00H
+;0A7E:00004736 740B                      JE      00004743
+;0A7E:0000480F FF0E5E42                  DEC     WORD PTR [425EH]   <- Most Likely CS:[425Eh]
+;
+; Unfortunately I cannot find extra bytes to insert CS prefix.
+; Luckly, virtually zero FM TOWNS apps are based on Towns OS V1.1 L20.
 
 DOSINIT_PATCH_TOSV11L30_MENU_DRV	PROC
 						; Is it IO.SYS of TOWNS OS V1.1 L30?
@@ -212,6 +225,7 @@ DOSINIT_PATCH_TOS_NOTV11L30:
 						MOV		DWORD PTR DS:[484Ch],0268B2E40h
 						MOV		WORD PTR DS:[4850h],04058h
 
+						MOV		DWORD PTR DS:[480Fh],90909090h
 
 
 DOSINIT_PATCH_TOS_NOTV11L20:

@@ -39,17 +39,6 @@ CODE					SEGMENT	USE16
 
 						INCLUDE	DOSLABEL.ASM
 
-; See comments near INCLUDE TOWNSDAT.ASM.
-; To run Towns OS V1.1 L20, I need to avoid using area around 4200h.
-; The bug of MENU_DRV driver destroys DOS segment around that region.
-; To make the footprint of YSDOS.SYS smaller, I need to put some
-; procedures before 4200h and others after 
-
-						INCLUDE		INT21H.ASM
-						INCLUDE		INT2FH.ASM
-						INCLUDE		WILDCARD.ASM
-						INCLUDE		UTIL.ASM
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -396,6 +385,14 @@ YSDOS_INFINITE_LOOP:	JMP		YSDOS_INFINITE_LOOP
 
 
 
+JUST_IRET:				IRET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
 						INCLUDE		TOWNSPRC.ASM
 						INCLUDE		TOWNSDAT.ASM
 
@@ -405,31 +402,10 @@ YSDOS_INFINITE_LOOP:	JMP		YSDOS_INFINITE_LOOP
 
 
 
-JUST_IRET:				IRET
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
-						; It is confirmed that Towns OS V1.1 L20's MENU_DRV driver
-						; destroys DOS segment around 4200h.
-						; At least always destroys 1064:0000425E where 1064 is DOS segment.
-						; I need to avoid this area to start Towns OS V1.1 L20.
-						; May also destroy 1064:4260, 1064:4262, and 1064:425C as well.
-						; Most likely someone forgot adding CS prefix.
-						; The full extent of destruction is unknown.
-						ORG		4200h
-YSDOS_RELOC_BUFFER		DW		(YSDOS_RELOC_BUFFER_LEN/2) dup(0)
-						; Rather than just wasting, I use it for relocation-table buffer.
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
+						INCLUDE		INT21H.ASM
+						INCLUDE		INT2FH.ASM
+						INCLUDE		WILDCARD.ASM
+						INCLUDE		UTIL.ASM
 						INCLUDE		MEMORY.ASM
 						INCLUDE		PROCESS.ASM
 						INCLUDE		FILE.ASM
@@ -470,6 +446,8 @@ YSDOS_UTILITY_BUFFER:
 YSDOS_STACK_BEGIN		DB		512 dup (0)	; One entrance takes 32-bit reg*7 + 16-bit reg*4 + 16-bit mem*2=34 bytes.
 YSDOS_STACK				DB		0CCh,0CCh	; Two-byte cowards.
 
+YSDOS_RELOC_BUFFER		DW		(YSDOS_RELOC_BUFFER_LEN/2) dup(0)
+						; Rather than just wasting, I use it for relocation-table buffer.
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
