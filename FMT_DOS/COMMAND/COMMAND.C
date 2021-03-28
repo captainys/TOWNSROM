@@ -439,7 +439,7 @@ int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char after
 */
 int IdentifyCommandType(char exeCmd[],const char argv0[])
 {
-	if(FOUND==FindExecutableFromPath(exeCmd,argv0))
+	if(FOUND==FindExecutableFromPath(ENVSEG,exeCmd,argv0))
 	{
 		int i;
 		for(i=0; 0!=exeCmd[i]; ++i)
@@ -499,7 +499,7 @@ int RunBatchFile(char cmd[],char param[])
 
 	ExpandEnvVar(ENVSEG,batState.cmdLine,LINEBUFLEN);
 	ParseString(&batArgc,batArgv,cmd,param);
-	if(0==batArgc || FOUND!=FindExecutableFromPath(batState.fName,batArgv[0]))
+	if(0==batArgc || FOUND!=FindExecutableFromPath(ENVSEG,batState.fName,batArgv[0]))
 	{
 		return DOSERR_FILE_NOT_FOUND;
 	}
@@ -597,7 +597,7 @@ int RunBatchFile(char cmd[],char param[])
 
 					argv0Len=GetFirstArgument(argv0,nextBatch.cmdLine);
 					Capitalize(argv0);
-					if(FOUND==FindExecutableFromPath(nextBatch.fName,argv0))
+					if(FOUND==FindExecutableFromPath(ENVSEG,nextBatch.fName,argv0))
 					{
 						ParseString(&batArgc,batArgv,nextBatch.fName,GetAfterFirstArgument(nextBatch.cmdLine,argv0Len));
 						batState=nextBatch;
@@ -624,7 +624,7 @@ int RunBatchFile(char cmd[],char param[])
 				break;
 			default:
 				puts("Wrong Command or File Name.");
-				ERRORLEVEL=1
+				ERRORLEVEL=1;
 				break;
 			}
 		}

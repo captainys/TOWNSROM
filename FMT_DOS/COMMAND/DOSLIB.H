@@ -3,6 +3,8 @@
 
 #include <dos.h>
 #include <process.h>
+#include "DEF.H"
+
 
 #define DOSPARA 16
 
@@ -91,7 +93,7 @@ long int GetArenaBytes(unsigned int SEG);
     Returns NOTFOUND if not found.
 	fName must be long enoubh to hold MAX_PATH.
 */
-int FindExecutableFromPath(char fName[],const char srcFName[]);
+int FindExecutableFromPath(unsigned int ENVSEG,char fName[MAX_PATH],const char srcFName[]);
 
 
 

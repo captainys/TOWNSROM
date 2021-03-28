@@ -167,8 +167,9 @@ void InitENVSEG(unsigned int ENVSEG,unsigned int len,const char path[])
 	}
 }
 
-int FindExecutableFromPath(char fName[],const char srcFName[])
+int FindExecutableFromPath(unsigned int ENVSEG,char fName[MAX_PATH],const char srcFName[])
 {
+	int i;
 	FILE *fp;
 	const char *srcExt;
 	const char *const ext[]=
@@ -188,9 +189,9 @@ int FindExecutableFromPath(char fName[],const char srcFName[])
 	doslibFNBuf[MAX_PATH-1]=0;
 	srcExt=GetExtension(srcFName);
 
+	/* Then try different extension if not given. */
 	if(0==srcExt[0])
 	{
-		int i;
 		for(i=0; NULL!=ext[i]; ++i)
 		{
 			ReplaceExtension(doslibFNBuf,ext[i]);
@@ -204,13 +205,68 @@ int FindExecutableFromPath(char fName[],const char srcFName[])
 		}
 	}
 
-/*
-	if srcFName has an extension,
-		Try different paths.
-	else
-		Try current dir for .BAT, .COM, .EXE
-		Then try different paths for .BAT, .COM, .EXE
-*/
+	if('/'!=srcFName[0] && '\\'!=srcFName[0] && ':'!=srcFName[1])
+	{
+		/* Then try PATHs. */
+		const char far *env=GetEnv(ENVSEG,"PATH");
+		if(NULL!=env)
+		{
+			unsigned int envPtr=0,fnPtr=0;
+			for(;;)
+			{
+				if(0==env[envPtr] || ';'==env[envPtr])
+				{
+					if(0<fnPtr && fnPtr<MAX_PATH-1 && doslibFNBuf[fnPtr-1]!='/' && doslibFNBuf[fnPtr-1]!='\\')
+					{
+						doslibFNBuf[fnPtr++]='\\';
+					}
+					for(i=0; 0!=srcFName[i] && fnPtr<MAX_PATH-1; ++i)
+					{
+						doslibFNBuf[fnPtr++]=srcFName[i];
+					}
+					doslibFNBuf[fnPtr]=0;
+
+					DOSTRUENAME(fName,doslibFNBuf);
+					if(NULL!=(fp=fopen(fName,"rb")))
+					{
+						fclose(fp);
+						return FOUND;
+					}
+					if(0==srcExt[0])
+					{
+						int i;
+						for(i=0; NULL!=ext[i]; ++i)
+						{
+							ReplaceExtension(doslibFNBuf,ext[i]);
+							DOSTRUENAME(fName,doslibFNBuf);
+							if(NULL!=(fp=fopen(fName,"rb")))
+							{
+								printf("Found %s\n",fName);
+								fclose(fp);
+								return FOUND;
+							}
+						}
+					}
+
+					fnPtr=0;
+				}
+				else
+				{
+					if(fnPtr<MAX_PATH-1)
+					{
+						doslibFNBuf[fnPtr]=env[envPtr];
+						++fnPtr;
+					}
+				}
+				if(0==env[envPtr])
+				{
+					break;
+				}
+				++envPtr;
+			}
+		}
+	}
+
 	return NOTFOUND;
 }
 
