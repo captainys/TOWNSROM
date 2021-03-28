@@ -170,7 +170,9 @@ FETCH_DIR_NOT_FOUND_FINAL:
 						RET
 
 FETCH_FILE_NOT_FOUND_FINAL:
-						MOV		AX,DOSERR_FILE_NOT_FOUND
+						; FIND_FIRST needs to return DOSERR_NO_MORE_FILES if it searches for a volume label, and didn't find one.
+						; I don't know when to return DOSERR_FILE_NOT_FOUND.
+						MOV		AX,DOSERR_NO_MORE_FILES
 						STC
 						RET
 
