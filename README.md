@@ -4,8 +4,13 @@
 ## 注意
 FMT_DOSはまだまともに動きません。やっとTowns OSやいくつかのゲームが動くレベルになったばかりです。未対応の機能にヒットするといきなりフリーズします。もう少し自信をもって使えるバージョンになるまでもう少しお待ちください。
 
+このROMイメージの使用によって発生した損害など、作者は責任を負いませんので、この点ご了承の上ご利用ください。
+
+
 ## Disclaimer
 FMT_DOS is still under development.  All it can do is start some of the FM TOWNS games, and it freezes as soon as an app tries to use an unimplemented function.  Please wait a little more before this compatible DOS can be used with confidence.
+
+The files here are provided as is.  The developer will not take responsibilities on your loss or damage caused by the files.
 
 
 
@@ -26,9 +31,14 @@ FM TOWNSエミュレータの実行には、最低二種類のROMイメージが
 
 このうち、MSDOS.SYSとほぼ互換のYSDOS.SYSの開発に成功しつつあります。まだ、多くの機能が未対応で、そういう機能にあたるといきなり止まってしまいますが、それでも、FM TOWNSを彩ったいくつかのゲーム、Towns OS GUIの起動までできるようになったので公開しました。
 
-まだ利用にはFM TOWNS本体から抽出したCOMMAND.COM (多分MS DOS V3.1のCOMMAND.COMならどこから持ってきてもいい)が必要ですが、あと一歩で、FM TOWNS本体を所有していない人でも合法的にFM TOWNSエミュレータを起動できるところまでこぎつけたので、とりあえずソースコードを公開することにしました。
+現状でわかっている問題点・制限は:
 
-引き続き、YSDOS.SYSの再現性の向上と互換COMMAND.COMの開発を続けます。
+1. Drive Not Ready, Disk Write Protectedのエラーハンドリングが不完全
+2. コマンドモードで多くの内部コマンドが使用不可
+3. 起動ドライブをGUIで選択することはできない。フロッピーディスクから起動するには、ハードディスク、CDをマウントしない状態で起動するか、津軽を使用する場合は、F0キー起動オプションを選択する必要がある。
+
+などがあります。くれぐれも、普段使いのハードディスクイメージやフロッピーディスクイメージをこの互換ROMで利用するときは、バックアップを取った上でご使用ください。
+
 
 山川機長 http://www.ysflight.com
 
@@ -52,7 +62,13 @@ The other ROM image, FMT_DOS, was a problem.  It includes MSDOS.SYS, COMMAND.COM
 
 So, I started writing YSDOS.SYS, a compatible version of DOS, and finally made it bootable into FM Towns OS.  So, I opened it.
 
-You still need a COMMAND.COM for MS-DOS V3.1, but at this point, YSDOS.SYS can start a basic FM TOWNS applications.
+Currently-known limitations are:
+
+1. Drive Not Ready and Disk Write Protected error checking is incomplete.
+2. Many of the commands are not available in command mode.
+3. Cannot select boot drive from GUI.  If you need to boot from a floppy disk, you need to (1) unmount CD and HD images and mount only floppy-disk image and start, or (2) if you are using Tsugaru, use -BOOTKEY F0 option.
+
+If you want to use this ROM images with your floppy-disk or hard-disk images, MAKE SURE TO TAKE A BACK UP COPY before using.
 
 CaptainYS http://www.ysflight.com
 
