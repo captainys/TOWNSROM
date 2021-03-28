@@ -1064,6 +1064,9 @@ cmos_bios:
 
 %include "sys_print.asm" ; by CaptainYS
 
+%include "scsiio.asm" ; by CaptainYS
+%include "scsiutil.asm" ; by CaptainYS
+
 ;---------------------------------------------------------------------
 ; ウェイト(うんづではあまり意味が無いので省略)
 
