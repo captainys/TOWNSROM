@@ -184,7 +184,7 @@ INT_21H_REGISTERS_SAVED:
 						CMP		AH,15H
 						JE		INT_21H_10H_TO_17H_FCB
 						CMP		AH,16H
-						JE		INT_21H_10H_TO_17H_FCB
+						JE		INT_21H_16H_WRITE_VOLUME_LABEL_FCB
 						CMP		AH,17H
 						JE		INT_21H_10H_TO_17H_FCB
 
@@ -421,6 +421,30 @@ INT_21H_0EH_SET_CURRENT_DRIVE_EXIT:
 
 INT_21H_10H_TO_17H_FCB:
 						CALL	FCB_NOT_SUPPORTED
+
+						_LSS	SP,CS:[SP_RESTORE_POINT]
+						MOV		BP,SP
+						MOV		AX,0ffffh
+						RETURN_REGISTERW	AX
+
+						STORE_LASTERR_IF_CF	AX
+
+						JMP		INT_RESTORE_AND_IRET_WITH_CF
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; According to http://www.ctyme.com/intr/rb-2581.htm
+; INT 21H AH=16H is used for writing volume label.
+; I only support writing volume label to the first dirent of the root directory.
+; I don't support general creation or truncation with FCB.
+; This always returns CF=1 and AX=DOSERR_INVALID_FUNC even when it writes volume label.
+INT_21H_16H_WRITE_VOLUME_LABEL_FCB:
+						MOV		SI,DX
+						CALL	WRITE_VOLUME_LABEL
 
 						_LSS	SP,CS:[SP_RESTORE_POINT]
 						MOV		BP,SP

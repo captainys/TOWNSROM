@@ -4036,6 +4036,8 @@ FRENAME_DIFFERENT_DRIVE:
 						STC
 						RET
 
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -4062,4 +4064,93 @@ FCB_NOT_SUPPORTED_LOOP:
 						JMP		FCB_NOT_SUPPORTED_LOOP
 
 FCB_NOT_SUPPORTED_BREAK:
+						RET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; DS:SI
+;   Extended FCB
+; Always return STC with DOSERR_INVALID_FUNC
+WRITE_VOLUME_LABEL:
+						PUSH	DS
+						PUSH	SI
+
+						CMP		BYTE PTR DS:[SI],0FFh	; Extended FCB?
+						JNE		WRITE_VOLUME_LABEL_EXIT
+
+						MOV		AL,BYTE PTR DS:[SI+7]	; Insane Drive Code
+						CALL	FCBDRIVE_TO_SANE_DRIVE
+
+						XOR		AH,AH
+						CALL	GET_DRIVE_CDS
+						JC		WRITE_VOLUME_LABEL_EXIT
+
+						;   CF=0  DS:BX=CDS      AX Destroyed
+						TEST	WORD PTR DS:[BX+CDS_DRIVE_TYPE],CDS_TYPE_REDIRECTED
+						JNE		WRITE_VOLUME_LABEL_EXIT	; Can't set volume label of the redirected drive.
+
+						; Then, it must be a BLOCKDEV
+						_LGS	BP,DS:[BX+CDS_DRIVE_PARAM_BLOCK]
+
+						MOVZX	EDX,WORD PTR GS:[BP+DPB_FIRST_DIR_SECTOR]
+						XOR		AL,AL
+						CALL	GETBUFFER_REGULAR
+						JC		WRITE_VOLUME_LABEL_EXIT
+
+						; DS:DI is the first dir sector buffer.
+						; If
+						;  (1) The first directory entry is open, or
+						;  (2) The first directory entry is a volume label
+						; write a volume-label info to the first entry of the root dir.
+
+						LEA		BX,[DI+IO_BUF_INFO_size]
+						CMP		BYTE PTR DS:[BX+DIRENT_FILENAME],0
+						JE		WRITE_VOLUME_LABEL_DO_IT
+						CMP		BYTE PTR DS:[BX+DIRENT_FILENAME],DELETED_FILE_FIRST_BYTE
+						JE		WRITE_VOLUME_LABEL_DO_IT
+						TEST	BYTE PTR DS:[BX+DIRENT_ATTR],DIRENT_ATTR_VOLLABEL
+						JNE		WRITE_VOLUME_LABEL_EXIT
+
+WRITE_VOLUME_LABEL_DO_IT:
+						PUSH	DS
+						POP		ES
+						; Now ES:DI is the sector buffer, ES:BX is the first DIRENT.
+						XCHG	DI,BX
+						; Now ES:BX is the sector buffer, ES:DI is the first DIRENT.
+
+						POP		SI
+						POP		DS
+						PUSH	DS
+						PUSH	SI
+
+						ADD		SI,8
+						MOV		CX,11
+						REP MOVSB
+
+						MOV		CX,DIRECTORY_ENTRY_size-11
+						XOR		AL,AL
+						REP STOSB
+
+						SUB		DI,DIRECTORY_ENTRY_size
+
+						CALL	READ_CLOCK_FOR_DIRENT
+						MOV		ES:[DI+DIRENT_TIME],DX
+						MOV		ES:[DI+DIRENT_DATE],AX
+						MOV		BYTE PTR ES:[DI+DIRENT_ATTR],DIRENT_ATTR_VOLLABEL+DIRENT_ATTR_ARCHIVE
+						OR		BYTE PTR ES:[BX+IO_BUF_FLAGS],IO_BUF_FLAG_WRITTEN+IO_BUF_FLAG_IS_DIR
+
+						PUSH	ES
+						POP		DS
+						MOV		SI,BX
+						CALL	WRITE_BACK_AND_MARK_UNUSED
+
+WRITE_VOLUME_LABEL_EXIT:
+						STC
+						MOV		AX,DOSERR_INVALID_FUNC
+						POP		SI
+						POP		DS
 						RET
