@@ -3217,16 +3217,25 @@ RMDIR_ACCESS_DENIED:
 ;  BL=0 -> IOCTL_GET_DEVINFO
 ;  BL=1 -> IOCTL_SET_DEVINFO
 ;  BL=2 -> IOCTL_READ
+;  BL=9 -> IOCTL_CHECK_REMOTE_DRIVE AL=Drive (0=A:) -> DX=Device Attribute Word
 ;Output
 ;  BL destroyed.
 ;  Registers destroyed from IOCTL functions.
 IOCTL:
-						OR		BL,BL
+						OR		BL,BL				;0
 						JE		IOCTL_GET_DEVINFO
-						DEC		BL
+						DEC		BL					;1
 						JE		IOCTL_SET_DEVINFO
-						DEC		BL
+						DEC		BL					;2
 						JE		IOCTL_READ_CHARDEV
+						DEC		BL					;3
+						DEC		BL					;4
+						DEC		BL					;5
+						DEC		BL					;6
+						DEC		BL					;7
+						DEC		BL					;8
+						DEC		BL					;9
+						JE		IOCTL_CHECK_REMOTE_DRIVE
 						MOV		AX,DOSERR_INVALID_FUNC
 						STC
 						RET
@@ -3356,6 +3365,42 @@ IOCTL_READ_CHARDEV_EXIT:
 						POP		DX
 						POP		DI
 						POP		FS
+						RET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; AL=Drive (0=Current, 1=A:) -> If remote drive DX=0800h, if local DX=SYSDEV_DEVFLAGS
+; Observation from MSDOS V3.1: If the drive is valid, returns AX=0300h.
+IOCTL_CHECK_REMOTE_DRIVE:
+						MOVZX	AX,AL
+						CALL	FCBDRIVE_TO_SANE_DRIVE
+						CALL	GET_DRIVE_CDS
+						JC		IOCTL_CHECK_REMOTE_INVALID_DRIVE
+
+						;   CF=0  DS:BX=CDS      AX Destroyed
+						XOR		DX,DX
+						MOV		AX,0300h
+						TEST	WORD PTR DS:[BX+CDS_DRIVE_TYPE],CDS_TYPE_REDIRECTED
+						JE		IOCTL_CHECK_REMOTE_NOT_REMOTE
+
+						MOV		DX,01000h	; Bit12=Remote Drive
+						CLC
+						RET
+
+IOCTL_CHECK_REMOTE_NOT_REMOTE:
+						LGS		BP,DS:[BX+CDS_DRIVE_PARAM_BLOCK]
+						LES		DI,GS:[BP+DPB_PTR_TO_DEV_DRIVER]
+						MOV		DX,ES:[DI+SYSDEV_DEVFLAGS]
+						CLC		; Should be redundant
+						RET
+
+IOCTL_CHECK_REMOTE_INVALID_DRIVE:
+						MOV		AX,DOSERR_INVALID_DRIVE
+						STC
 						RET
 
 
@@ -3607,6 +3652,7 @@ GET_FILE_ATTRIB_NOT_REDIRECTED:
 
 
 
+; CHMOD
 ; Input
 ;   CX=File Attribute
 ;   DS:SI=C-String Filename
@@ -3651,7 +3697,9 @@ SET_FILE_ATTRIB_NOT_REDIRECTED:
 						MOV		SI,OFFSET FILENAME_BUFFER+3
 						XOR		EAX,EAX
 
-						MOV		CX,DIRENT_ATTR_HIDDEN+DIRENT_ATTR_SYSTEM+DIRENT_ATTR_DIRECTORY
+						; I need DIRENT_ARCHIVE flag so that Towns OS V2.1 L51 installer will find IO.SYS
+						; I don't know if it is the correct way or FETCH_DIR should do differently.
+						MOV		CX,DIRENT_ATTR_HIDDEN+DIRENT_ATTR_SYSTEM+DIRENT_ATTR_DIRECTORY+DIRENT_ATTR_ARCHIVE
 
 						; Input
 						;   GS:BP  DPB
@@ -3670,11 +3718,17 @@ SET_FILE_ATTRIB_NOT_REDIRECTED:
 						JC		SET_FILE_ATTRIB_EXIT
 
 						; DIRECTORY and VOLLABEL flags must not change.
-						XOR		AL,CS:[SATTR]
-						AND		AL,DIRENT_ATTR_DIRECTORY+DIRENT_ATTR_VOLLABEL
-						JNE		SET_GET_FILE_ATTRIB_ACCESS_DENIED	; Cannot change DIRECTORY and VOLLABEL flag.
+						; Apparently if attempted to change DIRECTORY or VOLLABEL flag,
+						; it just ignore the change rather than returning an error.
+						; Otherwise Towns OS V2.1 L51 installer stops.
+						; Towns OS V2.1 L51 installer wants to make IO.SYS hidden, system, DIRECTORY, and archive.
+						MOV		CL,AL	; Save current attrib in CL.
+						AND		CL,DIRENT_ATTR_DIRECTORY+DIRENT_ATTR_VOLLABEL
 
-						MOV		CL,CS:[SATTR]
+						MOV		AL,CS:[SATTR]
+						AND		AL,0FFh-(DIRENT_ATTR_DIRECTORY+DIRENT_ATTR_VOLLABEL)
+
+						OR		CL,AL
 						MOV		ES:[DI+DIRENT_ATTR],CL
 						OR		BYTE PTR ES:[BX+IO_BUF_FLAGS],IO_BUF_FLAG_WRITTEN
 
