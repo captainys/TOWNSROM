@@ -385,6 +385,9 @@ GET_FREE_DISK_SPACE_NOT_REDIRECTED:
 						;   CF=0  DS:BX=CDS      AX Destroyed
 
 						_LGS	BP,DS:[BX+CDS_DRIVE_PARAM_BLOCK]
+						CALL	CHECK_DPB_INTEGRITY
+						JC		GET_FREE_DISK_SPACE_INVALID
+
 
 						MOV		BL,GS:[BP+DPB_MEDIA_DESC_TYPE]
 						MOV		CS:[MEDIA_DESC_BYTE],BL
@@ -448,3 +451,50 @@ GET_FREE_DISK_SPACE_ECX_IS_FREECOUNT:
 GET_FREE_DISK_SPACE_INVALID:
 						MOV		AX,0ffffh
 						RET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; Input
+;   GS:BP=DPB
+; Output
+;   CF=0  Probably Valid
+;   CF=1  AX=DOSERR_INVALID_DRIVE
+; I don't know if it is a correct method, but an indication that the DPB is not usable
+; is bytes per sector is zero.
+;
+; Also (1<<CLUSTER_SHIFT)!=(CLUSTER_MASK+1)
+;
+; It happens if a drive letter is assigned to a hard disk drive, but the hard disk partition
+; for the drive doesn't exist.
+CHECK_DPB_INTEGRITY:
+					CMP		WORD PTR GS:[BP+DPB_BYTES_PER_SECTOR],0
+					JE		CHECK_DPB_INTEGRITY_BAD
+
+					PUSH	CX
+
+					MOV		CH,1
+					MOV		CL,GS:[BP+DPB_CLUSTER_SHIFT]
+					SHL		CH,CL
+
+					MOV		CL,GS:[BP+DPB_CLUSTER_MASK]
+					INC		CL
+
+					CMP		CH,CL
+
+					POP		CX
+
+					JNE		CHECK_DPB_INTEGRITY_BAD
+
+					CLC		; Reduncant because if last CMP is 0, CF is also zero.
+					RET
+
+
+
+CHECK_DPB_INTEGRITY_BAD:
+					MOV		AX,DOSERR_INVALID_DRIVE
+					STC
+					RET

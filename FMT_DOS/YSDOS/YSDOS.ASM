@@ -311,6 +311,11 @@ SETDPB					PROC
 						; Round up.  In case [BPB_NUM_ROOTDIR_ENTS]!=Integer * (num of DIRENTs per sector)
 
 						XOR		DX,DX
+
+						; If uninitialized BPB, CX may become zero.  In that case, just abort DPB creation.
+						; Avoid division by zero.
+						JCXZ	SETDPB_BAILOUT
+
 						DIV		CX
 						; AX/CX will give how many sectors are used for directory entries.
 
@@ -353,7 +358,7 @@ SETDPB_HAVE_TOTAL_NUM_SECTORS:
 						MOV		DWORD PTR ES:[BP+DPB_LAST_CLUSTER_ALLOC],0FFFF0000h
 						; LAST_CLUSTER_ALLOC or Current Directory?  MS-DOS V2.0 source says 0000h means cwd is root.
 						; Number of free clusters is 0ffffh (unknown at this time)
-
+SETDPB_BAILOUT:
 						POP		ECX
 						POP		EAX
 						RET
