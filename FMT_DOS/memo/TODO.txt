@@ -1,3 +1,6 @@
+- Cache last known free cluster in DPB.  Right now incrementally writing a file is a O(N^2) process since the last known free cluster is not cached.
+
+
 - What makes (sf.SF_MODE & 0xF0)==0x70?  It is checked during DOSINIT, also during FCLOSE
 
 During DOSINIT (Won't call DEVCALL Open if 070H)
@@ -21,9 +24,6 @@ During Fread
 
 
 - INT 21H AH=06h DL=0FFhのとき何をすればいいのか？
-
-
-- TOWNS OS V2.1 L51はまだ起動しない。
 
 
 - UTIL_REP_MOVS  高速バージョンにする。

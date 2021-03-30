@@ -172,7 +172,13 @@ FETCH_DIR_NOT_FOUND_FINAL:
 FETCH_FILE_NOT_FOUND_FINAL:
 						; FIND_FIRST needs to return DOSERR_NO_MORE_FILES if it searches for a volume label, and didn't find one.
 						; I don't know when to return DOSERR_FILE_NOT_FOUND.
-						MOV		AX,DOSERR_NO_MORE_FILES
+						; That's what I thought, and then realized all other functions using FETCH_DIR should not
+						; return DOSERR_NO_MORE_FILES such as CHMOD (SET_FILE_ATTRIB).
+						; Towns OS V2.1 L51 expects CHMOD to return DOSERR_NO_MORE_FILES, but since CHMOD was
+						; taking the error code from here, it was returning DOSERR_NO_MORE_FILES, which was obviously
+						; wrong.
+						; FIND_FIRST should do special handling of the case no file matched.
+						MOV		AX,DOSERR_FILE_NOT_FOUND
 						STC
 						RET
 
@@ -909,7 +915,7 @@ FIND_FIRST_NOT_REDIRECTED:
 						;   CF=0  Found.  AL is file attribute  AH=0,  ES:DI=DIRENT,  ES:BX=BUFFER HEADER
 						;   CF=1  Not Found.  AX is DOSERR_FILE_NOT_FOUND, DOSERR_DIR_NOT_FOUND, or DOSERR_ACCESS_DENIED
 						;   Lastly scanned directory cluster can be found in DIR_variables
-						JC		FIND_FIRST_EXIT
+						JC		FIND_FIRST_FETCH_DIR_RETURNED_CF
 
 						_LDS	SI,CS:[DMA_BUFFER_PTR]
 
@@ -926,6 +932,20 @@ FIND_FIRST_NOT_REDIRECTED:
 						CLC
 FIND_FIRST_EXIT:
 						RET
+
+
+FIND_FIRST_FETCH_DIR_RETURNED_CF:
+						; I don't know exactly when it should return DOSERR_FILE_NOT_FOUND or DOSERR_NO_MORE_FILES.
+						; But, Towns OS V2.1 L20 installer expects DOSERR_NO_MORE_FILES if no file matched.
+						; But, DOSERR_DIR_NOT_FOUND is different.
+						CMP		AX,DOSERR_FILE_NOT_FOUND
+						STC
+						JNE		FIND_FIRST_EXIT
+
+						MOV		AX,DOSERR_NO_MORE_FILES
+						STC
+						RET
+
 
 
 FIND_FIRST_FILE_NOT_FOUND:
