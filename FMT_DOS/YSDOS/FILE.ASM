@@ -749,7 +749,11 @@ CLOSE_SF_DONT_SET_DATETIME:
 
 						; Now flush all pending written buffer.
 						MOV		AL,GS:[BP+DPB_DRIVE_CODE]
+						PUSH	FS	; Was missing and added 2021/03/29.  I don't know why subsequent DEVCALL_CLOSE_SF was working.
+						PUSH	DI
 						CALL	FLUSH_BUFFERS_DRIVE
+						POP		DI
+						POP		FS
 						MOV		AX,DOSERR_ACCESS_DENIED
 						JC		CLOSE_SF_ERROR
 
