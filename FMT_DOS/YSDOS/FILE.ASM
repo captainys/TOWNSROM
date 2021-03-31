@@ -2943,7 +2943,11 @@ MKDIR_INIT_SECTOR_LOOP:
 						REP STOSB
 						POP		DI
 
+						POP		EBX	; Was missing and added 2021/03/31
+						POP		ECX	; Was missing and added 2021/03/31
 						TEST	ECX,80000000h
+						PUSH	ECX	; Was missing and added 2021/03/31
+						PUSH	EBX	; Was missing and added 2021/03/31
 						JE		MKDIR_INIT_SECTOR_NEXT
 
 						PUSH	CS
