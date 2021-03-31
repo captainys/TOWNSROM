@@ -7,6 +7,8 @@ DIR_COUNT_IN_DIRECTORY		DW		0
 DIR_DIRENT_PTR				DD		0	; Last found DIRENT
 DIR_SKIP_COUNTER			DW		0
 
+SATTR_FINAL					DB		0
+
 
 
 ; Input
@@ -89,7 +91,7 @@ DIR_SKIP_COUNTER			DW		0
 ;		}
 ;	}
 FETCH_DIR:
-						MOV		CS:[SATTR],CL
+						MOV		CS:[SATTR_FINAL],CL
 
 FETCH_DIR_LOOP:
 						MOV		CS:[DIR_CLUSTER0],EAX
@@ -98,6 +100,19 @@ FETCH_DIR_LOOP:
 
 						CMP		BYTE PTR DS:[SI],0	; Filename Empty
 						JE		FETCH_FILE_NOT_FOUND_FINAL
+
+
+						MOV		AL,CS:[SATTR_FINAL]
+						MOV		CS:[SATTR],AL		; Tentative
+						PUSH	SI
+						CALL	SEEK_NEXT_BACKSLASH
+						POP		SI
+						OR		AL,AL
+						JE		FETCH_DIR_LOOP_FINAL
+						; If not final, just look for everything.
+						MOV		BYTE PTR CS:[SATTR],0FFh-DIRENT_ATTR_VOLLABEL ; DIRENT_ATTR_DIRECTORY
+FETCH_DIR_LOOP_FINAL:
+
 
 						PUSH	DS
 						PUSH	SI
@@ -407,6 +422,7 @@ SCAN_DIR_NORT_ERROR:
 ; Input
 ;   GS:BP  DPB
 ;   Set:
+;   CS:[SATTR]
 ;   CS:[DIR_CLUSTER0]
 ;   CS:[DIR_SKIP_COUNTER]
 ;   CS:[TEMPORARY_DIRENT]  11-byte file/dir name
@@ -1054,6 +1070,7 @@ FIND_NEXT_NOT_REDIRECTED:
 						; Input
 						;   GS:BP  DPB
 						;   Set:
+						;   CS:[SATTR]
 						;   CS:[DIR_CLUSTER0]
 						;   CS:[DIR_SKIP_COUNTER]
 						;   CS:[TEMPORARY_DIRENT]  11-byte file/dir name
