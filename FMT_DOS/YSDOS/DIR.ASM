@@ -441,6 +441,8 @@ SCAN_DIR_JMP_TO_NOTROOT:
 ;  CF=0 Match
 ;  CF=1 Don't match
 SCAN_DIR_MATCH_ATTR:
+						PUSH	AX
+
 						TEST	BYTE PTR CS:[SATTR],DIRENT_ATTR_VOLLABEL
 
 ;SCAN_DIR_MATCH_ATTR_VOLLABEL:
@@ -454,35 +456,32 @@ SCAN_DIR_MATCH_ATTR_NOT_VOLLABEL:
 						TEST	AL,DIRENT_ATTR_VOLLABEL
 						JNE		SCAN_DIR_MATCH_ATTR_NO
 
-						CMP		BYTE PTR CS:[SATTR],0
-						JNE		SCAN_DIR_MATCH_ATTR_FILTERED
-;SCAN_DIR_MATCH_ATTR_ALL_NORMAL:
-						TEST	AL,DIRENT_ATTR_DIRECTORY+DIRENT_ATTR_SYSTEM
-						JE		SCAN_DIR_MATCH_ATTR_YES
-						JMP		SCAN_DIR_MATCH_ATTR_NO
+						MOV		AH,CS:[SATTR]
+						AND		AH,0FFh-(040h+DIRENT_ATTR_ARCHIVE+DIRENT_ATTR_READONLY)
+						NOT		AH
+						AND		AL,AH
+						AND		AL,DIRENT_ATTR_DIRECTORY+DIRENT_ATTR_SYSTEM+DIRENT_ATTR_HIDDEN
 
-
-SCAN_DIR_MATCH_ATTR_FILTERED:
-						TEST	AL,CS:[SATTR]
-						JNE		SCAN_DIR_MATCH_ATTR_YES
-						TEST	AL,DIRENT_ATTR_DIRECTORY+DIRENT_ATTR_SYSTEM
 						JE		SCAN_DIR_MATCH_ATTR_YES
 						JMP		SCAN_DIR_MATCH_ATTR_NO
 
 
 SCAN_DIR_MATCH_ATTR_YES:
+						POP		AX
 						CLC
 						RET
 SCAN_DIR_MATCH_ATTR_NO:
+						POP		AX
 						STC
 						RET
 
 ; Logic is absurd.
-; What constitutes a normal file?  Utterly absurd.
-; Is this logic correct?
+; Looks like it only checks DIRECTORY, SYSTEM, and HIDDEN flags.
+;
+; Based on the disassembly:
 ; if(SATTR&DIRENT_ATTR_VOLLABEL)
 ; {
-; 	if(0==(DIRENT_ATTR&DIRENT_ATTR_VOLLABEL))
+; 	if(0==(FileAttr&DIRENT_ATTR_VOLLABEL))
 ; 	{
 ; 		return CF=1;
 ; 	}
@@ -490,30 +489,28 @@ SCAN_DIR_MATCH_ATTR_NO:
 ; }
 ; else
 ; {
-; 	if(0!=(DIRENT_ATTR&DIRENT_ATTR_VOLLABEL)))
+; 	if(0!=(FileAttr&DIRENT_ATTR_VOLLABEL)))
 ; 	{
 ; 		return CF=1;
 ; 	}
-; 	if(SATTR==0)
-; 	{
-; 		if(0!=(DIRENT_ATTR&(DIRENT_ATTR_SYSTEM|DIRENT_ATTR_DIRECTORY))) // Is hidden file considered a normal file?
-; 		{
-; 			return CF=1;
-; 		}
-; 		return CF=0;
-; 	}
-; 	else
-; 	{
-; 		if(0!=(SATTR&DIRENT_ATTR)
-; 		{
-; 			return CF=0;  // Match
-; 		}
-; 		else if(0==(DIRENT_ATTR&(DIRENT_ATTR_SYSTEM|DIRENT_ATTR_DIRECTORY)))
-; 		{
-; 			return CF=0;  // Match
-; 		}
-; 		return CF=1;
-; 	}
+;	SATTR&=~(040h|DIRENT_ATTR_ARCHIVE|DIRENT_ATTR_READONLY);
+;	if(0==((~SATTR)&FileAttr&(DIRENT_ATTR_DIRECTORY|DIRENT_ATTR_SYSTEM|DIRENT_ATTR_HIDDEN)))
+;	{
+;		//Let's say SATTR=010h and FileAttr=030h
+;		//  ~SATTR&FileAttr&(DIR|SYS|HID)=0EFh&030h&016h=0    Match  Correct
+;		//Let's say SATTR=010h and FileAttr=020h
+;		//  ~SATTR&FileAttr&(DIR|SYS|HID)=0EFh&020h&016h=0    Match  Wrong    <- ?
+;		//Let's say SATTR=025h and FileAttr=030h
+;		//  ~SATTR&FileAttr&(DIR|SYS|HID)=0DAh&030h&016h=010  Not Match  Correct
+;		//Let's say SATTR=025h and FileAttr=020h
+;		//  ~SATTR&FileAttr&(DIR|SYS|HID)=0DAh&020h&016h=0    Match      Correct
+;		//Let's say SATTR=037h and FileAttr=030h
+;		//  ~SATTR&FileAttr&(DIR|SYS|HID)=0C8h&030h&016h=0    Match      Correct
+;		//Let's say SATTR=037h and FileAttr=020h
+;		//  ~SATTR&FileAttr&(DIR|SYS|HID)=0C8h&020h&016h=0    Match      Correct
+;		return CF=0; // Match
+;	}
+;	return CF=1; // DOn't match
 ; }
 
 
