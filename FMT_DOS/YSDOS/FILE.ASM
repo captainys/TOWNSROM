@@ -1533,8 +1533,23 @@ FWRITE:
 						MOV		DWORD PTR CS:[FILE_BYTES_DID_READ_WRITE],0	; In case ECX==0.
 						MOVZX	ECX,CX
 						OR		CX,CX
-						JE		FWRITE_END
+						JNE		FWRITE_NOT_RESIZE
 
+						; http://www.ctyme.com/intr/rb-2791.htm
+						; CX=0 will truncate or extend the file to the current file position.
+						; I don't support extend, but Towns OS V2.1 L31 installer uses truncation.
+						; Also I don't release clusters if some becoms unused.
+						MOV		ECX,FS:[DI+SF_FILE_POINTER]
+						CMP		ECX,FS:[DI+SF_FILE_SIZE]
+						JA		FWRITE_EXTEND_NOT_SUPPORTED
+
+						MOV		FS:[DI+SF_FILE_SIZE],ECX
+						AND		WORD PTR FS:[DI+SF_DEVFLAGS],0ffffh-SF_DEVFLAG_BLOCK_NOT_WRITTEN
+						JMP		FWRITE_END
+
+FWRITE_EXTEND_NOT_SUPPORTED:	JMP		FWRITE_EXTEND_NOT_SUPPORTED
+
+FWRITE_NOT_RESIZE:
 						MOV		CS:[FILE_BYTES_TO_READ_WRITE],ECX
 
 						MOV		AX,DOSERR_ACCESS_DENIED;
