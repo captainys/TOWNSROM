@@ -131,3 +131,17 @@ At this time, you need a COMMAND.COM from MS-DOS Version 3.1.  The most reliable
 So, at this time, ready-to-use version of FMT_DOS.ROM is not included in this repository.  I am working on compatible COMMAND.COM.  I'll upload ready-to-use FMT_DOS.ROM as soon as I have one.
 
 Please see README.TXT in FMT_ROM sub-directory for how to generate a compatible FMT_DOS.ROM.
+
+
+
+---
+
+## FMT_DICについて
+
+FM TOWNSは漢字変換、OAK用の辞書データをROMに持っています。ですが、この部分のデータは、漢字を入力しない限り必要ないので、すべて0FFhで埋めたデータで代用できます。なお、00hで埋めたデータだとひらがなをタイプした途端にフリーズしてしまうようです。
+
+
+
+## About FMT_DIC
+
+FM TOWNS has a ROM that stores dictionary data for Japanese Kanji input.  This ROM is not needed unless you type Japanese, so it is possible to replace this ROM file with all 0FFh.  By the way, if it is filled with 00h, the system freezes as soon as you type (intentionally or accidentally) Hiragana.
