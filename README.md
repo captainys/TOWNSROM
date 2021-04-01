@@ -36,6 +36,7 @@ FM TOWNSエミュレータの実行には、最低二種類のROMイメージが
 1. Drive Not Ready, Disk Write Protectedのエラーハンドリングが不完全
 2. コマンドモードで多くの内部コマンドが使用不可
 3. 起動ドライブをGUIで選択することはできない。フロッピーディスクから起動するには、ハードディスク、CDをマウントしない状態で起動するか、津軽を使用する場合は、F0キー起動オプションを選択する必要がある。
+4. FMT_DIC/FMT_DIC.ROMを使うとかな漢字変換でフリーズしないものの、日本語はひらがなとカタカナのみ入力可能。
 
 などがあります。くれぐれも、普段使いのハードディスクイメージやフロッピーディスクイメージをこの互換ROMで利用するときは、バックアップを取った上でご使用ください。
 
@@ -67,6 +68,7 @@ Currently-known limitations are:
 1. Drive Not Ready and Disk Write Protected error checking is incomplete.
 2. Many of the commands are not available in command mode.
 3. Cannot select boot drive from GUI.  If you need to boot from a floppy disk, you need to (1) unmount CD and HD images and mount only floppy-disk image and start, or (2) if you are using Tsugaru, use -BOOTKEY F0 option.
+4. With FMT_DIC/FMT_DIC.ROM, OAK (IME in the today's term.  We used to call it FEP, or Front End Processor) at least does not freeze.  However, you can only type Hiragana and Katakana in the Japanese mode.
 
 If you want to use this ROM images with your floppy-disk or hard-disk images, MAKE SURE TO TAKE A BACK UP COPY before using.
 
