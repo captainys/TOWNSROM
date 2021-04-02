@@ -1,4 +1,4 @@
-; version 2003.03.04.1
+; version 2021.04.02.1
 ;---------------------------------------------------------------------
 ;
 ; FM TOWNS 互換 ROM シリーズ
@@ -16,19 +16,19 @@
 ; Restore
 ;  al   : Device ID
 fd_command_03:
-	call	fd_wait_ready
-
 	mov		cl,ds:[si]
 	call	fd_select_drive_2hd
-
-	call	fd_wait_ready
 	call	fd_motor_on_select_side_2hd
+	call	fd_wait_drive_ready
+	jc		.fd_command_03_not_ready
+
+	call	fd_wait_busy_clear
 
 	mov		al,00h ; Restore
 	mov		dx,IO_FDC_COMMAND
 	out		dx,al
 
-	call	fd_wait_ready
+	call	fd_wait_busy_clear
 	test	al,010h
 	je		.fd_command_03_done
 	mov		ah,080h
@@ -37,6 +37,13 @@ fd_command_03:
 
 .fd_command_03_done:
 	ret
+
+.fd_command_03_not_ready:
+	mov		ah,080h
+	mov		cx,BIOSERR_DETAIL_DISK_DRIVE_NOT_READY
+	stc
+	ret
+
 ; by CaptainYS <<
 
 
@@ -67,15 +74,18 @@ fd_command_05:
 	push	edx
 	push	eax
 
-	call	fd_wait_ready
-	or		al,al
-	js		.fd_drive_not_ready
-
 	mov		cl,ds:[si]
 	call	fd_select_drive_2hd
 
-	call	fd_wait_ready
+	mov		ah,ds:[si+3]
 	call	fd_motor_on_select_side_2hd
+
+	call	fd_wait_drive_ready
+	jc		.fd_drive_not_ready
+
+	call	fd_wait_busy_clear
+	or		al,al
+	js		.fd_drive_not_ready
 
 
 	mov		bx,es:[di+4]	; bx=cylinder
@@ -94,17 +104,18 @@ fd_command_05:
 	push	edx		; DMA addr
 
 	mov		ah,ch
-	call	fd_wait_ready
+	call	fd_wait_busy_clear
 	call	fd_motor_on_select_side_2hd
 
-	call	fd_wait_ready
+	call	fd_wait_busy_clear
 	mov		ax,bx
 	call	fd_seek
-	call	fd_wait_ready
+	call	fd_wait_busy_clear
 	test	al,010h
 	jne		.fd_seek_error
 
 	call	fd_dma_initialize
+	call	fd_dma_mode_read
 	pop		edx
 	push	edx
 	mov		ax,SECTOR_LENGTH_1232KB_DISK
@@ -128,7 +139,7 @@ fd_command_05:
 	mov		dx,IO_FDC_COMMAND
 	out		dx,al
 
-	call	fd_wait_ready
+	call	fd_wait_busy_clear
 	push	ax
 	in		al,IO_DMA_MASK
 	and		al,0fh
@@ -265,11 +276,32 @@ fd_seek:
 	ret
 
 
-fd_wait_ready:
+fd_wait_drive_ready:
+	push	cx
+	mov		cx,10000
+.fd_wait_drive_ready_loop:
+	mov		dx,IO_FDC_DRIVE_STATUS
+	in		al,dx	; IN AL,DX twice.  Just I do as the MX BIOS do.
+	in		al,dx	; IN AL,DX twice.  Just I do as the MX BIOS do.
+	and		al,2
+	jne		.fd_wait_drive_ready_done
+	loop	.fd_wait_drive_ready_loop
+	pop		cx
+	stc
+	ret
+
+.fd_wait_drive_ready_done:
+	pop		cx
+	clc
+	ret
+
+
+fd_wait_busy_clear:
 	mov		dx,IO_FDC_STATUS
-	in		al,dx
+	in		al,dx	; IN AL,DX twice.  Just I do as the MX BIOS do.
+	in		al,dx	; IN AL,DX twice.  Just I do as the MX BIOS do.
 	and		al,1
-	jne		fd_wait_ready
+	jne		fd_wait_busy_clear
 	ret
 
 
@@ -308,6 +340,17 @@ fd_dma_initialize:
 	RET
 
 
+fd_dma_mode_read:
+	MOV		AL,44H		; Single Mode, I/O=>Memory
+	mov		dx,IO_DMA_MODE_CONTROL
+	out		dx,al
+	ret
+
+fd_dma_mode_write:
+	MOV		AL,48H		; Single Mode, Memory=>I/O
+	mov		dx,IO_DMA_MODE_CONTROL
+	out		dx,al
+	ret
 
 ; by CaptainYS <<
 
