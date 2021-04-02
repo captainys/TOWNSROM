@@ -32,6 +32,11 @@ build\rename.exp : rename.c
 	386link build\rename.obj build\doscall.obj @LIBS.LN -exe build\rename.exp
 
 
+build\openclos.exp : openclos.c
+	hcd386 openclos.c -obj build\openclos.OBJ
+	386link build\openclos.obj build\doscall.obj @LIBS.LN -exe build\openclos.exp
+
+
 build\return0.exp : return0.c
 	hcd386 return0.c -obj build\return0.OBJ
 	386link build\return0.obj @LIBS.LN -exe build\return0.exp
