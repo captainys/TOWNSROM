@@ -426,3 +426,55 @@ MAKE_SF_ENTRY_FROM_DIRENT:
 						; SHARE_FT_OFFSET already taken care
 
 						RET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;Input
+; EDX=Directory Sector
+; AX=Position in Directory Sector
+; EBP=DPB (Hiword=SEG, Loword=OFFSET)
+;Return
+; CF=0  FS:DI=SF_ENTRY
+; CF=1  No match
+MATCH_SF_ENTRY_DIRENT_SECTOR:
+						LFS		DI,CS:[FIRST_SFT_PTR]
+
+MATCH_SF_ENTRY_DIRENT_OUTER:
+						PUSH	DI
+
+						MOV		CX,FS:[DI+SFT_COUNT]
+						ADD		DI,SFT_size
+
+MATCH_SF_ENTRY_DIRENT_INNER:
+						CMP		WORD PTR FS:[DI+SF_REFCOUNT],0
+						JE		MATCH_SF_ENTRY_DIRENT_NEXT
+						TEST	WORD PTR FS:[DI+SF_DEVFLAGS],SF_DEVFLAG_IS_CHARDEV+SF_DEVFLAG_REDIRECTED
+						JNE		MATCH_SF_ENTRY_DIRENT_NEXT
+						CMP		EBP,FS:[DI+SF_DRIVER_POINTER]
+						JNE		MATCH_SF_ENTRY_DIRENT_NEXT
+						CMP		DX,FS:[DI+SF_DIR_ENT_SECTOR]
+						JNE		MATCH_SF_ENTRY_DIRENT_NEXT
+						CMP		AL,FS:[DI+SF_DIR_ENT_POS_IN_SECTOR]
+						JE		MATCH_SF_ENTRY_DIRENT_FOUND
+MATCH_SF_ENTRY_DIRENT_NEXT:
+						ADD		DI,SF_ENTRY_size
+						LOOP	MATCH_SF_ENTRY_DIRENT_INNER
+
+						POP		DI
+
+						_LFS	DI,FS:[DI+SFT_NEXT]
+						CMP		DI,0FFFFh
+						JNE		MATCH_SF_ENTRY_DIRENT_OUTER
+
+						STC
+						RET
+
+MATCH_SF_ENTRY_DIRENT_FOUND:
+						ADD		SP,2
+						CLC
+						RET
+
+

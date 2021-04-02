@@ -20,6 +20,7 @@ SATTR_FINAL					DB		0
 ;   EAX    Starting cluster (0->Root Dir)
 ;   CX     Attribute Filter, High-Byte ignored.
 ; Return
+;   Breaks CS:[SATTR]
 ;   CF=0  Found.  AL is file attribute  AH=0,  ES:DI=DIRENT,  ES:BX=BUFFER HEADER
 ;   CF=1  Not Found.  AX is DOSERR_FILE_NOT_FOUND, DOSERR_DIR_NOT_FOUND, or DOSERR_ACCESS_DENIED
 ;   Lastly scanned directory cluster can be found in DIR_variables

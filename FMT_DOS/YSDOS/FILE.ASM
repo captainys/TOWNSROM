@@ -3732,7 +3732,10 @@ SET_FILE_ATTRIB_NOT_REDIRECTED:
 						;               ^SI must point this.
 						;   EAX    Starting cluster (0->Root Dir)
 						;   CX     Attribute Filter, High-Byte ignored.
+						; Breaks CS:[SATTR]
+						PUSH	WORD PTR CS:[SATTR]
 						CALL	FETCH_DIR
+						POP		WORD PTR CS:[SATTR]
 						; Return
 						;   CF=0  Found.  AL is file attribute  AH=0,  ES:DI=DIRENT,  ES:BX=BUFFER HEADER
 						;   CF=1  Not Found.  AX is DOSERR_FILE_NOT_FOUND, DOSERR_DIR_NOT_FOUND, or DOSERR_ACCESS_DENIED
@@ -3754,6 +3757,30 @@ SET_FILE_ATTRIB_NOT_REDIRECTED:
 						OR		CL,AL
 						MOV		ES:[DI+DIRENT_ATTR],CL
 						OR		BYTE PTR ES:[BX+IO_BUF_FLAGS],IO_BUF_FLAG_WRITTEN
+
+
+						; Towns OS V1.1 L30 installer calls CHMOD between FOPEN and FCLOSE.
+						; So, the implication is I need to also match open SF_ENTRY and also update the mode.
+						PUSH	CX
+						MOVZX	EDX,WORD PTR ES:[BX+IO_BUF_SECTOR_NUM]
+						MOV		AX,DI
+						SUB		AX,BX
+						SUB		AX,IO_BUF_INFO_size
+						SHR		AX,DIRENT_SHIFT
+						ROL		EBP,16
+						MOV		BP,GS
+						ROL		EBP,16
+						; EDX=Directory Sector
+						; AX=Position in Directory Sector
+						; EBP=DPB
+						CALL	MATCH_SF_ENTRY_DIRENT_SECTOR
+						; CF=0  FS:DI=SF_ENTRY
+						; CF=1  No match
+						POP		CX
+						JC		SET_FILE_ATTRIB_NOERR
+						MOV		FS:[DI+SF_ATTR],CL
+SET_FILE_ATTRIB_NOERR:
+						CLC
 
 SET_FILE_ATTRIB_EXIT:
 						RET
