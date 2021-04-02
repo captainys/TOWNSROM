@@ -527,6 +527,45 @@ FLUSH_BUFFERS_NEXT:
 
 
 
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+FLUSH_AND_CLEAR_BUFFERS:
+						PUSH	DS
+						PUSH	DI
+
+						PUSH	AX ; Place holder for status code
+						LDS		SI,CS:[IO_BUFF_PTR]
+						XOR		BX,BX
+
+FLUSH_AND_CLEAR_BUFFERS_LOOP:
+						PUSH	BX
+						CALL	WRITE_BACK_AND_MARK_UNUSED
+						POP		BX
+						JNC		FLUSH_AND_CLEAR_BUFFERS_NEXT
+
+						POP		BX	; Push status code in the stack
+						PUSH	AX
+						MOV		BL,0FFH
+
+FLUSH_AND_CLEAR_BUFFERS_NEXT:
+						LDS		SI,DS:[SI+IO_BUF_NEXT]
+						CMP		SI,0ffffh
+						JNE		FLUSH_AND_CLEAR_BUFFERS_LOOP
+
+
+						POP		AX
+						SHR		BL,1	; Bit0 of BL into CF
+						POP		DI
+						POP		DS
+						RET
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
