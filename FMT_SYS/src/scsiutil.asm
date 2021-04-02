@@ -45,11 +45,20 @@ SCSI_INQURY_CMD			DB		12H,0,0,0,8,0
 ;   EDX   Starting Sector
 ;   BX    Number of Sectors
 ;   EDI   Data Buffer Physical Address
-;   DS=CS
 ; Output
 ;   CF    Set if error
 SCSI_READ_SECTOR:
-						MOV		SI,SCSI_READ_SECTOR_CMD
+						PUSH	SS
+						POP		DS
+						SUB		SP,12
+						MOV		SI,SP
+
+						MOV		EAX,CS:[SCSI_READ_SECTOR_CMD]
+						MOV		[SI],EAX
+						MOV		EAX,CS:[SCSI_READ_SECTOR_CMD+4]
+						MOV		[SI+4],EAX
+						MOV		EAX,CS:[SCSI_READ_SECTOR_CMD+8]
+						MOV		[SI+8],EAX
 
 						AND		CL,7
 						MOV		BYTE [SI+1],0 ; Looks like Logical Unit ID needs to be zero.
@@ -65,6 +74,7 @@ SCSI_READ_SECTOR:
 
 						CALL	SCSI_COMMAND
 
+						ADD		SP,12
 						RET
 
 

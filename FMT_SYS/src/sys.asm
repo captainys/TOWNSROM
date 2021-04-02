@@ -894,6 +894,8 @@ disk_command_03:
 	and		al,0f0h
 	cmp		al,020h
 	je		.fd_command_03
+	cmp		al,0b0h
+	je		.hd_command_03
 	; by CaptainYS <<
 	call	cd_command_0e ; 一応これで代替
 	ret
@@ -901,6 +903,9 @@ disk_command_03:
 ; by CaptainYS >>
 .fd_command_03:
 	call	fd_command_03
+	ret
+.hd_command_03:
+	call	hd_command_03
 	ret
 ; by CaptainYS <<
 
@@ -1103,12 +1108,12 @@ cmos_bios:
 
 %include "sys_cmos.asm"
 
-%include "sys_p32.asm"
-
 %include "sys_print.asm" ; by CaptainYS
-
 %include "scsiio.asm" ; by CaptainYS
 %include "scsiutil.asm" ; by CaptainYS
+; Note: sys_p32.asm changes the bitness from 16 to 32, therefore must be included after 16-bit code.
+
+%include "sys_p32.asm"
 
 ;---------------------------------------------------------------------
 ; ウェイト(うんづではあまり意味が無いので省略)
