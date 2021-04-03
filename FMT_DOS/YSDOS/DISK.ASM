@@ -170,7 +170,8 @@ GET_DRIVE_CDS_ERROR:
 ;   GS:BP  DPB
 ; Return
 ;   CF=0   DPB didn't have to be rebuilt (Same Media Desc)
-;   CF=1   DPB rebuilt.
+;   CF=1   AL=0     DPB rebuilt.
+;          AL=0FFh  Tried to rebuild DPB, but failed due to broken BPB.
 REBUILD_DPB:
 						; Re-build DPB.
 						; DOS has a weird requirement for calling BUILD_BPB device-driver call.
@@ -242,7 +243,10 @@ REBUILD_DPB_HAVE_BUFFER:
 						CALL	SETDPB
 						;    BX,CX,DX destroyed
 						MOV		WORD PTR GS:[BP+DPB_LAST_CLUSTER_ALLOC],0
+						XOR		AL,AL	; Means no error
 
+REBUILD_DPB_WAS_REBUILT_OR_ERR:
+						STC
 						RET
 
 REBUILD_DPB_NOT_REBUILT:

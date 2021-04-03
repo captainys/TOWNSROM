@@ -233,6 +233,9 @@ SETMEM					ENDP
 ;    DS:SI  Source BPB (BIOS Parameter Block)
 ;    ES:BP  DPB to create
 ;    BX,CX,DX destroyed
+; Output:
+;    CF=0  Success
+;    CF=1  Broken BPB
 ; Original SETDPB also destroys AX
 ; Tentative:
 ; RUN 1679:00006BD3
@@ -253,6 +256,17 @@ SETDPB					PROC
 						; --------
 						;     Data
 						; --------
+
+						; One possible broken BPB will have Bytes Per Sector<DIRENT_size
+						MOV		CX,DS:[SI+BPB_BYTES_PER_SECTOR]
+						SHR		CX,DIRENT_SHIFT
+						JE		SETDPB_BAILOUT
+
+						; Also, if Sectors Per Cluster is zero, it is broken.
+						CMP		BYTE PTR DS:[SI+BPB_SECTORS_PER_CLUSTER],0
+						JE		SETDPB_BAILOUT
+
+
 
 						; Skip DRIVE and UNIT.  Will be set outside of this function.
 
@@ -299,7 +313,6 @@ SETDPB					PROC
 						; The first data sector follows the root directory.
 
 						MOV		CX,DS:[SI+BPB_BYTES_PER_SECTOR]
-						TEST	CX,(BYTES_PER_DIRENT-1)
 						SHR		CX,DIRENT_SHIFT						; CX=SectorLength/BytesPerDirEnt=num_dirent_per sector
 						; CX is number of directory entries per sector
 
@@ -311,12 +324,7 @@ SETDPB					PROC
 						; Round up.  In case [BPB_NUM_ROOTDIR_ENTS]!=Integer * (num of DIRENTs per sector)
 
 						XOR		DX,DX
-
-						; If uninitialized BPB, CX may become zero.  In that case, just abort DPB creation.
-						; Avoid division by zero.
-						JCXZ	SETDPB_BAILOUT
-
-						DIV		CX
+						DIV		CX  ; CX has already been checked non-zero above.
 						; AX/CX will give how many sectors are used for directory entries.
 
 						ADD		AX,ES:[BP+DPB_FIRST_DIR_SECTOR]
@@ -358,9 +366,15 @@ SETDPB_HAVE_TOTAL_NUM_SECTORS:
 						MOV		DWORD PTR ES:[BP+DPB_LAST_CLUSTER_ALLOC],0FFFF0000h
 						; LAST_CLUSTER_ALLOC or Current Directory?  MS-DOS V2.0 source says 0000h means cwd is root.
 						; Number of free clusters is 0ffffh (unknown at this time)
+						POP		ECX
+						POP		EAX
+						CLC
+						RET
+
 SETDPB_BAILOUT:
 						POP		ECX
 						POP		EAX
+						STC
 						RET
 SETDPB					ENDP
 
