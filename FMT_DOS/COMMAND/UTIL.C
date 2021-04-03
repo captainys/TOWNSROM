@@ -454,3 +454,36 @@ int ExpandBatchArg(char lineBuf[],int batArgc,char *batArgv[],unsigned int lineB
 	}
 	return OK;
 }
+
+char *FindRedirection(char *foundChar,char arg[])
+{
+	int i,foundPos=-1;
+	*foundChar=0;
+	for(i=0; 0!=arg[i]; ++i)
+	{
+		if('<'==arg[i] || '>'==arg[i] || '|'==arg[i])
+		{
+			*foundChar=arg[i];
+			foundPos=i;
+			break;
+		}
+	}
+
+	if(0!=*foundChar)
+	{
+		for(i=foundPos; 0<=i; --i)
+		{
+			if('>'==arg[i] || '<'==arg[i] || '|'==arg[i] || (0<=arg[i] && arg[i]<' '))
+			{
+				arg[i]=0;
+			}
+			else
+			{
+				break;
+			}
+		}
+		return arg+foundPos+1;
+	}
+
+	return NULL;
+}

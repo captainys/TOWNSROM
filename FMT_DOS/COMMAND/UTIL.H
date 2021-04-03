@@ -92,4 +92,13 @@ void ReplaceExtension(char fName[],const char ext[]);
 int ExpandBatchArg(char lineBuf[],int batArgc,char *batArgv[],unsigned int lineBufLen);
 
 
+/*! Finds the first redirection letter '<', '>', or '|'.
+    Incoming string is terminated at the redirection letter, and tail spaces and tabs will be
+    nullified.
+    If found, it returns the pointer immediately after the redirection char, and *c will be '<', '>', or '|'.
+    If not found, it returns NULL, and *c==0.
+*/
+char *FindRedirection(char *c,char arg[]);
+
+
 #endif

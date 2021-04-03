@@ -513,6 +513,8 @@ int RunBatchFile(char cmd[],char param[])
 		int argv0Len=0;
 		static char argv0[MAX_PATH];
 		char *afterArgv0="";
+		char redirChar=0;
+		char *redirStr;
 
 		fp=fopen(batState.fName,"r");
 		if(NULL==fp)
@@ -569,6 +571,12 @@ int RunBatchFile(char cmd[],char param[])
 		*/
 		argv0Len=GetFirstArgument(argv0,lineBuf);
 		afterArgv0=GetAfterFirstArgument(lineBuf,argv0Len);
+		redirStr=FindRedirection(&redirChar,afterArgv0);
+		if(NULL!=redirStr)
+		{
+			printf("Sorry, redirection and pipe are not supported yet.\n");
+			printf("Just executing without redirection/pipe.\n");
+		}
 		Capitalize(argv0);
 		ExpandEnvVar(ENVSEG,argv0,LINEBUFLEN);
 		if(':'==argv0[0]) /* It's a jump label. */
@@ -669,6 +677,8 @@ int CommandMain(struct Option *option)
 		static char argv0[MAX_PATH],exeCmd[MAX_PATH];
 		int argv0Len;
 		char *afterArgv0;
+		char redirChar;
+		char *redirStr;
 
 		getcwd(cwd,MAX_PATH);
 		DOSPUTS(cwd);
@@ -680,6 +690,12 @@ int CommandMain(struct Option *option)
 		argv0Len=GetFirstArgument(argv0,lineBuf);
 		Capitalize(argv0);
 		afterArgv0=GetAfterFirstArgument(lineBuf,argv0Len);
+		redirStr=FindRedirection(&redirChar,afterArgv0);
+		if(NULL!=redirStr)
+		{
+			printf("Sorry, redirection and pipe are not supported yet.\n");
+			printf("Just executing without redirection/pipe.\n");
+		}
 		if(0==ExecBuiltInCommand(&batState,argv0,afterArgv0))
 		{
 			/* Then exec external command */
@@ -710,7 +726,7 @@ int main(int argc,char *argv[])
 	int returnCode=0;
 
 	printf("\n");
-	printf("COMMAND.COM for FM TOWNS Emulators.\n");
+	printf("YAMAND.COM for FM TOWNS Emulators.\n");
 	printf("By CaptainYS\n");
 	printf("\n");
 
