@@ -840,15 +840,14 @@ textout:
 ;.ascii
 	push	si
 	movzx	si,cl
-	shl		si,3
-	add		si,0a000h
-	mov		cx,8
+	shl		si,4
+	add		si,0a800h
+	mov		cx,16
 .oneasciiloop:
 	mov		al,es:[si]
 	mov		es:[di],al
-	mov		es:[di+VRAM_PITCH],al
 	inc		si
-	add		di,VRAM_PITCH*2
+	add		di,VRAM_PITCH
 	loop	.oneasciiloop
 
 	pop		si
