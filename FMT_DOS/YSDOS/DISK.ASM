@@ -45,9 +45,6 @@ MEDIACHECK_READYCDS:
 
 						LGS		BP,DS:[BX+CDS_DRIVE_PARAM_BLOCK]	; GS:BP=DPB
 
-						CMP		BYTE PTR GS:[BP+DPB_ACCESS_FLAG],DPB_ACCESS_FLAG_UNACCESSED
-						JE		MEDIACHECK_READYCDS_MEDIA_CHANGED
-
 						; Input
 						;   AL     Unit
 						;   AH     Media Descriptor
@@ -59,8 +56,11 @@ MEDIACHECK_READYCDS:
 						; Return
 						;   CF=1 AX=Status Code  If error ((status code&0x8000)!=0)
 						;   CF=0 AH=[REQ+REQ_MEDIACHECK_CODE_RETURN] (1=unchanged, 0=unknown, -1=changed), AL Destroyed
-
 						JB		MEDIACHECK_READYCDS_ERROR
+
+						CMP		BYTE PTR GS:[BP+DPB_ACCESS_FLAG],DPB_ACCESS_FLAG_UNACCESSED
+						MOV		BYTE PTR GS:[BP+DPB_ACCESS_FLAG],DPB_ACCESS_FLAG_ACCESSED
+						JE		MEDIACHECK_READYCDS_MEDIA_CHANGED
 
 						CMP		AH,1
 						JE		MEDIACHECK_READYCDS_NOCHANGE ; Unchanged.  Nothing to do.
