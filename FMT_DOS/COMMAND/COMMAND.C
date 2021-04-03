@@ -469,7 +469,8 @@ int IdentifyCommandType(char exeCmd[],const char argv0[])
 void PrepareExecParam(char execParamBuf[],const char param[],unsigned int execParamBufLen)
 {
 	int i;
-	strncpy(execParamBuf+1,param,execParamBufLen-3); /* -2 should be good enough, but just in case, I'd add an extra 0. */
+	execParamBuf[1]=' ';  /* Turned out, ' ' looks to be required. */
+	strncpy(execParamBuf+2,param,execParamBufLen-4); /* -3 should be good enough, but just in case, I'd add an extra 0. */
 	execParamBuf[execParamBufLen-1]=0;
 	execParamBuf[0]=0;
 	for(i=1; 0!=execParamBuf[i]; ++i)
