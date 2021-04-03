@@ -194,6 +194,7 @@ startall:
 	mov	al,PMODE_MEMORYCHECK
 	call	call_pmode
 
+	call	print_readme
 
 ; by CaptainYS >>
 	call	check_boot_key_combination
@@ -283,6 +284,15 @@ startall:
 ; by CaptainYS >>
 ; al=Unit
 try_fd_boot:
+	push	ax
+
+	mov	al,PMODE_PUTICON
+	mov	cl,ICON_FDD
+	mov	dx, (VRAM_PITCH*368)+(VRAM_PITCH-4)
+	call	call_pmode
+
+	pop		ax
+
 	and		al,0fh
 	or		al,20h		; BIOS Device Code
 
@@ -331,6 +341,15 @@ try_fd_boot:
 
 ; al=Unit
 try_hd_boot:
+	push	ax
+
+	mov	al,PMODE_PUTICON
+	mov	cl,ICON_HDD
+	mov	dx, (VRAM_PITCH*368)+(VRAM_PITCH-4)
+	call	call_pmode
+
+	pop		ax
+
 	and		al, 0fh
 	or		al,0b0h		; BIOS Device Code
 
@@ -402,17 +421,20 @@ get_default_boot_device:
 ; by CaptainYS
 ; Made it a procedure.  It was a one-shot code in the boot sequence.
 try_cd_boot:
+	; by CaptainYS >>
+	mov	al,PMODE_PUTICON	; by CaptainYS  Was missing.
+	mov	cl,ICON_CD
+	mov	dx, (VRAM_PITCH*368)+(VRAM_PITCH-4)
+	call	call_pmode
+	; by CaptainYS <<
+
 	; CDが読めるか？
 	mov	ax,0ec0h	; by CaptainYS  mov ah,0eh -> mov ax 0ec0h to prepare for FD, HD, and ICM boot
 	CALLFAR disk_bios
 	jnc	.cdok
 
 	; 手抜き(^^;
-	mov	al,PMODE_PUTICON	; by CaptainYS  Was missing.
-	mov	cl,ICON_CD
-	mov	dx, (VRAM_PITCH*368)+(VRAM_PITCH-4)
-	call	call_pmode
-	mov	si,mes_cantboot
+	mov	si,mes_wrongipl ; by CaptainYS: Changed from mes_cantboot -> mes_wrongipl
 	mov	di,VRAM_PITCH*384
 	call	textout
 	ret
@@ -557,6 +579,50 @@ mes_cantboot:
 	; db	'ＣＤをセットしてリセットしてね',00
 	db 082h,062h,082h,063h,082h,0F0h,083h,05Ah,083h,062h,083h,067h,082h,0B5h,082h,0C4h
 	db 083h,08Ah,083h,05Ah,083h,062h,083h,067h,082h,0B5h,082h,0C4h,082h,0CBh,000h
+
+; by CaptainYS>>
+readme0:
+	DB	"THIS PROGRAM IS RUNNING ON COMPATIBLE ROMS, WHICH ARE DIFFERENT FROM THE",0
+readme1:
+	DB	"ROM IMAGES EXTRACTED FROM FM TOWNS HARDWARE.  THEREFORE, SOME APPLICATIONS",0
+readme2:
+	DB	"MAY NOT RUN ACCURATELY OR NOT RUN AT ALL.",0
+readme3:
+	; このプログラムは、互換ROMで実行しています。実機FM TOWNSのROMとは異なるため、
+	; 実行できないFM TOWNSアプリケーションがあります。
+	DB		082h,0B1h,082h,0CCh,083h,076h,083h,08Dh,083h,04Fh,083h,089h,083h,080h,082h,0CDh
+	DB		081h,041h,08Ch,0DDh,08Ah,0B7h,052h,04Fh,04Dh,082h,0C5h,08Eh,0C0h,08Dh,073h,082h
+	DB		0B5h,082h,0C4h,082h,0A2h,082h,0DCh,082h,0B7h,081h,042h,08Eh,0C0h,08Bh,040h,046h
+	DB		04Dh,020h,054h,04Fh,057h,04Eh,053h,082h,0CCh,052h,04Fh,04Dh,082h,0C6h,082h,0CDh
+	DB		088h,0D9h,082h,0C8h,082h,0E9h,082h,0BDh,082h,0DFh,081h,041h
+	DB		0
+readme4:
+	DB		08Eh,0C0h,08Dh,073h,082h,0C5h,082h,0ABh,082h,0C8h,082h,0A2h,046h,04Dh,020h,054h
+	DB		04Fh,057h,04Eh,053h,083h,041h,083h,076h,083h,08Ah,083h,050h,081h,05Bh,083h,056h
+	DB		083h,087h,083h,093h,082h,0AAh,082h,0A0h,082h,0E8h,082h,0DCh,082h,0B7h,081h,042h
+	DB		0
+
+
+print_readme:
+	mov		si,readme0
+	mov		di,VRAM_PITCH*16
+	call	textout
+	mov		si,readme1
+	mov		di,2*VRAM_PITCH*16
+	call	textout
+	mov		si,readme2
+	mov		di,3*VRAM_PITCH*16
+	call	textout
+	mov		si,readme3
+	mov		di,4*VRAM_PITCH*16
+	call	textout
+	mov		si,readme4
+	mov		di,5*VRAM_PITCH*16
+	call	textout
+	ret
+
+
+; by CaptainYS<<
 
 ;---------------------------------------------------------------------
 ; IPLのバージョンをチェック
@@ -755,29 +821,52 @@ crtcinitdata:
 ;
 ; si = 文字列
 ; di = 表示先VRAMアドレス
-
+; CaptainYS added support for Kanji and ASCII mix.
 textout:
 	push	es
 	push	bx
 	mov	ax,0c000h
 	mov	es,ax
 	mov	bx,0ff94h
+	mov	byte es:[IO_KVRAM_OR_ANKFONT],1	; ANK Font ROM CA000H-
 
 .textoutloop:
 	mov	cx,[si]
 	or	cl,cl
 	jz	.exit
+	cmp	cl,081h
+	jae	.kanji
 
+;.ascii
+	push	si
+	movzx	si,cl
+	shl		si,3
+	add		si,0a000h
+	mov		cx,8
+.oneasciiloop:
+	mov		al,es:[si]
+	mov		es:[di],al
+	mov		es:[di+VRAM_PITCH],al
+	inc		si
+	add		di,VRAM_PITCH*2
+	loop	.oneasciiloop
+
+	pop		si
+	sub		di,VRAM_PITCH*16-1
+	inc		si
+	jmp		.textoutloop
+
+.kanji:
 	call	sjistojis
 	mov	[es:bx],cl
 	mov	[es:bx+1],ch
 	mov	cx,16
-.onecharloop:
+.onekanjiloop:
 	mov	al,[es:bx+2]
 	mov	ah,[es:bx+3]
 	mov	[es:di],ax
 	add	di,VRAM_PITCH
-	loop	.onecharloop
+	loop	.onekanjiloop
 
 	sub	di,VRAM_PITCH*16-2
 	add	si,2

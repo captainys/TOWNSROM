@@ -97,5 +97,6 @@ hd_command_05:
 ; ドライブの状態をチェック
 
 hd_command_0e:
+	clc
 	ret
 

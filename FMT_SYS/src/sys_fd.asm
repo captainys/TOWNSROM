@@ -359,5 +359,6 @@ fd_dma_mode_write:
 ; ドライブの状態をチェック
 
 fd_command_0e:
+	clc
 	ret
 
