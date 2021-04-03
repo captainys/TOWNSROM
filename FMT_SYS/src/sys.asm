@@ -233,6 +233,23 @@ startall:
 
 .no_boot_key:
 	; Check the default boot device from CMOS and try before start loop.
+	call	get_default_boot_device
+	cmp		ah,1
+	je		.default_drive_is_hd
+	cmp		ah,2
+	je		.default_drive_is_fd
+	; If CD, jump to device loop
+	; If not CD, jump to device loop
+	jmp		.device_loop
+
+.default_drive_is_hd:
+	call	try_hd_boot
+	jmp		.device_loop
+
+.default_drive_is_fd:
+	call	try_fd_boot
+	; jmp		.device_loop
+
 
 
 .device_loop:
@@ -356,6 +373,28 @@ try_hd_boot:
 
 try_icm_boot:
 	ret
+
+
+; [3180H] Non-Zero -> At least the user once opened default-boot-device dialog.
+; [3182H] Boot Device Type  1:HD  2:FD  8:CD
+; [3184H] Boot Device Unit  (Drive number, Hard disk SCSI ID)
+get_default_boot_device:
+	mov		dx,3180h
+	in		al,dx
+	or		al,al
+	je		.no_default_boot_device
+
+	mov		dx,3182h
+	in		al,dx
+	mov		ah,al
+	mov		dx,3184h
+	in		al,dx
+	ret
+
+.no_default_boot_device:
+	xor		ax,ax
+	ret
+	
 ; by CaptainYS <<
 
 
