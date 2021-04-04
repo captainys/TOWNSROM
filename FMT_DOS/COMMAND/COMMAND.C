@@ -492,6 +492,22 @@ void PrepareExecParam(char execParamBuf[],const char param[],unsigned int execPa
 	}
 	execParamBuf[i]=ASCII_CR;
 	execParamBuf[i+1]=0;
+
+	/*
+	So, looks like, if the command line is:
+	    abc.exe arg arg arg\n
+               ^^^^^^^^^^^^^^
+	execParam must be underlined part.  Immediately after exe to line break.
+	So, if there is no command parameter, then no space should be placed.
+
+	However, the preceding ' ' is already dropped before this function.
+	So, I take care of no-parameter case below.
+	*/
+	if(1==execParamBuf[0] && ' '==execParamBuf[1])
+	{
+		execParamBuf[0]=0;
+		execParamBuf[1]=execParamBuf[2]; /* Must be CR */
+	}
 }
 
 int RunBatchFile(char cmd[],char param[])
