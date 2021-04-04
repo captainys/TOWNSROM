@@ -1240,8 +1240,9 @@ INT_21H_43H_SET_FILE_ATTRIB:
 ;   AL=Sub Command
 ;   AL=1 -> IOCTL_GET_DEVINFO  BX=File Handle (JFN)
 ;   AL=2 -> IOCTL_SET_DEVINFO  BX=File Handle (JFN)  DX=Devinfo.  DH must be zero.  DL is Lobyte of SF_DEVFLAGS
-;   AL=3 -> ILCTL_READ_CHARDEV BX=File Handle (JFN)  CX=Number of bytes  DS:DX=Data Buffer
-;   AL=9 -> IOCTL_CHECK_REMOTE_DRIVE  BX=Drive (0=Current, 0=A:)
+;   AL=3 -> IOCTL_READ_CHARDEV BX=File Handle (JFN)  CX=Number of bytes  DS:DX=Data Buffer
+;   AL=8 -> IOCTL_CHECK_DRIVE_REMOVABLE  BL=Drive (0=Current, 1=A:) -> AX=0:Removable 1:Fixed
+;   AL=9 -> IOCTL_CHECK_REMOTE_DRIVE  BL=Drive (0=Current, 1=A:)
 INT_21H_44H_IOCTL:
 						XCHG	AX,BX
 						CALL	IOCTL

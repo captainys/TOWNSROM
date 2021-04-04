@@ -33,9 +33,9 @@ FM TOWNSエミュレータの実行には、最低二種類のROMイメージが
 
 現状でわかっている問題点・制限は:
 
-1. Drive Not Ready, Disk Write Protectedのエラーハンドリングが不完全
-2. コマンドモードで多くの内部コマンドが使用不可
-3. 起動ドライブをGUIで選択することはできない。フロッピーディスクから起動するには、ハードディスク、CDをマウントしない状態で起動するか、津軽を使用する場合は、F0キー起動オプションを選択する必要がある。
+1. オリジナルのMSDOS.SYSでは、Drive Not Ready, Disk Write Protected, ディレクトリ破損, 未フォーマットディスクなどのエラーで INT 24H を出して、しかもユーザに中止、失敗、無視、というどれを選べばいいのかわからない選択肢をコンソールに出すという悪い癖があったが、YSDOS.SYSではINT 24Hは出さずに単にDOSのエラーを返す(必ず「失敗」を選んだのと同じ)。INT 24Hが出ることを期待しているアプリケーションは多分エラーが発生したときの動作が変になる。
+2. Ctrl+Cの処理にまったく自信が無いので多分コンソールモードで押すと変になる。 (Ctrl+Cはサポートしないことにしようかと思ってる。)
+3. コマンドモードで多くの内部コマンドが使用不可
 4. FMT_DIC/FMT_DIC.ROMを使うとかな漢字変換でフリーズしないものの、日本語はひらがなとカタカナのみ入力可能。
 
 などがあります。くれぐれも、普段使いのハードディスクイメージやフロッピーディスクイメージをこの互換ROMで利用するときは、バックアップを取った上でご使用ください。
@@ -65,9 +65,9 @@ So, I started writing YSDOS.SYS, a compatible version of DOS, and finally made i
 
 Currently-known limitations are:
 
-1. Drive Not Ready and Disk Write Protected error checking is incomplete.
-2. Many of the commands are not available in command mode.
-3. Cannot select boot drive from GUI.  If you need to boot from a floppy disk, you need to (1) unmount CD and HD images and mount only floppy-disk image and start, or (2) if you are using Tsugaru, use -BOOTKEY F0 option.
+1. The original MSDOS.SYS had a bad habit of shooting an INT 24H on critical errors (critical from Microsoft point of view) including Drive Not Ready, Disk Write Protected, Bad Directory, Broken FAT, etc., and asking user to select Abort/Fail/Ignore, which in most case I had no idea about the difference between Ignore and Fail.  In fact, some graphical applications just went into infinite loop since the console input was disabled.  It was one of many horrible bad habit of MSDOS.SYS.  YSDOS.SYS do not shoot INT 24H.  It just returns a DOS error code.  If an application was expecting INT 24H, then the application may act strange.
+2. I'm not confident at all in Ctrl-C handling.  It may go berserk if you press Ctrl+C in the command mode.  (I may disable it all together.)
+3. Many of the commands are not available in command mode.
 4. With FMT_DIC/FMT_DIC.ROM, OAK (IME in the today's term.  We used to call it FEP, or Front End Processor) at least does not freeze.  However, you can only type Hiragana and Katakana in the Japanese mode.
 
 If you want to use this ROM images with your floppy-disk or hard-disk images, MAKE SURE TO TAKE A BACK UP COPY before using.
