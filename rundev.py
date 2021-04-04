@@ -74,6 +74,9 @@ def Run(argv):
 		"1232",
 		"-FD1",
 		os.path.join(THISDIR,"scratch","blank1232KB.bin"),
+
+		"-MEMSIZE",
+		"16",
 	]+argv).wait()
 
 

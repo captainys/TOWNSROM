@@ -178,6 +178,8 @@ INT_21H_REGISTERS_SAVED:
 						JE		INT_21H_02H_PUTC
 						CMP		AH,06H
 						JE		INT_21H_06H_DIRECT_CONOUT
+						CMP		AH,07H
+						JE		INT_21H_07H_DIRECT_CONIN
 						CMP		AH,09H
 						JE		INT_21H_09H_PUTS
 						CMP		AH,0AH
@@ -349,6 +351,22 @@ INT_21H_06H_DIRECT_CONOUT:
 						JE		INT_RESTORE_AND_IRET_ZFSET	; I don't know what to do.
 						CALL	PUTC
 						JMP		INT_RESTORE_AND_IRET_ZFSET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+INT_21H_07H_DIRECT_CONIN:
+						CALL	GETC
+
+						_LSS	SP,CS:[SP_RESTORE_POINT]
+						MOV		BP,SP
+						RETURN_REGISTERW	AX
+
+						JMP		INT_RESTORE_AND_IRET
 
 
 
