@@ -322,6 +322,26 @@ try_fd_boot:
 	pop		ax
 	jc		.cannot_boot
 
+	; Reading System Message and Hourglass Icon
+	push	ax
+	push	ds
+
+	push	cs
+	pop		ds
+
+	mov	cl,ICON_WAIT
+	mov	al,PMODE_PUTICON
+	mov	dx, (VRAM_PITCH*368)+(VRAM_PITCH-4)
+	call	call_pmode
+
+	mov	si,mes_reading
+	mov	di,VRAM_PITCH*384
+	call	textout
+
+	pop		ds
+	pop		ax
+
+
 	; BL:Device Type   1:SCSI  2:FD  8:CD
 	; BH:Unit Number
 	mov		bh,al
@@ -372,6 +392,25 @@ try_hd_boot:
 	call	check_iplvalidity
 	pop		ax
 	jc		.cannot_boot
+
+	; Reading System Message and Hourglass Icon
+	push	ax
+	push	ds
+
+	push	cs
+	pop		ds
+
+	mov	cl,ICON_WAIT
+	mov	al,PMODE_PUTICON
+	mov	dx, (VRAM_PITCH*368)+(VRAM_PITCH-4)
+	call	call_pmode
+
+	mov	si,mes_reading
+	mov	di,VRAM_PITCH*384
+	call	textout
+
+	pop		ds
+	pop		ax
 
 	; BL:Device Type   1:SCSI  2:FD  8:CD
 	; BH:Unit Number
