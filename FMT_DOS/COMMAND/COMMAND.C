@@ -342,6 +342,14 @@ void ExecCD(char afterArgv0[])
 	}
 }
 
+void ExecPATH(char afterArgv0[])
+{
+	static char setpath[LINEBUFLEN];
+	GetFirstArgument(setpath,afterArgv0);
+	ExpandEnvVar(ENVSEG,setpath,LINEBUFLEN);
+	SetEnv(ENVSEG,"PATH",setpath);
+}
+
 void ExecDriveLetter(char driveLetter)
 {
 	unsigned int driveAvail;
@@ -394,6 +402,11 @@ int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char after
 		char lineBuf[LINEBUFLEN];
 		printf("<<Press Enter to Continue>>\n");
 		DOSGETS(lineBuf);
+		return 1;
+	}
+	else if(0==strcmp(argv0,"PATH"))
+	{
+		ExecPATH(afterArgv0);
 		return 1;
 	}
 	else if(0==strcmp(argv0,"REM"))
