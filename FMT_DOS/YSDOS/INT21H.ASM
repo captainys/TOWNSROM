@@ -58,6 +58,26 @@ SET_CF_BEFORE_IRET		ENDP
 
 
 
+SET_ZF_BEFORE_IRET		PROC
+;
+;  SP+0  BP
+;  SP+2  Return IP for this proc
+;  SP+4  Return IP for IRET
+;  SP+6  Return SEG for IRET
+;  SP+8  FLAGS
+						PUSH	BP
+						MOV		BP,SP
+						OR		WORD PTR SS:[BP+8],040h
+						POP		BP
+						RET
+SET_CF_BEFORE_IRET		ENDP
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
 INT_21H_COMMAND			PROC
 						CLD		; Let's get rid of DF nuisance.
 
@@ -281,6 +301,19 @@ INT_RESTORE_AND_IRET_WITH_CF_GOOD:
 
 
 
+INT_RESTORE_AND_IRET_ZFSET:
+						DEC		BYTE PTR CS:[INDOS]
+
+						JNS		INT_RESTORE_AND_IRET_ZF_GOOD
+						TSUGARU_DEBUG_BREAK	YSDOS_REENTER_COUNT_IS_NEGATIVE
+INT_RESTORE_AND_IRET_ZF_GOOD:
+
+						RESTORE_REGISTERS
+						CALL	SET_ZF_BEFORE_IRET
+						IRET
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -309,12 +342,13 @@ INT_21H_02H_PUTC:
 
 
 ; I don't know what to do if AL=0FFh
+; Strike Commander Installer expects ZF=1 on return.  WTF!?
 INT_21H_06H_DIRECT_CONOUT:
 						MOV		AL,DL
 						CMP		AL,0FFh
-						JE		INT_RESTORE_AND_IRET	; I don't know what to do.
+						JE		INT_RESTORE_AND_IRET_ZFSET	; I don't know what to do.
 						CALL	PUTC
-						JMP		INT_RESTORE_AND_IRET
+						JMP		INT_RESTORE_AND_IRET_ZFSET
 
 
 
