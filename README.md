@@ -37,6 +37,7 @@ FM TOWNSエミュレータの実行には、最低二種類のROMイメージが
 2. Ctrl+Cの処理にまったく自信が無いので多分コンソールモードで押すと変になる。 (Ctrl+Cはサポートしないことにしようかと思ってる。)
 3. コマンドモードで多くの内部コマンドが使用不可
 4. FMT_DIC/FMT_DIC.ROMを使うとかな漢字変換でフリーズしないものの、日本語はひらがなとカタカナのみ入力可能。
+5. サブディレクトリの中のファイル・ディレクトリ数が1クラスタに入る範囲を超えるとクラッシュ。というかDIR.ASM内EXTEND_DIRを実装するまで意図的なフリーズ。もうすぐ実装しますんで。
 
 などがあります。くれぐれも、普段使いのハードディスクイメージやフロッピーディスクイメージをこの互換ROMで利用するときは、バックアップを取った上でご使用ください。
 
@@ -69,6 +70,7 @@ Currently-known limitations are:
 2. I'm not confident at all in Ctrl-C handling.  It may go berserk if you press Ctrl+C in the command mode.  (I may disable it all together.)
 3. Many of the commands are not available in command mode.
 4. With FMT_DIC/FMT_DIC.ROM, OAK (IME in the today's term.  We used to call it FEP, or Front End Processor) at least does not freeze.  However, you can only type Hiragana and Katakana in the Japanese mode.
+5. If you create too many files/directories in one directory more than one cluster can hold, it freezes.  It is an intentional freeze to prevent damage until I correctly implement EXTEND_DIR in DIR.ASM.  I'm going to do it next so that Wing Commander II can be fully installed on the hard drive.
 
 If you want to use this ROM images with your floppy-disk or hard-disk images, MAKE SURE TO TAKE A BACK UP COPY before using.
 
