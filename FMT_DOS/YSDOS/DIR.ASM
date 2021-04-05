@@ -551,6 +551,30 @@ ALLOC_DIRENT:
 						JE		ALLOC_DIRENT_EXIT	; Root dir cannot be extended.
 						; If fail, EDX is the cluster where new cluster should be added
 						CALL	EXTEND_DIR
+						; Output
+						;   CF=0   Success EDX=New Directory Cluster
+						JC		ALLOC_DIRENT_EXIT
+
+						; Input
+						;   GS:BP  Drive Parameter Block
+						;   DX     Cluster
+						CALL	CLUSTER_TO_SECTOR
+						;   EBX    First Sector of the cluster
+						MOV		ECX,EBX	; Just in case make ECX=Sector
+
+						XOR		AL,AL	; Read sector
+						PUSH	EDX
+						PUSH	ECX
+						CALL	GETBUFFER_REGULAR
+						POP		ECX
+						POP		EDX
+						JC		ALLOC_DIRENT_EXIT
+
+						MOV		BX,DI
+						LEA		SI,[DI+IO_BUF_INFO_size]	; New cluster.  Always the first DIRENT.
+
+						CLC
+
 ALLOC_DIRENT_EXIT:
 						RET
 
