@@ -25,6 +25,8 @@ int main(void)
 	int first=1;
 	int curDir=0,parDir=0,count=0,nCreated=0;
 
+	printf("Generating\n");
+
 	for(i=0; i<NUM_FILES; ++i)
 	{
 		foundCount[i]=0;
@@ -39,6 +41,8 @@ int main(void)
 		fclose(fp);
 		++nCreated;
 	}
+
+	printf("Verifying\n");
 
 	if(NUM_FILES!=nCreated)
 	{
