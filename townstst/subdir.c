@@ -13,6 +13,7 @@
 32 bytes per dirent
 0x1000 bytes for 128 dirents
 */
+#define NUM_FILES 260
 
 int main(void)
 {
@@ -20,17 +21,31 @@ int main(void)
 	struct _find_t findStruct;
 	FILE *fp;
 	char fName[256];
+	unsigned char foundCount[NUM_FILES];
 	int first=1;
 	int curDir=0,parDir=0,count=0,nCreated=0;
 
+	for(i=0; i<NUM_FILES; ++i)
+	{
+		foundCount[i]=0;
+	}
+
 	mkdir(SUBDIR);
-	for(i=0; i<260; ++i)
+	for(i=0; i<NUM_FILES; ++i)
 	{
 		sprintf(fName,"%s\\%08d.dat",SUBDIR,i);
 		fp=fopen(fName,"w");
 		fprintf(fp,"%d\n",i);
 		fclose(fp);
 		++nCreated;
+	}
+
+	if(NUM_FILES!=nCreated)
+	{
+		printf("Error in number of files created.\n");
+		printf("  Should be: %d\n",NUM_FILES);
+		printf("  Created:   %d\n",nCreated);
+		return 1;
 	}
 
 	sprintf(fName,"%s\\*.*",SUBDIR);
@@ -76,7 +91,11 @@ int main(void)
 				}
 			}
 			num=atoi(findStruct.name);
-			if(num<0 || nCreated<=num)
+			if(0<=num && num<NUM_FILES)
+			{
+				++foundCount[num];
+			}
+			else
 			{
 				printf("Wrong number!\n");
 				printf("%s\n",findStruct.name);
@@ -92,9 +111,25 @@ int main(void)
 	}
 	printf("\n");
 
+	for(i=0; i<NUM_FILES; ++i)
+	{
+		if(0==foundCount[i])
+		{
+			printf("File %08d.DAT not found.\n",i);
+			return 1;
+		}
+		if(1<foundCount[i])
+		{
+			printf("File %08d.DAT found multiple times.\n",i);
+			return 1;
+		}
+	}
+
 	if(count!=nCreated)
 	{
 		printf("Wrong file count!\n");
+		printf("  Should be:%d\n",nCreated);
+		printf("  Found:    %d\n",count);
 		exit(1);
 	}
 	if(0==curDir)

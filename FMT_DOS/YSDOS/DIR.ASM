@@ -561,8 +561,9 @@ ALLOC_DIRENT:
 						CALL	CLUSTER_TO_SECTOR
 						;   EBX    First Sector of the cluster
 						MOV		ECX,EBX	; Just in case make ECX=Sector
-
+						MOV		EDX,EBX	; For GETBUFFER_REGULAR
 						XOR		AL,AL	; Read sector
+
 						PUSH	EDX
 						PUSH	ECX
 						CALL	GETBUFFER_REGULAR
