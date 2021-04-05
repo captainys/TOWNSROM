@@ -710,18 +710,105 @@ FIND_AVAIL_DIRENT_ROOT_ERROR:
 ; Output
 ;   CF=0   Success EDX=New Directory Cluster
 ;   CF=1   Fail
+; Registers are not preserved except GS,BP
 EXTEND_DIR:
 						OR		EDX,EDX
 						JE		EXTEND_DIR_ERROR	; Root dir cannot be extended.
 
-EXTEND_DIR_NOT_ROOT:
-						; To be implemented
-						JMP		EXTEND_DIR
+;EXTEND_DIR_NOT_ROOT:
+						PUSH	EDX	; Save append point (last of the cluster chain)
+
+						XOR		EDX,EDX
+						CALL	FIND_FREE_CLUSTER
+						JC		EXTEND_DIR_NO_FREE_CLUSTER
+
+						;   CF=0   EDX=Free cluster
+						PUSH	EDX	; Save new cluster
+
+						; Input
+						;   GS:BP  Drive Parameter Block
+						;   DX     Cluster
+						CALL	CLUSTER_TO_SECTOR
+						;   EBX    First Sector of the cluster
+
+						MOVZX	CX,GS:[BP+DPB_CLUSTER_MASK]
+						INC		CX
+
+EXTEND_DIR_LOOP:
+						PUSH	EBX	; Save sector
+						PUSH	CX	; Save count
+
+						MOV		AL,0FFh	; Don't have to read sector
+						CALL	GETBUFFER_REGULAR
+						; It is not supposed to fail because it doesn't read
+						;   CF=0   DS:DI=Buffer (Buffer Header)
+
+						PUSH	DS
+						POP		ES
+						MOV		SI,DI
+						OR		BYTE PTR DS:[DI+IO_BUF_FLAGS],IO_BUF_FLAG_IS_DIR+IO_BUF_FLAG_WRITTEN
+
+						ADD		DI,IO_BUF_INFO_size
+						MOV		CX,GS:[BP+DPB_BYTES_PER_SECTOR]
+						XOR		AL,AL
+						REP		STOSB
+
+						; Input
+						;  DS:SI  Buffer Header
+						CALL	WRITE_BACK_AND_MARK_UNUSED
+
+						POP		CX
+						POP		EBX
+
+						JC		EXTEND_DIR_WRITE_ERROR
+
+						INC		EBX
+						LOOP	EXTEND_DIR_LOOP
+
+						POP		EDX	; new cluster
+						POP		EBX	; append point
+						PUSH	EBX
+						PUSH	EDX
+
+						;Input
+						;  GS:BP  DPB
+						;  BX     Which cluster write to
+						;  DX     Value to write
+						CALL	WRITE_CLUSTER
+						JC		EXTEND_DIR_WRITE_ERROR
+
+						POP		EBX	; new cluster
+						POP		EDX	; append point
+						PUSH	EDX
+						PUSH	EBX
+
+						CALL	GET_TAIL_CLUSTER_THRESHOLD
+						; Output
+						;   DX     Tail Cluster Threshold (0FF8H or 0FFF8h)
+						CALL	WRITE_CLUSTER
+						JC		EXTEND_DIR_WRITE_ERROR
+
+						POP		EDX ; new cluster
+						POP		EBX ; append point
+
+						CLC
+						RET
+
 
 EXTEND_DIR_ERROR:
 						STC
 						RET
 
+EXTEND_DIR_NO_FREE_CLUSTER:
+						POP		EDX
+						STC
+						RET
+
+EXTEND_DIR_WRITE_ERROR:
+						POP		EDX
+						POP		EDX
+						STC
+						RET
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

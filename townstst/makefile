@@ -50,3 +50,8 @@ build\return1.exp : return1.c
 build\return2.exp : return2.c
 	hcd386 return2.c -obj build\return2.OBJ
 	386link build\return2.obj @LIBS.LN -exe build\return2.exp
+
+
+build\subdir.exp : subdir.c
+	hcd386 subdir.c -obj build\subdir.OBJ
+	386link build\subdir.obj @LIBS.LN -exe build\subdir.exp

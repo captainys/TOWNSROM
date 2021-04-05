@@ -161,7 +161,7 @@ GET_NEXT_CLUSTER		ENDP
 
 ;Input
 ;  GS:BP  DPB
-;  BX     Cluster
+;  BX     Which cluster to write to
 ;  DX     Value to write
 ;Output
 ;  CF=0 Success (Buffer is dirty)  AX=Previous Cluster Value (Next Cluster)
