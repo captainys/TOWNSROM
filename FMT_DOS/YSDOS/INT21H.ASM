@@ -210,6 +210,8 @@ INT_21H_REGISTERS_SAVED:
 						CMP		AH,17H
 						JE		INT_21H_10H_TO_17H_FCB
 
+						CMP		AH,1BH
+						JE		INT_21H_1BH_GET_CUR_DRV_ALLOC_INFO
 						CMP		AH,1CH
 						JE		INT_21H_1CH_GET_DISK_ALLOC_INFO
 						CMP		AH,29H
@@ -536,6 +538,32 @@ INT_21H_1AH_SET_DTA_ADDRESS:
 
 
 
+; Return
+;   AL=Sectors per cluster or 0FFh if invalid drive
+;   CX=Bytes per sector
+;   DX=Total number of clusters
+;   DS:BX=Points to CS:[MEDIA_DESC_BYTE(0530h)]
+INT_21H_1BH_GET_CUR_DRV_ALLOC_INFO:
+						MOV		AL,CS:[CURRENT_DRIVE]
+						CALL	GET_FREE_DISK_SPACE
+						MOV		BX,OFFSET MEDIA_DESC_BYTE
+
+						_LSS	SP,CS:[SP_RESTORE_POINT]
+						MOV		BP,SP
+						RETURN_REGISTERW	AX
+						RETURN_REGISTERW	DX
+						RETURN_REGISTERW	CX
+						RETURN_REGISTERW	BX
+						MOV		SS:[BP+SAVED_DS],CS
+
+						JMP		INT_RESTORE_AND_IRET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
 ; Input
 ;   DL=FCB Drive
 ; Return
@@ -555,6 +583,7 @@ INT_21H_1CH_GET_DISK_ALLOC_INFO:
 						MOV		BP,SP
 						RETURN_REGISTERW	AX
 						RETURN_REGISTERW	DX
+						RETURN_REGISTERW	CX
 						RETURN_REGISTERW	BX
 						MOV		SS:[BP+SAVED_DS],CS
 

@@ -74,3 +74,13 @@ TOWNS_CMP_FILENAME_BUFFER_SHSUCDXCOM:
 						POP		DI
 						POP		SI
 						RET
+
+
+
+; Called from GET_FREE_DISK_SPACE.
+; MSCDEX returns BX=0FFFFh, and Augusta Far Far away expects it.
+; However, SHSUCDX return BX=(probably) actual number of clusters.
+; As a quick fix, I always make BX=0FFFFh if the drive is a redirected.
+TOWNS_BX_EQU_FFFF:
+						MOV		BX,0FFFFh
+						RET

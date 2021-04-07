@@ -385,6 +385,12 @@ GET_FREE_DISK_SPACE:
 						;  CX=Bytes per Sector
 						;  DX=Number of Free Clusters
 						JC		GET_FREE_DISK_SPACE_INVALID
+
+						; MSCDEX.EXE returns BX=0FFFFh.  However, SHSUCDX returns (probably) actual number of clusters.
+						; Augusta Far Far away expects BX to be 0FFFFh.
+						; I just add an ad-hoc fix here.
+						CALL	TOWNS_BX_EQU_FFFF
+
 						MOV		CS:[MEDIA_DESC_BYTE],AH
 						XOR		AH,AH ; Make AX Sectors per Cluster
 						XCHG	BX,DX

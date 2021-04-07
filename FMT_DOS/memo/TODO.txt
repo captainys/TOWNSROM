@@ -1,28 +1,12 @@
-- Drive Not Ready問題
+- Dungeon Master
+  CDDAを止める前にFOPENを出すが、MSCDEXだとキャッシュからファイルを開いて成功になってしまう。
+  SHSUCDXはCF=1を返す。これは、たまたま目的のディレクトリがキャッシュに入っていたら読み込み成功するだろうけど、そうでなかったら成功の保証がない。本来はFOPEN前にCDDAを止めるべきだから、失敗する方が正しい。
+  解決策としては
+    YSDOSのFOPENで INT 2FH を出す前に、Qドライブだったら INT 93H AX=52C0h を出してCDを止めてしまう
+    津軽のオプションでCDDA演奏中でもセクタを読めるようにする
+  のどっちかだな。YSDOS側で対応すると、逆に演奏中にFOPENが失敗することを期待してるプログラムが動かなくなるリスクがある。
 
-- Unformatted diskの判定
-
-- 起動時メッセージを追加する。
-
-This program is running on Compatible ROMs, which are different from the
-ROM images extracted from FM TOWNS hardware.  Therefore, some applications
-may not run accurately or not run at all.
-このプログラムは、互換ROMで実行しています。実機FM TOWNSのROMとは異なるため、
-実行できないFM TOWNSアプリケーションがあります。
-
-CREDITS:
-FMT_SYS.ROM by Kasanova and CaptainYS
-FMT_DOS.ROM
-  YSDOS.SYS by CaptainYS
-  COMMAND.COM by CaptainYS
-  SHSUCDX.COM by Jason Hood et al.
-FMT_FNT.ROM converted from a public-domain 東雲 font  by pin.
-FMT_DIC.ROM filled with 0xFFs
-FMT_F20.ROM filled with zeros
-
-Press PAD Button or Key to continue.
-
-
+  しかしDungeon Masterはここを通過したら後は全部オンメモリだったような気がするな。
 
 
 - Cache last known free cluster in DPB.  Right now incrementally writing a file is a O(N^2) process since the last known free cluster is not cached.
