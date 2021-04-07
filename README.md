@@ -17,7 +17,7 @@ The files here are provided as is.  The developer will not take responsibilities
 ## Free FM TOWNS Projectについて
 このプロジェクトは、完全自己完結型FM TOWNSエミュレータの実現を目指しています。
 
-富士通が1989年世に送り出したパソコンFM TOWNSは世界で初めてCD-ROMを標準搭載したことで、CD-ROMソフトが多数発売されました。そして、CD-ROMメディアは正しく保管すれば相当な長期間維持することができます。他のレトロPCと比べて今でもまったく問題なく実行可能なソフトのメディアが多数存在して、そしてそれを合法的に中古ソフトショップ、オークションなどを利用して購入することができます。
+富士通が1989年世に送り出したパソコンFM TOWNSは世界で初めてCD-ROMを標準搭載したことで、FM TOWNS用CD-ROMソフトが多数発売されました。そして、CD-ROMメディアは正しく保管すれば相当な長期間維持することができます。他のレトロPCと比べて今でもまったく問題なく実行可能なソフトのメディアが多数存在して、そしてそれを合法的に中古ソフトショップ、オークションなどを利用して購入することができます。
 
 しかし、その実行環境は急速に失われつつあります。FM TOWNS本体、とくに内蔵CD-ROMドライブの故障が多く発生します。FM TOWNSは他社に先駆けてCD-ROMドライブを搭載してしまったもんだから、内蔵CD-ROMドライブはまったく標準規格とは違った仕様となっています。そもそも標準規格なんて存在しないときでした。
 
@@ -25,11 +25,11 @@ The files here are provided as is.  The developer will not take responsibilities
 
 現行の著作権法は、著作者は守りますが著作物を守りません。著作者が門を閉ざしてしまったら、二度と誰も合法的に著作物を利用することができません。著作者は、ひとたび世に送り出したソフトウェアを取り上げる権利まで持つべきなのでしょうか？著作者は著作物を殺す権利も持つべきなのでしょうか？僕はそうは思いません。著作権法は著作物も守るべきであると考えています。古いソフトをすべて無料にしろというのではありません。古いソフトウェアも合理的な金額でユーザが引き続き利用できて、開発者もそれによって利益を得ることができるルールを決めるべきだと思っています。
 
-FM TOWNSエミュレータの実行には、最低二種類のROMイメージが必要になります。ひとつはFMT_SYSと呼ばれる、起動にかかわるプログラムが入った領域です。このROMイメージに関しては、UNZ開発者のKasanovaさんが互換ROMを開発されて、ソースコードを含めて公開されています。現状のバージョンではCD-ROMドライブからの起動しかできませんが、僕が引き継いでフロッピーディスク、ハードディスク起動にも対応しようと思っています。
+FM TOWNSエミュレータの実行には、最低二種類のROMイメージが必要になります。ひとつはFMT_SYSと呼ばれる、起動にかかわるプログラムが入った領域です。このROMイメージに関しては、UNZ開発者のKasanovaさんが互換ROMを開発されて、ソースコードを含めて公開されています。Kasanovaさんの公開されていたバージョンではCD-ROMドライブからの起動しかできませんが、勝手ながら僕が引き継いでフロッピーディスク、ハードディスク起動にも対応しました。
 
 もうひとつはFMT_DOSと呼ばれる、MSDOS.SYS, COMMAND.COM, MSCDEX.EXEが入った領域です。これが問題でした。とくに、Version 3.1相当のMSDOS.SYSが必要で、MicrosoftはMS-DOS V2.0まではMITライセンスで無料としてくれたのですが、3.1はいまだ無料公開されていません。また、COMMAND.COMもVersion 3.1用バージョンが必要です。
 
-このうち、MSDOS.SYSとほぼ互換のYSDOS.SYSの開発に成功しつつあります。まだ、多くの機能が未対応で、そういう機能にあたるといきなり止まってしまいますが、それでも、FM TOWNSを彩ったいくつかのゲーム、Towns OS GUIの起動までできるようになったので公開しました。
+このうち、MSDOS.SYSとほぼ互換のYSDOS.SYS, COMMAND.COM互換のYAMAND.COMの開発に成功しつつあります。まだ、多くの機能が未対応で、そういう機能にあたるといきなり止まってしまいますが、それでも、FM TOWNSを彩ったいくつかのゲーム、Towns OS GUIの起動までできるようになったので公開しました。
 
 現状でわかっている問題点・制限は:
 
@@ -37,7 +37,7 @@ FM TOWNSエミュレータの実行には、最低二種類のROMイメージが
 2. Ctrl+Cの処理にまったく自信が無いので多分コンソールモードで押すと変になる。 (Ctrl+Cはサポートしないことにしようかと思ってる。)
 3. コマンドモードで多くの内部コマンドが使用不可
 4. FMT_DIC/FMT_DIC.ROMを使うとかな漢字変換でフリーズしないものの、日本語はひらがなとカタカナのみ入力可能。
-5. サブディレクトリの中のファイル・ディレクトリ数が1クラスタに入る範囲を超えるとクラッシュ。というかDIR.ASM内EXTEND_DIRを実装するまで意図的なフリーズ。もうすぐ実装しますんで。
+5. Dungeon Masterゲーム開始時、Q:\JDATA\DUNGEON.DAT が開けなくてクラッシュ。原因は、CDDAを止めないままFOPENしようとしているため。本来は先にCDDAを止めてからアクセスするべきだが、MSCDEX.EXEだとたまたまディレクトリがキャッシュに残っていてFOPENに成功するらしい。SHSUCDXだと開くことができない。どちらかというとSHSUCDXの動作が正しい。CDDA演奏が止まってからボタンをクリックするか、あるいは、強制的にCDDAを止めてからダンジョンに入るとこの問題を回避できる。
 
 などがあります。くれぐれも、普段使いのハードディスクイメージやフロッピーディスクイメージをこの互換ROMで利用するときは、バックアップを取った上でご使用ください。
 
@@ -58,11 +58,11 @@ So you can think of using an emulator like "UNZ" and "Tsugaru".  However, if you
 
 The current copyright law protects the software developer, but not the software.  Once the developer closes the door, nobody can use the software legally.  Should the developer be given a right to take software away from the users?  Should a developer be allowed to kill a software that was once released to the world?  I don't think so.  The copyright law should protect the developers as well as the software.  I'm not saying make all old programs free.  I am saying there should be a rule that the user can continue using old software for reasonable price, and the developer can benefit by keeping the software available.
 
-You need minimum two ROM images, FMT_SYS and FMT_DOS.  Others can somehow be auto-generated.  The developer of UNZ emulator, Kasanova, has also developed a compatible and free version of FMT_SYS.  He has generously opened the source code.  His version is only good for booting from CD-ROM drive, but I intend to take over and make it bootable from Floppy and Hard disk drives.
+You need minimum two ROM images, FMT_SYS and FMT_DOS.  Others can somehow be auto-generated.  The developer of UNZ emulator, Kasanova, has also developed a compatible and free version of FMT_SYS.  He has generously opened the source code.  His version is only good for booting from CD-ROM drive, but I took over and made it bootable from Floppy and Hard disk drives.
 
 The other ROM image, FMT_DOS, was a problem.  It includes MSDOS.SYS, COMMAND.COM, and MSCDEX.EXE.  MSCDEX.EXE can be replaced with SHSUCDX (https://github.com/adoxa/shsucd).  I really appreciate the developer of SHSUCDX for their effort to develop a compatible version of MSCDEX.  However, I still needed MSDOS.SYS and COMMAND.COM equivalent to MS-DOS Ver 3.1.  Microsoft opened MS-DOS V2.0 source code, but stopped short of V3.1.
 
-So, I started writing YSDOS.SYS, a compatible version of DOS, and finally made it bootable into FM Towns OS.  So, I opened it.
+So, I started writing YSDOS.SYS, a compatible version of DOS, and YAMAND.COM, a compatible version of COMMAND.COM.  I finally made it bootable into FM Towns OS.  So, I opened it.
 
 Currently-known limitations are:
 
@@ -70,7 +70,7 @@ Currently-known limitations are:
 2. I'm not confident at all in Ctrl-C handling.  It may go berserk if you press Ctrl+C in the command mode.  (I may disable it all together.)
 3. Many of the commands are not available in command mode.
 4. With FMT_DIC/FMT_DIC.ROM, OAK (IME in the today's term.  We used to call it FEP, or Front End Processor) at least does not freeze.  However, you can only type Hiragana and Katakana in the Japanese mode.
-5. If you create too many files/directories in one directory more than one cluster can hold, it freezes.  It is an intentional freeze to prevent damage until I correctly implement EXTEND_DIR in DIR.ASM.  I'm going to do it next so that Wing Commander II can be fully installed on the hard drive.
+5. Dungeon Master freezes when you try to enter the dungeon.  The program tries to open Q:\JDATA\DUNGEON.DATA without stopping CDDA.  SHSUCDX correctly returns an error.  However, MSCDEX.EXE happens to have directory in the cache, and returns no error.  The program then stops CDDA and reads from the file.  This most likely is a bug that has been hiding for almost 30 years.  You can avoid this problem by force stop CDDA from the command or menu, and then click the button.  Or, wait until the CDDA music is over and then click the button.
 
 If you want to use this ROM images with your floppy-disk or hard-disk images, MAKE SURE TO TAKE A BACK UP COPY before using.
 
