@@ -289,28 +289,29 @@ XCHG_DSSI_ESDI			MACRO
 
 
 
-; Return
-;   CF=1  Is Kanji first byte
-;   CF=0  Is not Kanji first byte
-STC_IF_AL_IS_KANJI_FIRST_BYTE	MACRO
-						CMP		AL,081h	; Not complete, but good enough
-						CMC
-						ENDM
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
-JMP_IF_KANJI			MACRO	REG,DESTIN	; --NOT_IN_NASM--
-						CMP		REG,081h	; --NOT_IN_NASM-- Not complete, but good enough
-						JAE		DESTIN		; --NOT_IN_NASM--
+JMP_IF_KANJI			MACRO	REG,IS_KANJI	; --NOT_IN_NASM--
+						LOCAL	NOT_KANJI	; --NOT_IN_NASM--
+						CMP		REG,081h	; --NOT_IN_NASM--
+						JB		NOT_KANJI	; --NOT_IN_NASM--
+						CMP		REG,0A0h	; --NOT_IN_NASM--
+						JB		IS_KANJI	; --NOT_IN_NASM--
+						CMP		REG,0E0h	; --NOT_IN_NASM--
+						JB		NOT_KANJI	; --NOT_IN_NASM--
+						CMP		REG,0FCh	; --NOT_IN_NASM--
+						JBE		IS_KANJI	; --NOT_IN_NASM--
+NOT_KANJI:									; --NOT_IN_NASM--
 						ENDM				; --NOT_IN_NASM--
 
 ;%MACRO					JMP_IF_KANJI	2	; --USE_IN_NASM--
-;						CMP		%1,81h		; --USE_IN_NASM--
-;						JAE		%2			; --USE_IN_NASM--
+;						CMP		%1,081h		; --USE_IN_NASM--
+;						JB		%%NOT_KANJI	; --USE_IN_NASM--
+;						CMP		%1,0A0h		; --USE_IN_NASM--
+;						JB		%2			; --USE_IN_NASM--
+;						CMP		%1,0E0h		; --USE_IN_NASM--
+;						JB		%%NOT_KANJI	; --USE_IN_NASM--
+;						CMP		%1,0FCh		; --USE_IN_NASM--
+;						JBE		%2			; --USE_IN_NASM--
+;%%NOT_KANJI:								; --USE_IN_NASM--
 ;%ENDMACRO									; --USE_IN_NASM--
 
 
@@ -319,15 +320,31 @@ JMP_IF_KANJI			MACRO	REG,DESTIN	; --NOT_IN_NASM--
 
 
 
-JMP_IF_NOT_KANJI		MACRO	REG,DESTIN	; --NOT_IN_NASM--
-						CMP		REG,081h	; --NOT_IN_NASM-- Not complete, but good enough
-						JB		DESTIN		; --NOT_IN_NASM--
+JMP_IF_NOT_KANJI		MACRO	REG,NOT_KANJI	; --NOT_IN_NASM--
+						LOCAL	IS_KANJI	; --NOT_IN_NASM--
+						CMP		REG,081h	; --NOT_IN_NASM--
+						JB		NOT_KANJI	; --NOT_IN_NASM--
+						CMP		REG,0A0h	; --NOT_IN_NASM--
+						JB		IS_KANJI	; --NOT_IN_NASM--
+						CMP		REG,0E0h	; --NOT_IN_NASM--
+						JB		NOT_KANJI	; --NOT_IN_NASM--
+						CMP		REG,0FCh	; --NOT_IN_NASM--
+						JA		NOTKANJI	; --NOT_IN_NASM--
+IS_KANJI:									; --NOT_IN_NASM--
 						ENDM				; --NOT_IN_NASM--
 
+
 ;%MACRO					JMP_IF_NOT_KANJI	2	; --USE_IN_NASM--
-;						CMP		%1,81h		; --USE_IN_NASM--
-;						JB		%2			; --USE_IN_NASM--
-;%ENDMACRO									; --USE_IN_NASM--
+;						CMP		%1,081h			; --USE_IN_NASM--
+;						JB		%2				; --USE_IN_NASM--
+;						CMP		%1,0A0h			; --USE_IN_NASM--
+;						JB		%%IS_KANJI		; --USE_IN_NASM--
+;						CMP		%1,0E0h			; --USE_IN_NASM--
+;						JB		%2				; --USE_IN_NASM--
+;						CMP		%1,0FCh			; --USE_IN_NASM--
+;						JA		%2				; --USE_IN_NASM--
+;%%IS_KANJI:									; --USE_IN_NASM--
+;%ENDMACRO										; --USE_IN_NASM--
 
 
 
