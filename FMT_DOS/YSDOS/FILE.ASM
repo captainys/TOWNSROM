@@ -3979,6 +3979,13 @@ FRENAME:
 						CMP		WORD PTR DS:[DI],'\'
 						JE		FRENAME_ACCESS_DENIED	; Does dos have an error code for bad file name?
 
+						; Check File Name Chars
+						LEA		SI,[DI+1]
+						CALL	CHECK_NEW_FILENAME_CHARS
+						MOV		AX,DOSERR_FILE_NOT_FOUND
+						JC		FRENAME_EXIT
+
+
 						_LDS	SI,CS:[FILE_INPUT_FILENAME]
 						CALL	MAKE_FULLPATH_CRUNCH	; No wildcard
 

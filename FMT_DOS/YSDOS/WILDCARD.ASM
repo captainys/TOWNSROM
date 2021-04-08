@@ -110,6 +110,88 @@ CHECK_WILDCARD_CSTR_YES:
 						STC
 						RET
 
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; Input
+;   DS:SI=Filename C-String
+; Return
+;   CF=0 No unusable character	AX=destroyed
+;   CF=1 Unusable character is included, or more than one '.'.  AL=the first unusable character found.
+CHECK_NEW_FILENAME_CHARS:
+						PUSH	SI
+						XOR		AH,AH	; Count number of '.'s
+
+CHECK_NEW_FILENAME_CHAR_LOOP:
+						LODSB
+						JMP_IF_KANJI	AL,CHECK_NEW_FILENAME_CHAR_KANJI
+
+						CMP		AL,'"'
+						JE		CHECK_NEW_FILENAME_CHAR_ERROR
+						CMP		AL,'*'
+						JE		CHECK_NEW_FILENAME_CHAR_ERROR
+						CMP		AL,'+'
+						JE		CHECK_NEW_FILENAME_CHAR_ERROR
+						CMP		AL,','
+						JE		CHECK_NEW_FILENAME_CHAR_ERROR
+						CMP		AL,'/'
+						JE		CHECK_NEW_FILENAME_CHAR_ERROR
+						CMP		AL,':'
+						JE		CHECK_NEW_FILENAME_CHAR_ERROR
+						CMP		AL,';'
+						JE		CHECK_NEW_FILENAME_CHAR_ERROR
+						CMP		AL,':'
+						JE		CHECK_NEW_FILENAME_CHAR_ERROR
+						CMP		AL,'<'
+						JE		CHECK_NEW_FILENAME_CHAR_ERROR
+						CMP		AL,'='
+						JE		CHECK_NEW_FILENAME_CHAR_ERROR
+						CMP		AL,'>'
+						JE		CHECK_NEW_FILENAME_CHAR_ERROR
+						CMP		AL,'?'
+						JE		CHECK_NEW_FILENAME_CHAR_ERROR
+						CMP		AL,'/'
+						JE		CHECK_NEW_FILENAME_CHAR_ERROR
+						CMP		AL,'['
+						JE		CHECK_NEW_FILENAME_CHAR_ERROR
+						CMP		AL,']'
+						JE		CHECK_NEW_FILENAME_CHAR_ERROR
+						CMP		AL,'|'
+						JE		CHECK_NEW_FILENAME_CHAR_ERROR
+						CMP		AL,' '
+						JE		CHECK_NEW_FILENAME_CHAR_ERROR
+						CMP		AL,'.'
+						JE		CHECK_NEW_FILENAME_CHAR_DOT
+						OR		AL,AL
+						JNE		CHECK_NEW_FILENAME_CHAR_LOOP
+
+						; No Error
+CHECK_NEW_FILENAME_CHAR_NO_ERROR:
+						POP		SI
+						CLC
+						RET
+
+CHECK_NEW_FILENAME_CHAR_KANJI:
+						LODSB
+						OR		AL,AL
+						JE		CHECK_NEW_FILENAME_CHAR_NO_ERROR
+						JMP		CHECK_NEW_FILENAME_CHAR_LOOP
+
+CHECK_NEW_FILENAME_CHAR_DOT:
+						INC		AH
+						CMP		AH,2
+						JB		CHECK_NEW_FILENAME_CHAR_LOOP
+						; Fall down to error.
+
+CHECK_NEW_FILENAME_CHAR_ERROR:
+						POP		SI
+						STC
+						RET
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
