@@ -867,7 +867,7 @@ textout:
 	mov	ax,0c000h
 	mov	es,ax
 	mov	bx,0ff94h
-	mov	byte es:[IO_KVRAM_OR_ANKFONT],1	; ANK Font ROM CA000H-
+	mov	byte es:[IO_KVRAM_OR_ANKFONT],1	; ANK Font ROM CB000H-
 
 .textoutloop:
 	mov	cx,[si]
@@ -880,7 +880,7 @@ textout:
 	push	si
 	movzx	si,cl
 	shl		si,4
-	add		si,0a800h
+	add		si,0b000h
 	mov		cx,16
 .oneasciiloop:
 	mov		al,es:[si]
