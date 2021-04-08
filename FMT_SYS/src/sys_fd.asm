@@ -139,6 +139,12 @@ fd_command_05:
 	mov		dx,IO_FDC_COMMAND
 	out		dx,al
 
+	push	ax
+	in		al,IO_DMA_MASK
+	and		al,0eh	; bit0=Channel0=FDC
+	out		IO_DMA_MASK,al
+	pop		ax
+
 	call	fd_wait_busy_clear
 	push	ax
 	in		al,IO_DMA_MASK
