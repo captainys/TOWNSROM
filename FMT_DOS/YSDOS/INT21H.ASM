@@ -137,6 +137,8 @@ INT_21H_ALREADY_INDOS:
 						JE		INT_21H_51H_GET_PSP
 						CMP		AH,52H
 						JE		INT_21H_52H_GET_SYSVARS
+						CMP		AH,53H
+						JE		INT_21H_53H_BUILD_DPB
 						CMP		AH,58H
 						JE		INT_21H_58H_GET_SET_MALLOC_STRATEGY
 						CMP		AH,59H
@@ -975,6 +977,19 @@ INT_21H_52H_GET_SYSVARS:
 						MOV		BX,CS
 						MOV		ES,BX
 						MOV		BX,OFFSET SYSVARS
+						IRET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; AH=53H Build DPB
+;  DS:SI=BPB
+;  ES:BP=Buffer to receive DPB
+INT_21H_53H_BUILD_DPB:
+						CALL	SETDPB
 						IRET
 
 
