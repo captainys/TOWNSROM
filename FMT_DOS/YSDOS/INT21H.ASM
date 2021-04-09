@@ -182,6 +182,8 @@ INT_21H_REGISTERS_SAVED:
 						JE		INT_21H_06H_DIRECT_CONOUT
 						CMP		AH,07H
 						JE		INT_21H_07H_DIRECT_CONIN
+						CMP		AH,08H
+						JE		INT_21H_08H_GETC_WITHOUT_ECHO
 						CMP		AH,09H
 						JE		INT_21H_09H_PUTS
 						CMP		AH,0AH
@@ -364,6 +366,22 @@ INT_21H_06H_DIRECT_CONOUT:
 
 
 INT_21H_07H_DIRECT_CONIN:
+						CALL	GETC
+
+						_LSS	SP,CS:[SP_RESTORE_POINT]
+						MOV		BP,SP
+						RETURN_REGISTERW	AX
+
+						JMP		INT_RESTORE_AND_IRET
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; I really need to know the difference between AH=07H and 08H.
+INT_21H_08H_GETC_WITHOUT_ECHO:
 						CALL	GETC
 
 						_LSS	SP,CS:[SP_RESTORE_POINT]
