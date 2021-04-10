@@ -160,6 +160,13 @@ startall:
 	; set local stack address
 	SAVEREG_TO_CMOS 31a8h, LOCAL_SP
 
+	; by CaptainYS >>
+	; IO.SYS will check this byte and if bit 0 is clear, it considers that no SCSI device is connected.
+	mov	dx,CMOS_SCSI_PRESENT
+	mov	al,1
+	out	dx,al
+	; by CaptainYS <<
+
 	mov	dx,3c22h
 	xor	al,al
 	out	dx,al ; non 386SX
