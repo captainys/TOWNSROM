@@ -837,6 +837,7 @@ EXTEND_DIR_LOOP:
 						;   DX     Tail Cluster Threshold (0FF8H or 0FFF8h)
 						CALL	WRITE_CLUSTER
 						JC		EXTEND_DIR_WRITE_ERROR
+						CALL	DEC_AVAIL_CLUSTER_COUNT
 
 						POP		EDX ; new cluster
 						POP		EBX ; append point
