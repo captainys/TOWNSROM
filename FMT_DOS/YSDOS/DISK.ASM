@@ -78,6 +78,11 @@ MEDIACHECK_READYCDS:
 						CALL	CHECK_WRITTEN_BUFFER_FOR_DRIVE	; CF=0->Exists  CF=1->Doesn't exist
 						JAE		MEDIACHECK_READYCDS_NOCHANGE
 
+						; Needed for Super Daisenryaku to recognize disk change in INT 21H AH=36H (Get Disk Free Space). >>
+						MOV		AL,GS:[BP+DPB_DRIVE_CODE]
+						CALL	DISCARD_BUFFER_FOR_DRIVE
+						; Needed for Super Daisenryaku to recognize disk change in INT 21H AH=36H (Get Disk Free Space). <<
+
 						CALL	REBUILD_DPB
 						JNC		MEDIACHECK_READYCDS_NOCHANGE
 						OR		AL,AL
