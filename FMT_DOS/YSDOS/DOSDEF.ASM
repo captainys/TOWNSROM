@@ -97,6 +97,18 @@ SAVE_REGISTERS			MACRO	; Pushes 40 bytes
 
 						MOV		CS:[SS_RESTORE_POINT],SS
 						MOV		CS:[SP_RESTORE_POINT],SP
+
+						PUSH	DS
+						PUSH	AX
+
+						MOV		DS,CS:[CurrentPDB]
+						MOV		DS:[PSP_STACK_PTR+2],SS
+						MOV		AX,CS:[SP_RESTORE_POINT]
+						MOV		DS:[PSP_STACK_PTR],AX
+
+						POP		AX
+						POP		DS
+
 						ENDM
 
 RESTORE_REGISTERS		MACRO
