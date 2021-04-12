@@ -18,6 +18,9 @@ unsigned char far *PSPPtr=NULL;
 static struct Option opt;
 
 
+static struct _find_t findStruct;
+
+
 int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char afterArgv0[]);
 
 
@@ -342,6 +345,46 @@ void ExecCD(char afterArgv0[])
 	}
 }
 
+void ExecDir(char afterArgv0[])
+{
+	int findCount=0;
+	static char path[LINEBUFLEN];
+	GetFirstArgument(path,afterArgv0);
+	ExpandEnvVar(ENVSEG,path,MAX_PATH);
+
+	if(0==path[0])
+	{
+		strcpy(path,"*.*");
+	}
+
+	for(;;)
+	{
+		int err=1;
+		if(0==findCount)
+		{
+			err=_dos_findfirst(path,0x16,&findStruct);
+		}
+		else
+		{
+			err=_dos_findnext(&findStruct);
+		}
+		if(0!=err)
+		{
+			break;
+		}
+
+		++findCount;
+
+		printf("%s\n",findStruct.name);
+	}
+	printf("\n");
+
+	if(0==findCount)
+	{
+		printf("No such file or directory.\n");
+	}
+}
+
 void ExecPATH(char afterArgv0[])
 {
 	static char setpath[LINEBUFLEN];
@@ -415,7 +458,7 @@ int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char after
 	}
 	else if(0==strcmp(argv0,"DIR") || 0==strcmp(argv0,"LS"))
 	{
-		printf("DIR to be implemented\n");
+		ExecDir(afterArgv0);
 		return 1;
 	}
 	else if(0==strcmp(argv0,"COPY") || 0==strcmp(argv0,"CD"))
