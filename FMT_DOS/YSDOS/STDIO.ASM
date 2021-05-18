@@ -388,6 +388,8 @@ KBHIT:
 						TEST	WORD PTR FS:[DI+SF_DEVFLAGS],SF_DEVFLAG_IS_CHARDEV
 						JE		KBHIT_NOT_CHARDEV
 ;KBHIT_CHARDEV:
+						MOV		ESI,FS:[DI+SF_DRIVER_POINTER]
+						XOR		AX,AX
 						; Input
 						;   AL     Unit
 						;   AH     Media Desc
