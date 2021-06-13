@@ -1284,17 +1284,55 @@ cmos_bios:
 %include "sys_print.asm" ; by CaptainYS
 %include "scsiio.asm" ; by CaptainYS
 %include "scsiutil.asm" ; by CaptainYS
-; Note: sys_p32.asm changes the bitness from 16 to 32, therefore must be included after 16-bit code.
-
-%include "sys_p32.asm"
 
 ;---------------------------------------------------------------------
 ; ウェイト(うんづではあまり意味が無いので省略)
 
+; CaptainYS >>
+; This wait is used by IO.SYS to check time out for STATUS from CD-ROM.
+; It does have a meaning.
+; Moved the procedure to before 32-bit code.
+
 waitloop:
+	push	eax
+	push	ebx
+	push	ecx
+	push	edx
+
+	mov		eax,10	; 10*CXus
+	movzx	ecx,cx
+	mul		ecx
+	mov		ecx,eax	; ECX=Time left
+
+	in		ax,IO_FREERUN_TIMER
+	mov		bx,ax	; bx=PrevT
+
+waitloop_loop:
+	in 		ax,IO_FREERUN_TIMER
+	mov		dx,ax	; ax=dx=CurrentT
+	sub		dx,bx	; dx=CurrentT-PrevT=DeltaT
+	                ; Disregard overflow.  As long as two IO reads are within 65536us, dx is correct DeltaT.
+
+	mov		bx,ax	; PrevT=CurrentT
+
+	movzx	edx,dx
+	sub		ecx,edx
+	ja		waitloop_loop
+
+
+	pop		edx
+	pop		ecx
+	pop		ebx
+	pop		eax
 	retf
 
+; CaptainYS <<
+
 ;---------------------------------------------------------------------
+
+; Note: sys_p32.asm changes the bitness from 16 to 32, therefore must be included after 16-bit code.
+
+%include "sys_p32.asm"
 
 invalid1:
 	jmp	invalid1
