@@ -1294,6 +1294,7 @@ cmos_bios:
 ; Moved the procedure to before 32-bit code.
 
 waitloop:
+	pushf
 	push	eax
 	push	ebx
 	push	ecx
@@ -1324,6 +1325,7 @@ waitloop_loop:
 	pop		ecx
 	pop		ebx
 	pop		eax
+	popf
 	retf
 
 ; CaptainYS <<
