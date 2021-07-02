@@ -32,6 +32,23 @@ NOCF:																	; --NOT_IN_NASM--
 
 
 
+STORE_LASTERR			MACRO	REG										; --NOT_IN_NASM--
+						MOV		WORD PTR CS:[EXTENDED_ERROR_CODE],REG	; --NOT_IN_NASM--
+						ENDM											; --NOT_IN_NASM--
+
+
+
+;%MACRO					STORE_LASTERR		1							; --USE_IN_NASM--
+;						MOV		WORD CS:[EXTENDED_ERROR_CODE],%1		; --USE_IN_NASM--
+;%ENDMACRO																; --USE_IN_NASM--
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
 SET_CF_BEFORE_IRET		PROC
 ;
 ;  SP+0  BP
@@ -222,6 +239,8 @@ INT_21H_REGISTERS_SAVED:
 						JE		INT_21H_29H_PARSE_FILENAME_INTO_FCB
 						CMP		AH,31H
 						JE		INT_21H_31H_EXIT_AND_STAY_RESIDENT
+						CMP		AH,32H
+						JE		INT_21H_32H_GET_DPB
 						CMP		AH,36H
 						JE		INT_21H_36H_GET_FREE_DISK_SPACE
 						CMP		AH,39H
@@ -1055,6 +1074,35 @@ INT_21H_29H_PARSE_FILENAME_INTO_FCB:
 INT_21H_31H_EXIT_AND_STAY_RESIDENT:
 						MOV		DS,CS:[CurrentPDB]
 						JMP		EXIT_PROCESS_AND_STAY_RESIDENT
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+INT_21H_32H_GET_DPB:
+						MOV		AL,DL
+						CALL	FCBDRIVE_TO_SANE_DRIVE
+						JC		INT_21H_32H_GET_DPB_FAIL
+
+						CALL	GET_DRIVE_DPB
+						JC		INT_21H_32H_GET_DPB_FAIL
+
+						_LSS	SP,CS:[SP_RESTORE_POINT]
+						MOV		BP,SP
+						RETURN_REGISTERW	AX
+						RETURN_REGISTERW	BX
+						RETURN_REGISTER		DS
+						JMP		INT_RESTORE_AND_IRET_WITH_CF
+
+INT_21H_32H_GET_DPB_FAIL:
+						STORE_LASTERR	AX
+						MOV		AL,0FFh
+						_LSS	SP,CS:[SP_RESTORE_POINT]
+						MOV		BP,SP
+						RETURN_REGISTERW	AX
+						JMP		INT_RESTORE_AND_IRET_WITH_CF
 
 
 

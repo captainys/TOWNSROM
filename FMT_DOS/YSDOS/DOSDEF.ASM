@@ -144,6 +144,14 @@ RETURN_REGISTERW		MACRO	REG									; --NOT_IN_NASM--
 ;						MOV		WORD SS:[BP+SAVED_E%1],%1 		   	; --USE_IN_NASM--
 ;						%ENDMACRO                                   ; --USE_IN_NASM--
 
+RETURN_REGISTER			MACRO	REG									; --NOT_IN_NASM--
+						MOV		WORD PTR SS:[BP+SAVED_&REG],REG    ; --NOT_IN_NASM--
+						ENDM                                        ; --NOT_IN_NASM--
+
+;%MACRO					RETURN_REGISTER		1						; --USE_IN_NASM--
+;						MOV		WORD SS:[BP+SAVED_%1],%1 		   	; --USE_IN_NASM--
+;						%ENDMACRO                                   ; --USE_IN_NASM--
+
 
 
 

@@ -184,6 +184,33 @@ GET_DRIVE_CDS_ERROR:
 
 
 ; Input
+;   AL=Drive (0=ADrive)
+; Output
+;   CF=0  DS:BX=DPB      AH Destroyed  AL=0
+;   CF=1  Drive invalid or redirected AX=DOSERR_INVALID_DRIVE   DS,BX Destroyed
+; DX preserved.
+GET_DRIVE_DPB:
+						CALL	GET_DRIVE_CDS
+						JC		GET_DRIVE_DPB_ERROR
+
+						TEST	WORD PTR DS:[BX+CDS_DRIVE_TYPE],CDS_TYPE_REDIRECTED
+						JNE		GET_DRIVE_DPB_ERROR
+
+						LDS		BX,DS:[BX+CDS_DRIVE_PARAM_BLOCK]	; DS:BX=DPB
+						XOR		AL,AL
+						CLC
+						RET
+
+GET_DRIVE_DPB_ERROR:
+						MOV		AX,DOSERR_INVALID_DRIVE
+						STC
+						RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; Input
 ;   GS:BP  DPB
 ; Return
 ;   CF=0   DPB didn't have to be rebuilt (Same Media Desc)
