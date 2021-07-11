@@ -135,7 +135,25 @@ void SetUp(struct Option *option,int argc,char *argv[])
 				{
 					option->runMode=RUNMODE_EXEC_AND_STAY;
 				}
-				++i;
+
+				/* Can be:
+				   /c batch.bat arg arg arg ...
+				   /cbatch.bat arg arg arg ...
+				*/
+				if(0!=argv[i][2] && ' '!=argv[i][2] && '\t'!=argv[i][2])
+				{
+					/* /cbatch.bat arg arg arg ...
+					   Batch file name is 2 bytes after the current argument.
+					*/
+					argv[i]+=2;
+				}
+				else
+				{
+					/* /c batch.bat arg arg arg ...
+					   Batch file name is the next argument.
+					*/
+					++i;
+				}
 				if(i<argc)
 				{
 					int paramPtr=0;
