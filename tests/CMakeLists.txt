@@ -21,6 +21,7 @@ add_test(
 		-SYM
 		"${CMAKE_SOURCE_DIR}/../symtables/UNITTEST.txt"
 		-UNITTEST
+		-USEFPU
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
 )
@@ -37,6 +38,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -58,6 +60,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -80,6 +83,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 # Requires FORMAT_PARTITION
@@ -105,6 +109,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 
@@ -128,6 +133,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 # Requires INSTALLV2.1L20
 add_test(
@@ -147,6 +153,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 # Requires FORMAT_PARTITION
@@ -169,6 +176,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 # Requires INSTALLV2.1L31
 add_test(
@@ -188,6 +196,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 # Requires FORMAT_PARTITION
@@ -210,6 +219,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 # Requires INSTALLV2.1L51
 add_test(
@@ -229,6 +239,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 # Requires FORMAT_PARTITION
@@ -251,6 +262,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 # Requires INSTALLV1.1L30
 add_test(
@@ -270,6 +282,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 
@@ -293,6 +306,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 # Requires INSTALLV1.1L20
 add_test(
@@ -312,6 +326,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 
@@ -325,6 +340,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 add_test(
 	NAME PATH_AND_BATCH_ARG
@@ -346,6 +362,7 @@ add_test(
 		"${CMAKE_CURRENT_SOURCE_DIR}/../townstst/CMOS.DAT"
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 add_test(
 	NAME V21L20_HDD_FREAD
@@ -362,6 +379,7 @@ add_test(
 		-CMOS
 		"${CMAKE_CURRENT_SOURCE_DIR}/../townstst/CMOS.DAT"
 		-DONTAUTOSAVECMOS
+		-USEFPU
 		-DAMPERWIRELINE
 )
 add_test(
@@ -380,6 +398,7 @@ add_test(
 		"${CMAKE_CURRENT_SOURCE_DIR}/../townstst/CMOS.DAT"
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 add_test(
 	NAME V21L20_FREAD
@@ -396,6 +415,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 add_test(
 	NAME V21L20_FWRITE_BDRIVE
@@ -417,6 +437,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 add_test(
 	NAME V21L20_FWRITE_DDRIVE
@@ -440,6 +461,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 add_test(
 	NAME V21L20_FWRITE_DDRIVE_FAT16
@@ -463,6 +485,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 # Requires FORMAT_PARTITION
@@ -490,6 +513,7 @@ add_test(
 		-DAMPERWIRELINE
 		-MEMSIZE
 		16
+		-USEFPU
 )
 
 # Requires FORMAT_PARTITION
@@ -517,6 +541,7 @@ add_test(
 		-DAMPERWIRELINE
 		-MEMSIZE
 		16
+		-USEFPU
 )
 
 add_test(
@@ -539,6 +564,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -563,6 +589,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -587,6 +614,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -602,6 +630,7 @@ add_test(
 		000C:00007237
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -618,6 +647,7 @@ add_test(
 		20
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -635,6 +665,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -651,6 +682,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -665,6 +697,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -679,6 +712,7 @@ add_test(
 		-UNITTEST
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -698,6 +732,7 @@ add_test(
 		000C:00018E7D
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -718,6 +753,7 @@ add_test(
 		4000:0000E218
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -735,6 +771,7 @@ add_test(
 		000C:00003CE4
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -750,6 +787,7 @@ add_test(
 		000C:00002604
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -765,6 +803,7 @@ add_test(
 		000C:000009C9
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -780,6 +819,7 @@ add_test(
 		000C:0000197D
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -795,6 +835,7 @@ add_test(
 		000C:0017A367
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -811,6 +852,7 @@ add_test(
 		000C:001A4495
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -826,6 +868,7 @@ add_test(
 		000C:0008A1B4
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -841,6 +884,7 @@ add_test(
 		000C:0000263B
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -858,6 +902,7 @@ add_test(
 		0044:00001077
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -873,6 +918,7 @@ add_test(
 		000C:000000FB
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -887,6 +933,7 @@ add_test(
 		-POWEROFFAT
 		000C:0000D8F7
 		-DONTAUTOSAVECMOS
+		-USEFPU
 )
 
 add_test(
@@ -902,6 +949,7 @@ add_test(
 		000C:001637B4
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -918,6 +966,7 @@ add_test(
 		000C:00016D21
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -935,6 +984,7 @@ add_test(
 		000C:0009C509
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -952,6 +1002,7 @@ add_test(
 		000C:00015181
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 add_test(
@@ -969,6 +1020,7 @@ add_test(
 		000C:00016AC6
 		-DONTAUTOSAVECMOS
 		-DAMPERWIRELINE
+		-USEFPU
 )
 
 #add_test(
@@ -988,4 +1040,5 @@ add_test(
 #		000C:000717BA
 #		-DONTAUTOSAVECMOS
 #		-DAMPERWIRELINE
+#		-USEFPU
 #)
