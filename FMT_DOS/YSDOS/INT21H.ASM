@@ -112,6 +112,8 @@ INT_21H_ALREADY_INDOS:
 						; Ok, Ok.  I'm going to make it a jump table.  I will do it.
 
 						; These are the simple functions. >>
+						CMP		AH,0CH
+						JE		INT_21H_0CH_FLUSH_AND_READ_STDIN
 						CMP		AH,19H
 						JE		INT_21H_19H_GET_CURRENT_DRIVE
 						CMP		AH,1AH
@@ -547,6 +549,18 @@ INT_21H_16H_WRITE_VOLUME_LABEL_FCB:
 						STORE_LASTERR_IF_CF	AX
 
 						JMP		INT_RESTORE_AND_IRET_WITH_CF
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+; KOEI Daikoukaijidai uses this function.  Just ignore to keep it runing.
+INT_21H_0CH_FLUSH_AND_READ_STDIN:
+						CLC
+						XOR		AX,AX
+						IRET
 
 
 
