@@ -20,6 +20,8 @@ FILE_RENAME_SRC_DIR_SECTOR	DD	0
 FILE_RENAME_SRC_DIR_OFFSET	DW	0
 FILE_RENAME_SRC_DIR_CLUSTER	DD	0
 
+FILE_TRASH					DW	0	; Used for popping WORD without changing FLAGS
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -2419,7 +2421,11 @@ FCREATE_DISK_FILE:
 						PUSH	CX
 
 						LES		DI,CS:[CUR_SF_ENTRY]
+
+						MOV		AX,INT2FH_FCREATE
 						INT		2FH
+
+						POP		WORD PTR CS:[FILE_TRASH]
 
 						JNC		FCREATE_SUCCESS
 						JMP		FCREATE_UNRESERVE_THEN_ERR
