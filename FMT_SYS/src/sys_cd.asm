@@ -171,6 +171,16 @@ cd_test_ready:
 	stc
 	ret
 .j1:
+	; By CaptainYS >>
+	cmp al,8 ; Disc changed
+	jne	.j2
+	mov	cx,80h
+	stc
+	ret
+
+.j2:
+	; By CaptainYS <<
+
 	xor	ah,ah
 	clc
 	ret
