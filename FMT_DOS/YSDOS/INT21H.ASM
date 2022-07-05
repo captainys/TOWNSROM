@@ -1920,6 +1920,7 @@ INT_21H_77H_YSDOS_EXTENSION:
 						JE		INT_21H_77D2H_YSDOS_EXTENSION
 						IRET
 
+; For replacing DOS 0000:[04BCH], which apparently regturns 16 times seconds.
 INT_21H_77D2H_YSDOS_EXTENSION:
 						PUSH	CX
 						PUSH	DX
@@ -1938,11 +1939,12 @@ INT_21H_77D2H_YSDOS_EXTENSION:
 
 						XCHG	CX,DX	; CX=60*min+sec,  DH=hour
 
-						MOVZX	DX,DH	; DX=hour
-						MOV		AX,3600
-						MUL		DX		; AX=3600*hour (let it overflow.)
+						; MOVZX	DX,DH	; DX=hour
+						; MOV		AX,3600
+						; MUL		DX		; AX=3600*hour (let it overflow.)
 
 						ADD		AX,CX	; AX=3600*hour+60*min+sec
+						SHL		AX,4	; Times 16
 
 						POP		BP
 						POP		DX
