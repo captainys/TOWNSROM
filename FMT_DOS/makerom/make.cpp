@@ -1,9 +1,28 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <iostream>
 #include <fstream>
 #include <cstdint>
 #include <vector>
 #include <string>
+
+unsigned char SHSUCDXPatchFrom[]=
+{
+	// Looks like DOS will return seconds by this.
+	// PUSH WORD PTR 0
+	// POP DS
+	// MOV AX,[046CH]
+	0x6A,0x00,0x1F,0xA1,0x6C,0x04
+};
+unsigned char SHSUCDXPatchTo[]=
+{
+	// Use YSDOS extension.
+	// MOV AX,77D2H
+	// INT 21H
+	// NOP
+	0xB8,0xD2,0x77,0xCD,0x21,0x90
+};
+
 
 
 
@@ -14,6 +33,39 @@ unsigned char rom[ROM_SIZE];
 const uint32_t CLUSTER_0_PTR=4096;
 const uint32_t CLUSTER_SIZE=1024;
 const uint32_t MSDOS_SYS_CLUSTER=0x4E;  // For some reason, IO.SYS fails to read MSDOS.SYS unless it starts at 0x4E
+
+bool ApplyPatch(std::vector <unsigned char> &data,size_t fromLen,unsigned char from[],size_t toLen,unsigned char to[],std::string label)
+{
+	bool foundMatch=false;
+	if(fromLen!=toLen)
+	{
+		std::cout << "Implementation error!  Patch size mismatch!" << std::endl;
+		return false;
+	}
+	std::cout << "Applying " << label << std::endl;
+	for(size_t i=0; i+fromLen<=data.size(); ++i)
+	{
+		bool match=true;
+		for(size_t j=0; j<fromLen; ++j)
+		{
+			if(data[i+j]!=from[j])
+			{
+				match=false;
+				break;
+			}
+		}
+		if(true==match)
+		{
+			printf("Found at 0x%04llx\n",i);
+			foundMatch=true;
+			for(size_t j=0; j<fromLen; ++j)
+			{
+				data[i+j]=to[j];
+			}
+		}
+	}
+	return foundMatch;
+}
 
 std::vector <unsigned char> ReadFile(std::string fName)
 {
@@ -122,6 +174,11 @@ void WriteOneFile(std::string fName,uint32_t &startCluster)
 {
 	auto dat=ReadFile("files/"+fName);
 	std::cout << fName << " " << dat.size() << " bytes." << std::endl;
+
+	if("SHSUCDX.COM"==fName)
+	{
+		ApplyPatch(dat,sizeof(SHSUCDXPatchFrom),SHSUCDXPatchFrom,sizeof(SHSUCDXPatchTo),SHSUCDXPatchTo,"SHSUCDX Clock Patch.");
+	}
 
 	uint32_t nCluster=(dat.size()+(CLUSTER_SIZE-1))/CLUSTER_SIZE;
 

@@ -1,6 +1,10 @@
 ; Included from YSDOS.ASM
 
 
+; YSDOS Extension
+;   INT 21H  AX=77D2H  Get seconds (hour*3600+min*60+sec) from DEVCALL_READ_CLOCK
+
+
 
 INT21H_CALLER_CS		DW		0
 
@@ -174,6 +178,8 @@ INT_21H_ALREADY_INDOS:
 						JE		INT_21H_65H_GET_EXT_COUNTRYINFO
 						CMP		AH,71H
 						JE		INT_21H_71H_LONG_FILENAME_FUNCTIONS
+						CMP		AH,77H
+						JE		INT_21H_77H_YSDOS_EXTENSION
 						CMP		AH,0F8H
 						JE		INT_21H_F8H_SET_OEM_FUNCTION
 						JA		INT_21H_F9H_TO_FFH_CALL_OEM_FUNCTION
@@ -1905,3 +1911,40 @@ INT_21H_F9H_TO_FFH_NONE:
 
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+INT_21H_77H_YSDOS_EXTENSION:
+						CMP		AL,0D2H
+						JE		INT_21H_77D2H_YSDOS_EXTENSION
+						IRET
+
+INT_21H_77D2H_YSDOS_EXTENSION:
+						PUSH	CX
+						PUSH	DX
+						PUSH	BP ; Just in case
+						;   CH=hour;
+						;   CL=minute
+						;   DH=second
+						;   DL=1/100seconds
+						CALL	DEVCALL_READ_CLOCK
+
+						MOV		AL,60
+						MUL		CL		; AX=60*min, CH=still hour
+
+						MOVZX	DX,DH
+						ADD		DX,AX	; DX=60*min+sec
+
+						XCHG	CX,DX	; CX=60*min+sec,  DH=hour
+
+						MOVZX	DX,DH	; DX=hour
+						MOV		AX,3600
+						MUL		DX		; AX=3600*hour (let it overflow.)
+
+						ADD		AX,CX	; AX=3600*hour+60*min+sec
+
+						POP		BP
+						POP		DX
+						POP		CX
+						IRET

@@ -122,19 +122,15 @@ If you have questions or comments on this modified version, please contact me (P
 
 ## FMT_DOSについて
 
-現状、FMT_DOS.ROMを作成するには、このレポジトリに含まれるファイルの他に、MS-DOS Version 3.1相当のCOMMAND.COMが必要です。COMMAND.COMはどうやらMS-DOSのバージョンチェックをするようで、Version 3.3のCOMMAND.COMだと多分だめです。一番確実なのはFM TOWNS本体のCドライブから抜き出したものです。
+FMT_DOSに含まれるSHSUCDXはパッチが当たっています。オリジナルのSHSUCDXは秒を読むために、0000:[046CH]を読んでいますが、そういう機能はFM TOWNSにはありません。代わりに、YSDOSに機能を拡張して、INT 21H AX=77D2HでAXに時x3600+分x60+秒が帰るようにして、SHSUCDXがこの機能を呼ぶようにしました。このパッチは、FMT_ROMにファイルを書き込むときにmake.cppが適用します。
 
-このため、利用可能状態のFMT_ROM.SYSはまだこのレポジトリには含まれていません。が、互換COMMAND.COMも開発中なので出来次第、そのまま使えるFMT_ROM.SYSも公開できるようになると思います。
-
-FMT_DOS.ROMの作り方については、FMT_ROMサブディレクトリ内のREADME.TXTを参照してください。
+自分でFMT_DOS.ROMをアセンブルしてみたい方は、FMT_DOS.ROMの作り方については、FMT_ROMサブディレクトリ内のREADME.TXTを参照してください。
 
 ## About FMT_DOS
 
-At this time, you need a COMMAND.COM from MS-DOS Version 3.1.  The most reliable choice is the one extracted from FM TOWNS ROM drive.  COMMAND.COM for Version 3.1 and newer apparently checks the DOS version, so probably you cannot use the one taken from MS-DOS Version 3.3.
+SHSUCDX.COM included in FMT_DOS is patched so that it uses YSDOS extension to retrieve clock.  The original version was reading 0000:[046CH] to get seconds.  FM TOWNS does not have that feature.  Instead, I have added INT 21H AX=77D2H in YSDOS, which returns hour*3600+min*60+sec in AX.  Patch is made when FMT_ROM is assembled in make.cpp.
 
-So, at this time, ready-to-use version of FMT_DOS.ROM is not included in this repository.  I am working on compatible COMMAND.COM.  I'll upload ready-to-use FMT_DOS.ROM as soon as I have one.
-
-Please see README.TXT in FMT_ROM sub-directory for how to generate a compatible FMT_DOS.ROM.
+Please see README.TXT in FMT_ROM sub-directory for how to generate a compatible FMT_DOS.ROM if you are interested in assembling it by yourself.
 
 
 

@@ -16,6 +16,8 @@ def PrepRun(cmd):
 
 
 def Prep():
+	print("This script does not compile/assemble.  Run it after compiling/assembling files.")
+
 	cwd=os.getcwd();
 	os.chdir(THISDIR)
 
