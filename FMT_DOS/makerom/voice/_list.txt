@@ -1,0 +1,10 @@
+No.1 おはよう OHA.SND
+No.2 こんにちは KONNITI.SND
+No.3 こんばんは KONBAN.SND
+No.4 ばいばーい BYE.SND
+No.5 さようなら SAYO.SND
+No.6 おはすみ OYA.SND
+No.7 選んでください ERA.SND
+No.8 入力してください NYU.SND
+No.9 ごめんなさい GOMENNE.SND
+No.10 確認してください KAK.SND

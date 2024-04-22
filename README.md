@@ -13,6 +13,13 @@ FMT_DOS is good enough to run many FM TOWNS native DOS-Extender applications.  H
 The files here are provided as is.  The developer will not take responsibilities on your loss or damage caused by the files.
 
 
+## Regarding Voice Data in FMT_ROM
+FM TOWNSの通称OS ROM領域には、音声データがいくつか収録されています。互換ROMには、BCCさん (https://bcc.hatenablog.com/)が、「VOICEVOX 四国めたん」を使用して作成してくださったデータをその領域に書き込みました。「VOICEVOX 四国めたん」は商用・非商用使用可とのライセンス条件を元に使用させていただきました。この互換ROMが津軽と四国をつなぐ架け橋になることを...(さすがに無理がある)
+
+FM TOWNS's so-called OS ROM includes some voice data.  This compatible ROM includes voice data created by BCC (https://bcc.hatenablog.com/) using "VOICEVOX Shikoku Methane" (May be spelled as Metan).  "VOICEVOX Shikoku Methane" is free to use for commercial and non-commercial purposes.
+
+
+
 
 ## Free FM TOWNS Projectについて
 このプロジェクトは、完全自己完結型FM TOWNSエミュレータの実現を目指しています。

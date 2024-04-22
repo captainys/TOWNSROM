@@ -1,3 +1,13 @@
+[音声データについて]
+[About voice data]
+FM TOWNSの通称OS ROM領域には、音声データがいくつか収録されています。互換ROMには、BCCさん (https://bcc.hatenablog.com/)が、「VOICEVOX 四国めたん」を使用して作成してくださったデータをその領域に書き込みました。「VOICEVOX 四国めたん」は商用・非商用使用可とのライセンス条件を元に使用させていただきました。この互換ROMが津軽と四国をつなぐ架け橋になることを...(さすがに無理がある)
+
+FM TOWNS's so-called OS ROM includes some voice data.  This compatible ROM includes voice data created by BCC (https://bcc.hatenablog.com/) using "VOICEVOX Shikoku Methane" (May be spelled as Metan).  "VOICEVOX Shikoku Methane" is free to use for commercial and non-commercial purposes.
+
+
+
+
+
 [アセンブルの仕方]
 DOSエミュレータ上のMASMを使う場合:
 DOSBoxなどのエミュレータにMASMがインストールされた状態で、YSDOSディレクトリで make makefile コマンド。

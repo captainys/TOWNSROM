@@ -291,15 +291,6 @@ void WriteFiles(void)
 
 void WriteSound(void)
 {
-	auto sndData=ReadFile("files/SILENT.snd");
-	std::cout << "SILENT.snd=" << sndData.size() << " bytes." << std::endl;
-	while(0!=(sndData.size()&3))
-	{
-		sndData.push_back(0);
-	}
-	std::cout << "Padded to " << sndData.size() << " bytes." << std::endl;
-
-
 	const uint32_t numSound=10;  // 10 sound data
 	std::string sndName[numSound]=
 	{
@@ -314,11 +305,32 @@ void WriteSound(void)
 		"gomenne",
 		"kak",
 	};
+	std::string sndFileName[numSound]=
+	{
+		"voice/OHA.snd",
+		"voice/KONNITI.snd",
+		"voice/KONBAN.snd",
+		"voice/BYE.snd",
+		"voice/SAYO.snd",
+		"voice/OYA.snd",
+		"voice/ERA.snd",
+		"voice/NYU.snd",
+		"voice/GOMENNE.snd",
+		"voice/KAK.snd",
+	};
 	SetDword(rom+SND_START,numSound);
 	uint32_t sndOffset=4;
 	uint32_t dataOffset=4+4*numSound;
 	for(int i=0; i<numSound; ++i)
 	{
+		auto sndData=ReadFile(sndFileName[i]);
+		std::cout << sndFileName[i] << "=" << sndData.size() << " bytes." << std::endl;
+		while(0!=(sndData.size()&3))
+		{
+			sndData.push_back(0);
+		}
+		std::cout << "Padded to " << sndData.size() << " bytes." << std::endl;
+
 		WriteSoundData(sndOffset,dataOffset,sndData,sndName[i]);
 	}
 }
