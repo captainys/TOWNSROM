@@ -1397,8 +1397,14 @@ FREAD_FROM_CHARDEV:
 						CMP		ECX,010000h
 						JA		FREAD_FROM_CHARDEV	; Not supported yet.
 
+						XOR		EAX,EAX
+						MOV		CS:[FILE_BYTES_DID_READ_WRITE],EAX
+
+FREAD_FROM_CHARDEV_LOOP:
 						PUSH	ECX
 						PUSH	EDX
+						PUSH	DI
+						PUSH	FS
 
 						MOV		ESI,FS:[DI+SF_DRIVER_POINTER]
 						XOR		AX,AX
@@ -1415,16 +1421,50 @@ FREAD_FROM_CHARDEV:
 						;   CF=0   AX=Length read
 						;   CF=1   AX=Status Code
 
+						POP		FS
+						POP		DI
 						POP		EDX
 						POP		ECX
 
-						MOVZX	ECX,AX
 						JC		FREAD_ERROR_END
+
+						PUSH	DS
+						ROL		EDX,16
+						MOV		DS,DX
+						ROL		EDX,16
+						MOV		SI,DX
+						LODSB
+						POP		DS
+
+						INC		DWORD PTR CS:[FILE_BYTES_DID_READ_WRITE]
+						INC		DX
+
+						CMP		AL,0DH  ; If ENTER key, return.
+						JE		FREAD_END_ENTER_KEY
+						CMP		AL,0AH  ; If ENTER key, return.
+						JE		FREAD_END
+
+						LOOP	FREAD_FROM_CHARDEV_LOOP
+
 
 FREAD_END:
 						MOV		ECX,CS:[FILE_BYTES_DID_READ_WRITE]
 						CLC
 						RET
+
+FREAD_END_ENTER_KEY:
+						; Need to add 0Ah after 0Dh.  WTF!
+						CMP		ECX,1
+						JBE		FREAD_END
+
+						MOV		DI,DX
+						ROL		EDX,16
+						MOV		ES,DX
+						MOV		AL,0Ah
+						STOSB
+						INC		DWORD PTR CS:[FILE_BYTES_DID_READ_WRITE]
+
+						JMP		FREAD_END
 
 FREAD_EOF:
 						XOR		CX,CX
