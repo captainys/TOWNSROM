@@ -1343,7 +1343,8 @@ FREAD_CLUSTER_BOUNDARY:
 
 FREAD_BREAK_CLUSTER_LOOP:
 						MOV		ECX,CS:[FILE_BYTES_TO_READ_WRITE]	; Still trailing hanging bytes?
-						JECXZ	FREAD_END
+						AND		ECX,ECX
+						JE		FREAD_END ; JECXZ out of range
 
 						PUSH	DI
 
@@ -1396,6 +1397,9 @@ FREAD_FROM_CHARDEV:
 						CMP		ECX,010000h
 						JA		FREAD_FROM_CHARDEV	; Not supported yet.
 
+						PUSH	ECX
+						PUSH	EDX
+
 						MOV		ESI,FS:[DI+SF_DRIVER_POINTER]
 						XOR		AX,AX
 						MOV		EDI,EDX
@@ -1406,9 +1410,13 @@ FREAD_FROM_CHARDEV:
 						;   EDI    Data Buffer (Hiword=SEG, Loword=OFFSET)
 						;   DX     LBA
 						;   CX     Length in bytes? (Prob number of sectors)
+						MOV		ECX,1
 						CALL	DEVCALL_READ_SECTOR
 						;   CF=0   AX=Length read
 						;   CF=1   AX=Status Code
+
+						POP		EDX
+						POP		ECX
 
 						MOVZX	ECX,AX
 						JC		FREAD_ERROR_END
