@@ -314,58 +314,48 @@ GETS:
 						; but anyway resetting the counter by MOV DH,CH at CS:1B57.
 						; So, my guess is recall length is remains from CP/M and does nothing.
 
-						MOV		BYTE PTR DS:[SI+GETS_BUF_FILLED],0
+						; [BP+12H] History buffer SEG
+						; [BP+10H] History buffer OFFSET
+						; [BP+0EH] One-Char Input callback SEG
+						; [BP+0CH] One-Char Input callback OFFSET
+						; [BP+0AH] Data Buffer SEG
+						; [BP+08H] Data Buffer OFFSET
+						; [BP+06H] Data Buffer Length
+						; [BP+04H] Flags
+						; [BP+02H] Return IP
+						XOR		AX,AX
+						PUSH	AX
+						PUSH	AX
+						PUSH	CS
+						PUSH	WORD PTR GETS_CHAR_INPUT_CALLBACK
+						PUSH	DS
+						ADD		SI,GETS_BUF_DATA
+						PUSH	SI
+						SUB		SI,GETS_BUF_DATA
+						MOVZX	AX,BYTE PTR DS:[SI+GETS_BUF_LEN]
+						PUSH	AX
+						PUSH	WORD PTR LINP_FLAG_ECHO
+						CALL	LINE_INPUT
+						;   AX     Number of bytes entered
 
-GETS_LOOP:
+						POP		SI
+						POP		SI
+						POP		SI
+						POP		DS
+						SUB		SI,GETS_BUF_DATA
+						ADD		SP,8
+
+						MOV		BYTE PTR DS:[SI+GETS_BUF_FILLED],AL
+GETS_EXIT:
+						RET
+
+GETS_CHAR_INPUT_CALLBACK:
 						PUSH	DS
 						PUSH	SI
 						CALL	GETC
 						POP		SI
 						POP		DS
-
-						CMP		AL,' '
-						JAE		GETS_PRINTABLE
-						CMP		AL,ASCII_CR
-						JE		GETS_DONE
-						CMP		AL,ASCII_BACKSPACE
-						JE		GETS_BACKSPACE
-						JMP		GETS_LOOP
-
-GETS_PRINTABLE:
-						CALL	GETS_ADDCHAR
-						JC		GETS_LOOP
-						PUSH	DS
-						PUSH	SI
-						CALL	PUTC
-						POP		SI
-						POP		DS
-						JMP		GETS_LOOP
-
-GETS_BACKSPACE:
-						CMP		BYTE PTR DS:[SI+GETS_BUF_FILLED],0
-						JLE		GETS_LOOP
-						DEC		BYTE PTR DS:[SI+GETS_BUF_FILLED]
-						PUSH	DS
-						PUSH	SI
-						CALL	PUTC
-						MOV		AL,' '
-						CALL	PUTC
-						MOV		AL,ASCII_BACKSPACE
-						CALL	PUTC
-						POP		SI
-						POP		DS
-						JMP		GETS_LOOP
-
-GETS_DONE:
-						MOVZX	CX,BYTE PTR DS:[SI+GETS_BUF_LEN]
-						MOVZX	BX,BYTE PTR DS:[SI+GETS_BUF_FILLED]
-						CMP		BX,CX
-						JAE		GETS_EXIT
-						MOV		DS:[SI+BX+GETS_BUF_DATA],AL
-
-
-GETS_EXIT:
-						RET
+						RETF
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

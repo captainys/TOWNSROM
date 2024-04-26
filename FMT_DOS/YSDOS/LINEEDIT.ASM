@@ -52,7 +52,7 @@ LINE_INPUT_LOOP:
 							AND		AL,AL
 							JE		LINE_INPUT_LOOP
 
-							MOV		AX,[BP-02H]
+							MOV		AX,[BP+LINP_CURRENT_COUNT]
 							CLC
 							MOV		SP,BP
 							POP		BP
@@ -83,7 +83,7 @@ LINE_INPUT_ONE_STEP:
 							JAE		LINPUT_ONESTEP_PRINTABLE
 							CMP		AL,0DH  ; If ENTER key, return.
 							JE		LINPUT_ONESTEP_ENTER_KEY
-							CMP		AL,0AH  ; If ENTER key, return.
+							CMP		AL,ASCII_BACKSPACE  ; If ENTER key, return.
 							JE		LINPUT_ONESTEP_BACKSPACE
 
 LINPUT_CONTINUE:
