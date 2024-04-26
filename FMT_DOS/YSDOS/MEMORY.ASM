@@ -346,6 +346,10 @@ MREALLOC					PROC
 
 							MOV		AX,BX				; Cannot write LEA AX,[BX+1] in 16-bit address size :-P
 							INC		AX					; AX is requested+1
+							JNE		MREALLOC_NOT_FFFF
+							DEC		AX					; If FFFF, leave it FFFF.
+
+MREALLOC_NOT_FFFF:
 							CMP		AX,DS:[MCB_BLOCK_SIZE]
 							JE		MREALLOC_NOERROR	; No change
 							JB		MREALLOC_SHRINK
