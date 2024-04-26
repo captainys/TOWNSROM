@@ -33,7 +33,7 @@ LINE_INPUT:
 							; [BP+12H] History buffer OFFSET
 							; [BP+10H] History buffer SEG
 							; [BP+0EH] One-Char Input callback OFFSET
-							; [BP+0CH] One-Char Input callback SEG
+							; [BP+0CH] One-Char Input callback SEG  (Return EAX to deal with ESC sequence)
 							; [BP+0AH] Data Buffer OFFSET
 							; [BP+08H] Data Buffer SEG
 							; [BP+06H] Data Buffer Length
@@ -63,7 +63,7 @@ LINE_INPUT_LOOP:
 ; [BP+12H] History buffer SEG
 ; [BP+10H] History buffer OFFSET
 ; [BP+0EH] One-Char Input callback SEG
-; [BP+0CH] One-Char Input callback OFFSET
+; [BP+0CH] One-Char Input callback OFFSET  (Return EAX to deal with ESC sequence)
 ; [BP+0AH] Data Buffer SEG
 ; [BP+08H] Data Buffer OFFSET
 ; [BP+06H] Data Buffer Length
@@ -85,6 +85,10 @@ LINE_INPUT_ONE_STEP:
 							JE		LINPUT_ONESTEP_ENTER_KEY
 							CMP		AL,ASCII_BACKSPACE  ; If ENTER key, return.
 							JE		LINPUT_ONESTEP_BACKSPACE
+							CMP		AL,ASCII_LEFT
+							JE		LINPUT_ONESTEP_LEFT
+							CMP		AL,ASCII_RIGHT
+							JE		LINPUT_ONESTEP_RIGHT
 
 LINPUT_CONTINUE:
 							XOR		AL,AL
@@ -251,3 +255,22 @@ LINPUT_ONESTEP_BACKSPACE_REPRINT_REWIND:
 							POP		BX
 							DEC		BX
 							JMP		LINPUT_ONESTEP_BACKSPACE_REPRINT_REWIND
+
+LINPUT_ONESTEP_LEFT:
+							CMP		WORD PTR [BP+LINP_CURRENT_CURSOR],0
+							JLE		LINPUT_CONTINUE
+							DEC		WORD PTR [BP+LINP_CURRENT_CURSOR]
+							TEST	WORD PTR [BP+LINP_FLAGS],LINP_FLAG_ECHO
+							JE		LINPUT_CONTINUE
+							CALL	PUTC
+							JMP		LINPUT_CONTINUE
+
+LINPUT_ONESTEP_RIGHT:
+							MOV		BX,[BP+LINP_CURRENT_CURSOR]
+							CMP		BX,[BP+LINP_CURRENT_COUNT]
+							JAE		LINPUT_CONTINUE
+							INC		WORD PTR [BP+LINP_CURRENT_CURSOR]
+							TEST	WORD PTR [BP+LINP_FLAGS],LINP_FLAG_ECHO
+							JE		LINPUT_CONTINUE
+							CALL	PUTC
+							JMP		LINPUT_CONTINUE

@@ -317,7 +317,7 @@ GETS:
 						; [BP+12H] History buffer SEG
 						; [BP+10H] History buffer OFFSET
 						; [BP+0EH] One-Char Input callback SEG
-						; [BP+0CH] One-Char Input callback OFFSET
+						; [BP+0CH] One-Char Input callback OFFSET (Return EAX to deal with ESC sequence)
 						; [BP+0AH] Data Buffer SEG
 						; [BP+08H] Data Buffer OFFSET
 						; [BP+06H] Data Buffer Length
@@ -353,6 +353,7 @@ GETS_CHAR_INPUT_CALLBACK:
 						PUSH	DS
 						PUSH	SI
 						CALL	GETC
+						MOVZX	EAX,AL
 						POP		SI
 						POP		DS
 						RETF
