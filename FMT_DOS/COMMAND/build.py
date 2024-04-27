@@ -29,7 +29,10 @@ def main(argv):
 
 	for src in SRCS:
 		cmd=["wcc","-ms","-bt=DOS",src+".C"]
-		subprocess.Popen(cmd).wait()
+		proc=subprocess.Popen(cmd)
+		proc.communicate()
+		if 0!=proc.returncode:
+			quit(1)
 
 	OBJS=""
 	for src in SRCS:
@@ -43,7 +46,10 @@ def main(argv):
 		"name",    "COMMAND.COM",
 		"file",    OBJS,
 	]
-	subprocess.Popen(cmd).wait()
+	proc=subprocess.Popen(cmd)
+	proc.communicate()
+	if 0!=proc.returncode:
+		quit(1)
 
 
 

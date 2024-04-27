@@ -358,7 +358,7 @@ int main(void)
 
 	PrintClusters();
 
-	std::ofstream ofp("FMT_DOS.ROM",std::ios::binary);
+	std::ofstream ofp("../FMT_DOS.ROM",std::ios::binary);
 	ofp.write((const char *)rom,ROM_SIZE);
 	ofp.close();
 
