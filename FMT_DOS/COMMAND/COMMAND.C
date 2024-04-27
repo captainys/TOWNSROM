@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <direct.h>
+#include <io.h>
+#include <process.h>
 
 #include "DOSLIB.H"
 #include "DOSCALL.H"
@@ -571,6 +573,131 @@ void PrepareExecParam(char execParamBuf[],const char param[],unsigned int execPa
 	}
 }
 
+/*
+Redirection example:
+
+#include <stdio.h>
+#include <string.h>
+#include <io.h>
+#include <process.h>
+
+int main(void)
+{
+	FILE *ifp=NULL;
+	int prevStdin;
+	char str[256];
+
+	outp(0x2386,2);
+
+	ifp=fopen("redir.c","r");
+	prevStdin=dup(fileno(stdin));
+	dup2(fileno(ifp),fileno(stdin));
+
+	fgets(str,255,stdin);
+	printf("%s\n",str);
+
+	fclose(ifp);
+	dup2(prevStdin,fileno(stdin));
+
+	return 0;
+}
+*/
+
+struct Redirection
+{
+	FILE *fpStdin,*fpStdout;
+	int prevStdin,prevStdout;
+};
+
+enum
+{
+	REDIR_NOERROR,
+	REDIR_ERROR
+};
+
+int SetUpRedirection(struct Redirection *info,char cmdLine[])
+{
+	char redirChar=0;
+	char *redirStr="",*redirIn=NULL,*redirOut=NULL,*redirPipe=NULL;
+
+	info->fpStdin=NULL;
+	info->fpStdout=NULL;
+	info->prevStdin=-1;
+	info->prevStdout=-1;
+
+	redirStr=cmdLine;
+	while(NULL!=redirStr && 0!=*redirStr)
+	{
+		redirStr=FindRedirection(&redirChar,redirStr+1);
+		if(NULL!=redirStr)
+		{
+			switch(redirChar)
+			{
+			case '<':
+				redirIn=redirStr;
+				break;
+			case '>':
+				redirOut=redirStr;
+				break;
+			case '|':
+				redirPipe=redirStr;
+				break;
+			}
+		}
+	}
+
+	if(NULL!=redirIn)
+	{
+		redirIn=SkipHeadSpace(redirIn);
+		ClearTailSpace(redirIn);
+		info->fpStdin=fopen(redirIn,"r");
+
+		if(NULL==info->fpStdin)
+		{
+			fprintf(stderr,"Cannot open %s\n",redirIn);
+			return REDIR_ERROR;
+		}
+		info->prevStdin=dup(fileno(stdin));
+		dup2(fileno(info->fpStdin),fileno(stdin));
+	}
+	if(NULL!=redirOut)
+	{
+		redirOut=SkipHeadSpace(redirOut);
+		ClearTailSpace(redirOut);
+
+		info->fpStdout=fopen(redirOut,"w");
+		if(NULL==info->fpStdout)
+		{
+			fprintf(stderr,"Cannot open %s\n",redirOut);
+			return REDIR_ERROR;
+		}
+		info->prevStdout=dup(fileno(stdout));
+		dup2(fileno(info->fpStdout),fileno(stdout));
+	}
+	if(NULL!=redirPipe)
+	{
+		printf("Sorry, pipe is not supported yet.\n");
+		printf("Just executing without pipe.\n");
+	}
+	return REDIR_NOERROR;
+}
+
+void CleanUpRedirection(struct Redirection *info)
+{
+	if(NULL!=info->fpStdin)
+	{
+		dup2(info->prevStdin,fileno(stdin));
+		fclose(info->fpStdin);
+		info->fpStdin=NULL; // Just in case
+	}
+	if(NULL!=info->fpStdout)
+	{
+		dup2(info->prevStdout,fileno(stdout));
+		fclose(info->fpStdout);
+		info->fpStdout=NULL; // Just in case
+	}
+}
+
 int RunBatchFile(char cmd[],char param[])
 {
 	int returnCode=0;
@@ -602,9 +729,8 @@ int RunBatchFile(char cmd[],char param[])
 		FILE *fp;
 		int argv0Len=0;
 		static char argv0[MAX_PATH];
-		char *afterArgv0="";
-		char redirChar=0;
-		char *redirStr;
+		char *afterArgv0="",*endOfCmd="";
+		struct Redirection redirInfo;
 
 		fp=fopen(batState.fName,"r");
 		if(NULL==fp)
@@ -661,12 +787,12 @@ int RunBatchFile(char cmd[],char param[])
 		*/
 		argv0Len=GetFirstArgument(argv0,lineBuf);
 		afterArgv0=GetAfterFirstArgument(lineBuf,argv0Len);
-		redirStr=FindRedirection(&redirChar,afterArgv0);
-		if(NULL!=redirStr)
+		if(REDIR_NOERROR!=SetUpRedirection(&redirInfo,lineBuf))
 		{
-			printf("Sorry, redirection and pipe are not supported yet.\n");
-			printf("Just executing without redirection/pipe.\n");
+			CleanUpRedirection(&redirInfo);
+			break;
 		}
+
 		Capitalize(argv0);
 		ExpandEnvVar(ENVSEG,argv0,LINEBUFLEN);
 		if(':'==argv0[0]) /* It's a jump label. */
@@ -727,6 +853,8 @@ int RunBatchFile(char cmd[],char param[])
 				break;
 			}
 		}
+
+		CleanUpRedirection(&redirInfo);
 	}
 	return returnCode;
 }
@@ -767,8 +895,7 @@ int CommandMain(struct Option *option)
 		static char argv0[MAX_PATH],exeCmd[MAX_PATH];
 		int argv0Len;
 		char *afterArgv0;
-		char redirChar;
-		char *redirStr;
+		struct Redirection redirInfo;
 
 		getcwd(cwd,MAX_PATH);
 		DOSPUTS(cwd);
@@ -780,11 +907,10 @@ int CommandMain(struct Option *option)
 		argv0Len=GetFirstArgument(argv0,lineBuf);
 		Capitalize(argv0);
 		afterArgv0=GetAfterFirstArgument(lineBuf,argv0Len);
-		redirStr=FindRedirection(&redirChar,afterArgv0);
-		if(NULL!=redirStr)
+		if(REDIR_NOERROR!=SetUpRedirection(&redirInfo,lineBuf))
 		{
-			printf("Sorry, redirection and pipe are not supported yet.\n");
-			printf("Just executing without redirection/pipe.\n");
+			CleanUpRedirection(&redirInfo);
+			continue;
 		}
 		if(0==ExecBuiltInCommand(&batState,argv0,afterArgv0))
 		{
@@ -807,6 +933,7 @@ int CommandMain(struct Option *option)
 				break;
 			}
 		}
+		CleanUpRedirection(&redirInfo);
 	}
 	return returnCode;
 }

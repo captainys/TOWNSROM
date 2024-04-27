@@ -48,6 +48,15 @@ void ClearTailSpace(char *str)
 	str[lastNonSpace+1]=0;
 }
 
+char *SkipHeadSpace(char *str)
+{
+	while(' '==*str || '\t'==*str)
+	{
+		++str;
+	}
+	return str;
+}
+
 int IsKanji(char c)
 {
 	unsigned int C=c;

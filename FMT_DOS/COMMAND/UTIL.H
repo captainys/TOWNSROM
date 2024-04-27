@@ -18,6 +18,9 @@
 void ClearTailSpace(char *str);
 
 
+char *SkipHeadSpace(char *str);
+
+
 void Capitalize(char str[]);
 
 
