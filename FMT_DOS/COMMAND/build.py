@@ -31,16 +31,18 @@ def main(argv):
 		cmd=["wcc","-ms","-bt=DOS",src+".C"]
 		subprocess.Popen(cmd).wait()
 
-	#cmd=["wlink","@wlink.txt"]
+	OBJS=""
+	for src in SRCS:
+		if 0!=len(OBJS):
+			OBJS+=","
+		OBJS+=src+".OBJ"
+
 	cmd=["wlink",
-		"system",
-		"com",
-		"option",
-		"SMALL",
-		"name",
-		"COMMAND.COM",
-		"file",
-		"COMMAND.OBJ,DOSCALL.OBJ,DOSLIB.OBJ,UTIL.OBJ",]
+		"system",  "com",
+		"option",  "SMALL",
+		"name",    "COMMAND.COM",
+		"file",    OBJS,
+	]
 	subprocess.Popen(cmd).wait()
 
 
