@@ -58,17 +58,7 @@ struct BatchState
 
 void InitBatchState(struct BatchState *state)
 {
-	int i;
-	for(i=0; i<LINEBUFLEN; ++i)
-	{
-		state->cmdLine[i]=0;
-	}
-	for(i=0; i<MAX_PATH; ++i)
-	{
-		state->fName[i]=0;
-	}
-	state->fPos=0;
-	state->eof=0;
+	memset(state,0,sizeof(struct BatchState));
 }
 
 
