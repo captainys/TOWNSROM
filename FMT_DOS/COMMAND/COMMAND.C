@@ -72,7 +72,7 @@ void InitBatchState(struct BatchState *state)
 }
 
 
-
+#if 0
 void Test(int argc,char *argv[])
 {
 	int i;
@@ -88,7 +88,9 @@ void Test(int argc,char *argv[])
 	printf("sizeof(long)=%d\n",sizeof(long));
 	printf("sizeof(size_t)=%d\n",sizeof(size_t));
 }
+#endif
 
+#if 0
 void PrintPSPInfo(unsigned char far *PSPPtr)
 {
 	int i;
@@ -104,6 +106,7 @@ void PrintPSPInfo(unsigned char far *PSPPtr)
 	}
 	putchar('\n');
 }
+#endif
 
 /*! Return value 0:Not the First-Level   Non-Zero:First-Level
 */
@@ -183,17 +186,17 @@ void SetUp(struct Option *option,int argc,char *argv[])
 	}
 
 	PSP=DOSGETPSP();
-	printf("PSP Segment=%04x\n",PSP);
+	printf("PSP=%04x\n",PSP);
 
 	PSPPtr=(unsigned char far*)MK_FP(PSP,0);
-	PrintPSPInfo(PSPPtr);
+	/* PrintPSPInfo(PSPPtr); */
 
 	ENVSEG=GetUint16(PSPPtr+PSP_ENVSEG);
 	if(0==ENVSEG)
 	{
 		ENVSEG=DOSMALLOC(option->ENVSEGLen);
 		InitENVSEG(ENVSEG,option->ENVSEGLen,argv[1]);
-		printf("Allocated ENVSEG:%04x\n",ENVSEG);
+		/* printf("Allocated ENVSEG:%04x\n",ENVSEG); */
 		SetUint16(PSPPtr+PSP_ENVSEG,ENVSEG);
 	}
 }
@@ -889,7 +892,7 @@ int CommandMain(struct Option *option)
 
 	InitBatchState(&batState);
 
-	printf("Entering Interactive Mode.\n");
+	/* printf("Entering Interactive Mode.\n"); */
 	for(;;)
 	{
 		static char cwd[MAX_PATH];
@@ -950,13 +953,6 @@ int main(int argc,char *argv[])
 	printf("\n");
 
 	/* Test(argc,argv); */
-
-	if(sizeof(int)!=2 || sizeof(unsigned int)!=2)
-	{
-		printf("Need to be compiled by a 16-bit compiler.\n");
-		printf("Where are you running it?\n");
-		for(;;);
-	}
 
 	SetUp(&opt,argc,argv);
 	if(RUNMODE_FIRST_LEVEL==opt.runMode)
