@@ -16,43 +16,19 @@ def PrepRun(cmd):
 
 
 def Prep():
-	print("This script does not compile/assemble.  Run it after compiling/assembling files.")
-
 	cwd=os.getcwd();
 	os.chdir(THISDIR)
 
-	if not os.path.isfile(os.path.join(THISDIR,"FMT_DOS","YSDOS","YSDOS.SYS")):
-		print("Assemble YSDOS.")
-		quit()
+	proc=subprocess.Popen(["python",os.path.join("FMT_DOS","build.py")])
+	proc.communicate()
+	if 0!=proc.returncode:
+		print("Error building and assembling FMT_DOS")
+		quit(1)
 
-	if not os.path.isfile(os.path.join(THISDIR,"FMT_DOS","COMMAND","COMMAND.EXE")):
-		print("Compile COMMAND.EXE.")
-		quit()
-
-	if not os.path.isfile(os.path.join(THISDIR,"FMT_SYS","forTsugaru","FMT_SYS.ROM")):
-		print("Assemble FMT_SYS.")
-		quit()
-
-
-	shutil.copyfile(
-		os.path.join(THISDIR,"FMT_DOS","YSDOS","YSDOS.SYS"),
-		os.path.join(THISDIR,"FMT_DOS","makerom","files","YSDOS.SYS"))
-
-	shutil.copyfile(
-		os.path.join(THISDIR,"FMT_DOS","COMMAND","COMMAND.EXE"),
-		os.path.join(THISDIR,"FMT_DOS","makerom","files","COMMAND.COM"))
-
-	os.chdir("FMT_DOS/makerom")
-	PrepRun([
-			"cl",
-			"make.cpp",
-			"/EHsc"
-		])
-	PrepRun(["make"])
 	os.chdir(THISDIR)
 
 	shutil.copyfile(
-		os.path.join(THISDIR,"FMT_DOS","makerom","FMT_DOS.ROM"),
+		os.path.join(THISDIR,"FMT_DOS","FMT_DOS.ROM"),
 		os.path.join(THISDIR,"..","TOWNSEMU_TEST","rom_dev","FMT_DOS.ROM"))
 
 	shutil.copyfile(

@@ -687,12 +687,14 @@ void CleanUpRedirection(struct Redirection *info)
 	if(NULL!=info->fpStdin)
 	{
 		dup2(info->prevStdin,fileno(stdin));
+		_dos_close(info->prevStdin);
 		fclose(info->fpStdin);
 		info->fpStdin=NULL; // Just in case
 	}
 	if(NULL!=info->fpStdout)
 	{
 		dup2(info->prevStdout,fileno(stdout));
+		_dos_close(info->prevStdout);
 		fclose(info->fpStdout);
 		info->fpStdout=NULL; // Just in case
 	}
