@@ -872,8 +872,7 @@ int ExecExternalCommand(const char fName[],const char param[])
 	switch(comType)
 	{
 	case COMTYPE_BATCH:
-		PrepareExecParam(execParamBuf,param,MAX_EXEPARAM);
-		return RunBatchFile(exeCmd,execParamBuf);
+		return RunBatchFile(exeCmd,param);
 	case COMTYPE_BINARY:
 		PrepareExecParam(execParamBuf,param,MAX_EXEPARAM);
 		DOSEXEC(PSP,ENVSEG,exeCmd,execParamBuf);
