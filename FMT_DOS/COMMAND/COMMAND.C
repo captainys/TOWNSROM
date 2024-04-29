@@ -599,7 +599,7 @@ int main(void)
 
 struct Redirection
 {
-	FILE *fpStdin,*fpStdout;
+	int fpStdin,fpStdout;
 	int prevStdin,prevStdout;
 };
 
@@ -614,8 +614,8 @@ int SetUpRedirection(struct Redirection *info,char cmdLine[])
 	char redirChar=0;
 	char *redirStr="",*redirIn=NULL,*redirOut=NULL,*redirPipe=NULL;
 
-	info->fpStdin=NULL;
-	info->fpStdout=NULL;
+	info->fpStdin=-1;
+	info->fpStdout=-1;
 	info->prevStdin=-1;
 	info->prevStdout=-1;
 
@@ -644,33 +644,33 @@ int SetUpRedirection(struct Redirection *info,char cmdLine[])
 	{
 		redirIn=SkipHeadSpace(redirIn);
 		ClearTailSpace(redirIn);
-		info->fpStdin=fopen(redirIn,"r");
+		info->fpStdin=DOSREADOPEN(redirIn);
 
-		if(NULL==info->fpStdin)
+		if(info->fpStdin<0)
 		{
 			DOSWRITES(DOS_STDERR,"Cannot open ");
 			DOSWRITES(DOS_STDERR,redirIn);
 			DOSWRITES(DOS_STDERR,DOS_LINEBREAK);
 			return REDIR_ERROR;
 		}
-		info->prevStdin=dup(fileno(stdin));
-		dup2(fileno(info->fpStdin),fileno(stdin));
+		info->prevStdin=dup(DOS_STDIN);
+		dup2(info->fpStdin,DOS_STDIN);
 	}
 	if(NULL!=redirOut)
 	{
 		redirOut=SkipHeadSpace(redirOut);
 		ClearTailSpace(redirOut);
 
-		info->fpStdout=fopen(redirOut,"w");
-		if(NULL==info->fpStdout)
+		info->fpStdout=DOSWRITEOPEN(redirOut);
+		if(info->fpStdout<0)
 		{
 			DOSWRITES(DOS_STDERR,"Cannot open ");
 			DOSWRITES(DOS_STDERR,redirOut);
 			DOSWRITES(DOS_STDERR,DOS_LINEBREAK);
 			return REDIR_ERROR;
 		}
-		info->prevStdout=dup(fileno(stdout));
-		dup2(fileno(info->fpStdout),fileno(stdout));
+		info->prevStdout=dup(DOS_STDOUT);
+		dup2(info->fpStdout,DOS_STDOUT);
 	}
 	if(NULL!=redirPipe)
 	{
@@ -682,19 +682,19 @@ int SetUpRedirection(struct Redirection *info,char cmdLine[])
 
 void CleanUpRedirection(struct Redirection *info)
 {
-	if(NULL!=info->fpStdin)
+	if(0<=info->fpStdin)
 	{
-		dup2(info->prevStdin,fileno(stdin));
+		dup2(info->prevStdin,DOS_STDIN);
 		_dos_close(info->prevStdin);
-		fclose(info->fpStdin);
-		info->fpStdin=NULL; // Just in case
+		_dos_close(info->fpStdin);
+		info->fpStdin=-1; // Just in case
 	}
-	if(NULL!=info->fpStdout)
+	if(0<=info->fpStdout)
 	{
-		dup2(info->prevStdout,fileno(stdout));
+		dup2(info->prevStdout,DOS_STDOUT);
 		_dos_close(info->prevStdout);
-		fclose(info->fpStdout);
-		info->fpStdout=NULL; // Just in case
+		_dos_close(info->fpStdout);
+		info->fpStdout=-1; // Just in case
 	}
 }
 
