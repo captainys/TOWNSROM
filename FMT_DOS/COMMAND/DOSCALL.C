@@ -30,7 +30,7 @@ unsigned int DOSMALLOC(unsigned int pages)
 
 	if(CF(regOut)) /* CF */
 	{
-		printf("Malloc Failure.\n");
+		DOSWRITES(DOS_STDERR,"Malloc Failure.\n");
 		for(;;);
 	}
 
@@ -66,8 +66,8 @@ unsigned int DOSMALLOC(unsigned int pages)
 
 	if(0!=SEGERR[1])
 	{
-		printf("Malloc Failure.\n");
-		printf("%04x %04x\n",SEGERR[0],SEGERR[1]);
+		DOSWRITES(DOS_STDERR,"Malloc Failure.\n");
+		/* printf("%04x %04x\n",SEGERR[0],SEGERR[1]); */
 		for(;;);
 	}
 
@@ -294,4 +294,10 @@ int DOSGETS(char buf[LINEBUFLEN])
 	}
 	buf[i]=0;
 	return i;
+}
+
+void DOSWRITES(int fd,const char str[])
+{
+	unsigned written;
+	_dos_write(fd,(const char far *)str,strlen(str),&written);
 }

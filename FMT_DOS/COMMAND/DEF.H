@@ -9,6 +9,18 @@
 #define MAX_ARG 64
 #define MAX_EXEPARAM 128
 
+#define DOS_STDIN  0
+#define DOS_STDOUT 1
+#define DOS_STDERR 2
+#define DOS_STDAUX 3
+#define DOS_STDPRN 4
+
+#define DOS_OPEN_READ  0
+#define DOS_OPEN_WRITE 1
+#define DOS_OPEN_RW    2
+
+#define DOS_LINEBREAK "\r\n"
+
 enum
 {
 	COMTYPE_UNKNOWN,

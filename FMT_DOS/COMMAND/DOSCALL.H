@@ -65,5 +65,7 @@ void DOSPUTS(const char str[]);
 void DOSPUTC(char c);
 
 
+void DOSWRITES(int fd,const char str[]);
+
 
 #endif

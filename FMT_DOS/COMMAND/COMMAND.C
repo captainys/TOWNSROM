@@ -10,7 +10,7 @@
 #include "UTIL.H"
 #include "DEF.H"
 
-
+#define VERSION "20240429"
 
 unsigned char echo=1;
 unsigned char isFirstLevel=0;
@@ -176,7 +176,7 @@ void SetUp(struct Option *option,int argc,char *argv[])
 	}
 
 	PSP=DOSGETPSP();
-	printf("PSP=%04x\n",PSP);
+	/* printf("PSP=%04x\n",PSP); */
 
 	PSPPtr=(unsigned char far*)MK_FP(PSP,0);
 	/* PrintPSPInfo(PSPPtr); */
@@ -226,8 +226,8 @@ void ExecExit(struct BatchState *batState,const char afterArgv0[])
 	}
 	else if(RUNMODE_FIRST_LEVEL==opt.runMode)
 	{
-		fprintf(stderr,"COMMAND.COM is running first level.\n");
-		fprintf(stderr,"Use EXIT -F to force exit.\n");
+		DOSWRITES(DOS_STDERR,"COMMAND.COM is running first level."DOS_LINEBREAK);
+		DOSWRITES(DOS_STDERR,"Use EXIT -F to force exit."DOS_LINEBREAK);
 	}
 	else
 	{
@@ -312,7 +312,7 @@ void ExecGoto(struct BatchState *batState,char gotoLabel[])
 	}
 	else
 	{
-		fprintf(stderr,"Cannot open batch file.\n");
+		DOSWRITES(DOS_STDERR,"Cannot open batch file."DOS_LINEBREAK);
 	}
 }
 
@@ -341,7 +341,7 @@ void ExecIf(struct BatchState *batState,char *param)
 	}
 	else
 	{
-		fprintf(stderr,"What condition?\n");
+		DOSWRITES(DOS_STDERR,"What condition?"DOS_LINEBREAK);
 		return;
 	}
 }
@@ -354,7 +354,7 @@ void ExecCD(char afterArgv0[])
 	err=DOSCHDIR(dir);
 	if(0!=err)
 	{
-		fprintf(stderr,"Cannot change directory.\n");
+		DOSWRITES(DOS_STDERR,"Cannot change directory."DOS_LINEBREAK);
 	}
 }
 
@@ -388,13 +388,14 @@ void ExecDir(char afterArgv0[])
 
 		++findCount;
 
-		printf("%s\n",findStruct.name);
+		DOSWRITES(DOS_STDOUT,findStruct.name);
+		DOSWRITES(DOS_STDOUT,DOS_LINEBREAK);
 	}
-	printf("\n");
+	DOSWRITES(DOS_STDOUT,DOS_LINEBREAK);
 
 	if(0==findCount)
 	{
-		printf("No such file or directory.\n");
+		DOSWRITES(DOS_STDOUT,"No such file or directory."DOS_LINEBREAK);
 	}
 }
 
@@ -456,7 +457,7 @@ int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char after
 	else if(0==strcmp(argv0,"PAUSE"))
 	{
 		char lineBuf[LINEBUFLEN];
-		printf("<<Press Enter to Continue>>\n");
+		DOSWRITES(DOS_STDOUT,"<<Press Enter to Continue>>"DOS_LINEBREAK);
 		DOSGETS(lineBuf);
 		return 1;
 	}
@@ -476,27 +477,27 @@ int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char after
 	}
 	else if(0==strcmp(argv0,"COPY") || 0==strcmp(argv0,"CD"))
 	{
-		printf("COPY to be implemented\n");
+		DOSWRITES(DOS_STDOUT,"COPY to be implemented"DOS_LINEBREAK);
 		return 1;
 	}
 	else if(0==strcmp(argv0,"DEL") || 0==strcmp(argv0,"RM"))
 	{
-		printf("DEL to be implemented\n");
+		DOSWRITES(DOS_STDOUT,"DEL to be implemented"DOS_LINEBREAK);
 		return 1;
 	}
 	else if(0==strcmp(argv0,"REN") || 0==strcmp(argv0,"MV"))
 	{
-		printf("REN to be implemented\n");
+		DOSWRITES(DOS_STDOUT,"REN to be implemented"DOS_LINEBREAK);
 		return 1;
 	}
 	else if(0==strcmp(argv0,"MD") || 0==strcmp(argv0,"MKDIR"))
 	{
-		printf("MKDIR to be implemented\n");
+		DOSWRITES(DOS_STDOUT,"MKDIR to be implemented"DOS_LINEBREAK);
 		return 1;
 	}
 	else if(0==strcmp(argv0,"RD") || 0==strcmp(argv0,"RMDIR"))
 	{
-		printf("MKDIR to be implemented\n");
+		DOSWRITES(DOS_STDOUT,"MKDIR to be implemented"DOS_LINEBREAK);
 		return 1;
 	}
 	return 0;
@@ -647,7 +648,9 @@ int SetUpRedirection(struct Redirection *info,char cmdLine[])
 
 		if(NULL==info->fpStdin)
 		{
-			fprintf(stderr,"Cannot open %s\n",redirIn);
+			DOSWRITES(DOS_STDERR,"Cannot open ");
+			DOSWRITES(DOS_STDERR,redirIn);
+			DOSWRITES(DOS_STDERR,DOS_LINEBREAK);
 			return REDIR_ERROR;
 		}
 		info->prevStdin=dup(fileno(stdin));
@@ -661,7 +664,9 @@ int SetUpRedirection(struct Redirection *info,char cmdLine[])
 		info->fpStdout=fopen(redirOut,"w");
 		if(NULL==info->fpStdout)
 		{
-			fprintf(stderr,"Cannot open %s\n",redirOut);
+			DOSWRITES(DOS_STDERR,"Cannot open ");
+			DOSWRITES(DOS_STDERR,redirOut);
+			DOSWRITES(DOS_STDERR,DOS_LINEBREAK);
 			return REDIR_ERROR;
 		}
 		info->prevStdout=dup(fileno(stdout));
@@ -669,8 +674,8 @@ int SetUpRedirection(struct Redirection *info,char cmdLine[])
 	}
 	if(NULL!=redirPipe)
 	{
-		printf("Sorry, pipe is not supported yet.\n");
-		printf("Just executing without pipe.\n");
+		DOSWRITES(DOS_STDOUT,"Sorry, pipe is not supported yet."DOS_LINEBREAK);
+		DOSWRITES(DOS_STDOUT,"Just executing without pipe."DOS_LINEBREAK);
 	}
 	return REDIR_NOERROR;
 }
@@ -730,8 +735,10 @@ int RunBatchFile(char cmd[],char param[])
 		fp=fopen(batState.fName,"r");
 		if(NULL==fp)
 		{
-			printf("File Not Found.\n");
-			printf("Filename=%s\n",batState.fName);
+			DOSWRITES(DOS_STDOUT,"File Not Found."DOS_LINEBREAK);
+			DOSWRITES(DOS_STDOUT,"Filename=");
+			DOSWRITES(DOS_STDOUT,batState.fName);
+			DOSWRITES(DOS_STDOUT,DOS_LINEBREAK);
 			break;
 		}
 		fseek(fp,batState.fPos,SEEK_SET);
@@ -762,7 +769,8 @@ int RunBatchFile(char cmd[],char param[])
 
 		if(0!=echo)
 		{
-			printf("%s$\n",lineBuf);
+			DOSWRITES(DOS_STDOUT,lineBuf);
+			DOSWRITES(DOS_STDOUT,DOS_LINEBREAK);
 		}
 
 		/* Batch arguments are restricted by line buffer length already.
@@ -770,7 +778,7 @@ int RunBatchFile(char cmd[],char param[])
 		*/
 		if(OK!=ExpandBatchArg(lineBuf,batArgc,batArgv,LINEBUFLEN))
 		{
-			printf("Failed to expand batch parameters.\n");
+			DOSWRITES(DOS_STDOUT,"Failed to expand batch parameters."DOS_LINEBREAK);
 			continue;
 		}
 
@@ -936,10 +944,10 @@ int main(int argc,char *argv[])
 {
 	int returnCode=0;
 
-	printf("\n");
-	printf("YAMAND.COM for FM TOWNS Emulators.\n");
-	printf("By CaptainYS\n");
-	printf("\n");
+	DOSWRITES(DOS_STDOUT,DOS_LINEBREAK);
+	DOSWRITES(DOS_STDOUT,"YAMAND.COM for FM TOWNS Emulators. Ver. "VERSION DOS_LINEBREAK);
+	DOSWRITES(DOS_STDOUT,"By CaptainYS"DOS_LINEBREAK);
+	DOSWRITES(DOS_STDOUT,DOS_LINEBREAK);
 
 	/* Test(argc,argv); */
 
