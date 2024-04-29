@@ -23,7 +23,12 @@ def SetENV():
 
 def WatcomBuild(SRCS):
 	for src in SRCS:
-		cmd=["wcc","-ms","-3","-os","-bt=DOS",src+".C"]
+		cmd=["wcc","-ms","-3","-os","-s","-bt=DOS",src+".C"]
+		# -ms     Small memory model (supposed to be, but no effect)
+		# -3      386.  For eliminating absurd 8-bit limit for conditional jumps.  6809 did better than 8086.
+		# -os     Optimize for size.  Open Watcom C creates slightly bigger binary if I use this option though.  WTF!
+		# -s      Eliminate stack-overflow check.  This eliminates reference to mysterious __STK label.
+		# -bt=DOS DOS binary.
 		proc=subprocess.Popen(cmd)
 		proc.communicate()
 		if 0!=proc.returncode:
