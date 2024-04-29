@@ -23,12 +23,12 @@ def main(argv):
 
 	os.environ["PATH"]=os.path.join(WATCOM,"BINNT")+";"+os.environ["PATH"]
 	os.environ["INCLUDE"]=os.path.join(WATCOM,"H")
-	os.environ["LIB"]=os.path.join(WATCOM,"LIB286","DOS")+";"+os.path.join(WATCOM,"LIB286")
+	os.environ["LIB"]=os.path.join(WATCOM,"LIB386","DOS")+";"+os.path.join(WATCOM,"LIB386")
 	os.environ["EDPATH"]=os.path.join(WATCOM,"EDDAT")
 	os.environ["WIPFC"]=os.path.join(WATCOM,"WIPFC")
 
 	for src in SRCS:
-		cmd=["wcc","-ms","-bt=DOS",src+".C"]
+		cmd=["wcc","-ms","-3","-os","-bt=DOS",src+".C"]
 		proc=subprocess.Popen(cmd)
 		proc.communicate()
 		if 0!=proc.returncode:
@@ -45,6 +45,7 @@ def main(argv):
 		"option",  "SMALL",
 		"name",    "COMMAND.COM",
 		"file",    OBJS,
+		# "option",  "nodefaultlibs",
 	]
 	proc=subprocess.Popen(cmd)
 	proc.communicate()
