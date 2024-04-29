@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <dos.h>
+#include <fcntl.h>
 #include "DOSCALL.H"
 #include "UTIL.H"
 
@@ -300,4 +301,27 @@ void DOSWRITES(int fd,const char str[])
 {
 	unsigned written;
 	_dos_write(fd,(const char far *)str,strlen(str),&written);
+}
+
+int DOSREADOPEN(const char fileName[])
+{
+	int fd;
+	if(0==_dos_open(fileName,O_RDONLY,&fd))
+	{
+		return fd;
+	}
+	return -1;
+}
+int DOSWRITEOPEN(const char fileName[])
+{
+	int fd;
+	if(0==_dos_creatnew(fileName,_A_NORMAL,&fd)) // Use INT 21H AH=5BH (Create if not exist)
+	{
+		return fd;
+	}
+	if(0==_dos_creat(fileName,_A_NORMAL,&fd)) // Use INT 21H AH=3CH (Create or Truncate)
+	{
+		return fd;
+	}
+	return -1;
 }

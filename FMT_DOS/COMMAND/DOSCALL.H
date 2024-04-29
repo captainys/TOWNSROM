@@ -67,5 +67,10 @@ void DOSPUTC(char c);
 
 void DOSWRITES(int fd,const char str[]);
 
+/*! Returns a file handle if success, or -1 if fail. */
+int DOSREADOPEN(const char fileName[]);
+/*! Returns a file handle if success, or -1 if fail. */
+int DOSWRITEOPEN(const char fileName[]);
+
 
 #endif
