@@ -6,15 +6,8 @@ THISFILE=os.path.realpath(__file__)
 THISDIR=os.path.dirname(THISFILE)
 
 
-SRCS=[
-	"COMMAND",
-	"UTIL",
-	"DOSLIB",
-	"DOSCALL",
-]
 
-
-def main(argv):
+def SetENV():
 	WATCOM=os.environ["WATCOM"]
 
 	if not os.path.isdir(WATCOM):
@@ -27,6 +20,8 @@ def main(argv):
 	os.environ["EDPATH"]=os.path.join(WATCOM,"EDDAT")
 	os.environ["WIPFC"]=os.path.join(WATCOM,"WIPFC")
 
+
+def WatcomBuild(SRCS):
 	for src in SRCS:
 		cmd=["wcc","-ms","-3","-os","-bt=DOS",src+".C"]
 		proc=subprocess.Popen(cmd)
@@ -43,7 +38,8 @@ def main(argv):
 	cmd=["wlink",
 		"system",  "com",
 		"option",  "SMALL",
-		"name",    "COMMAND.COM",
+		"option",  "map",
+		"name",    SRCS[0]+".COM",
 		"file",    OBJS,
 		# "option",  "nodefaultlibs",
 	]
@@ -51,6 +47,12 @@ def main(argv):
 	proc.communicate()
 	if 0!=proc.returncode:
 		quit(1)
+
+
+def main(argv):
+	SetENV()
+	WatcomBuild(["COMMAND","UTIL","DOSLIB","DOSCALL",])
+	WatcomBuild(["TEST"])
 
 
 
