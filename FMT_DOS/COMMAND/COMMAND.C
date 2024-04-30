@@ -958,7 +958,7 @@ int CommandMain(struct Option *option)
 		char *afterArgv0;
 		struct Redirection redirInfo;
 
-		getcwd(cwd,MAX_PATH);
+		DOSGETCWD(cwd);  // getcwd of Open WATCOM 1.9 links free() and increases the binary size unnecessarily. 
 		DOSPUTS(cwd);
 		DOSPUTC('>');
 		DOSGETS(lineBuf);

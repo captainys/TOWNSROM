@@ -356,7 +356,6 @@ unsigned long int DOSSEEK(int fd,unsigned long int fpos,unsigned char from)
 	}
 }
 
-/*
 void DOSGETCWD(char cwd[68])
 {
 	union REGS regIn,regOut;
@@ -372,7 +371,6 @@ void DOSGETCWD(char cwd[68])
 	regIn.x.si=(unsigned)cwd+3;
 	intdos(&regIn,&regOut);
 }
-*/
 
 int DOSDUP2(int fdFrom,int fdTo)
 {
