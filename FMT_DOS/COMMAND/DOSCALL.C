@@ -372,9 +372,24 @@ void DOSGETCWD(char cwd[68])
 	intdos(&regIn,&regOut);
 }
 
+int DOSDUP(int fdFrom)
+{
+	union REGS regIn,regOut;
+	regIn.h.ah=0x45;
+	regIn.x.bx=fdFrom;
+	intdos(&regIn,&regOut);
+	if(0==CF(regOut))
+	{
+		return regOut.x.ax;
+	}
+	else
+	{
+		return -1;
+	}
+}
+
 int DOSDUP2(int fdFrom,int fdTo)
 {
-	int i;
 	union REGS regIn,regOut;
 	regIn.h.ah=0x46;
 	regIn.x.bx=fdFrom;

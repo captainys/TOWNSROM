@@ -656,7 +656,7 @@ int SetUpRedirection(struct Redirection *info,char cmdLine[])
 			DOSWRITES(DOS_STDERR,DOS_LINEBREAK);
 			return REDIR_ERROR;
 		}
-		info->prevStdin=dup(DOS_STDIN);
+		info->prevStdin=DOSDUP(DOS_STDIN); // dup in Open WATCOM 1.9 C Runtime Library links malloc and free, which is unnecessary. to increase binary size by 2KB.
 		DOSDUP2(info->fpStdin,DOS_STDIN); // dup2 in Open WATCOM 1.9 C Runtime Library links malloc and free, which is unnecessary. to increase binary size by 2KB.
 	}
 	if(NULL!=redirOut)
@@ -672,7 +672,7 @@ int SetUpRedirection(struct Redirection *info,char cmdLine[])
 			DOSWRITES(DOS_STDERR,DOS_LINEBREAK);
 			return REDIR_ERROR;
 		}
-		info->prevStdout=dup(DOS_STDOUT);
+		info->prevStdout=DOSDUP(DOS_STDOUT); // dup in Open WATCOM 1.9 C Runtime Library links malloc and free, which is unnecessary. to increase binary size by 2KB.
 		DOSDUP2(info->fpStdout,DOS_STDOUT); // dup2 in Open WATCOM 1.9 C Runtime Library links malloc and free, which is unnecessary. to increase binary size by 2KB.
 	}
 	if(NULL!=redirPipe)
