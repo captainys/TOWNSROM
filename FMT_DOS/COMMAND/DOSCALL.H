@@ -73,4 +73,7 @@ int DOSREADOPEN(const char fileName[]);
 int DOSWRITEOPEN(const char fileName[]);
 
 
+unsigned long int DOSSEEK(int fd,unsigned long int fpos,unsigned char from);
+
+
 #endif

@@ -52,7 +52,8 @@ struct BatchState
 {
 	char cmdLine[LINEBUFLEN];
 	char fName[MAX_PATH];
-	size_t fPos;
+	unsigned int SEG;
+	size_t fPos,fileSize;
 	unsigned char eof;
 };
 
@@ -723,6 +724,27 @@ int RunBatchFile(char cmd[],char param[])
 	}
 
 	/* printf("BATCHFILE=%s\n",batState.fName); */
+	{
+		int fd=DOSREADOPEN(batState.fName);
+		if(0<=fd)
+		{
+			char num[16];
+			unsigned long sz=DOSSEEK(fd,0,DOS_SEEK_END),i;
+			unsigned int parags,realParags,SEG,read;
+			char far *batPtr;
+
+			DOSSEEK(fd,0,DOS_SEEK_SET);
+			parags=sz+1;  // +1 for \0.
+			parags+=15;
+			parags>>=4; // Number of paragraphs
+			batState.SEG=DOSMALLOC(parags);
+			batPtr=MAKEFARPTR(batState.SEG,0);
+			batState.fileSize=sz;
+			_dos_read(fd,batPtr,sz,&read);
+			batPtr[sz]=0;
+			_dos_close(fd);
+		}
+	}
 
 	while(0==batState.eof)
 	{

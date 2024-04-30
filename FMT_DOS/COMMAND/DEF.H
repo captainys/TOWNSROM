@@ -21,6 +21,10 @@
 
 #define DOS_LINEBREAK "\r\n"
 
+#define DOS_SEEK_SET 0
+#define DOS_SEEK_CUR 1
+#define DOS_SEEK_END 2
+
 enum
 {
 	COMTYPE_UNKNOWN,

@@ -104,4 +104,6 @@ int ExpandBatchArg(char lineBuf[],int batArgc,char *batArgv[],unsigned int lineB
 char *FindRedirection(char *c,char arg[]);
 
 
+void Itoa(char *a,unsigned long int i);
+
 #endif

@@ -325,3 +325,27 @@ int DOSWRITEOPEN(const char fileName[])
 	}
 	return -1;
 }
+
+unsigned long int DOSSEEK(int fd,unsigned long int fpos,unsigned char from)
+{
+	int i;
+	union REGS regIn,regOut;
+	regIn.h.ah=0x42;
+	regIn.h.al=from;
+	regIn.x.bx=fd;
+	regIn.x.cx=(fpos>>16);
+	regIn.x.dx=fpos&0xFFFF;
+	intdos(&regIn,&regOut);
+	if(0==CF(regOut))
+	{
+		unsigned long int ret;
+		ret=regOut.x.dx;
+		ret<<=16;
+		ret|=regOut.x.ax;
+		return ret;
+	}
+	else
+	{
+		return 0xFFFFFFFFL;
+	}
+}

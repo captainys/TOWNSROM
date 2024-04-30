@@ -496,3 +496,26 @@ char *FindRedirection(char *foundChar,char arg[])
 
 	return NULL;
 }
+void Itoa(char *a,unsigned long int i)
+{
+	char rev[16];
+	if(0==i)
+	{
+		a[0]='0';
+		a[1]=0;
+	}
+	else
+	{
+		int n=0;
+		while(0<i)
+		{
+			rev[n++]='0'+(i%10);
+			i/=10;
+		}
+		while(0<n)
+		{
+			*(a++)=rev[--n];
+		}
+		*a=0;
+	}
+}
