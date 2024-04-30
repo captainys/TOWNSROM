@@ -18,111 +18,111 @@ static char doslibFNBuf[MAX_PATH];
 
 void PrintDOSError(int errCode)
 {
-	puts("");
 	switch(errCode)
 	{
 	case DOSERR_NO_ERROR:
 		break;
 	case DOSERR_INVALID_FUNC:
-		puts("INVALID_FUNC");
+		DOSPUTS("INVALID_FUNC");
 		break;
 	case DOSERR_FILE_NOT_FOUND:
-		puts("FILE_NOT_FOUND");
+		DOSPUTS("FILE_NOT_FOUND");
 		break;
 	case DOSERR_DIR_NOT_FOUND:
-		puts("DIR_NOT_FOUND");
+		DOSPUTS("DIR_NOT_FOUND");
 		break;
 	case DOSERR_TOO_MANY_OPEN_FILES:
-		puts("TOO_MANY_OPEN_FILES");
+		DOSPUTS("TOO_MANY_OPEN_FILES");
 		break;
 	case DOSERR_ACCESS_DENIED:
-		puts("ACCESS_DENIED");
+		DOSPUTS("ACCESS_DENIED");
 		break;
 	case DOSERR_INVALID_HANDLE:
-		puts("INVALID_HANDLE");
+		DOSPUTS("INVALID_HANDLE");
 		break;
 	case DOSERR_MCB_BROKEN:
-		puts("MCB_BROKEN");
+		DOSPUTS("MCB_BROKEN");
 		break;
 	case DOSERR_OUT_OF_MEMORY:
-		puts("OUT_OF_MEMORY");
+		DOSPUTS("OUT_OF_MEMORY");
 		break;
 	case DOSERR_INVALID_MCB:
-		puts("INVALID_MCB");
+		DOSPUTS("INVALID_MCB");
 		break;
 	case DOSERR_BAD_ENV:
-		puts("BAD_ENV");
+		DOSPUTS("BAD_ENV");
 		break;
 	case DOSERR_BAD_FORMAT:
-		puts("BAD_FORMAT");
+		DOSPUTS("BAD_FORMAT");
 		break;
 	case DOSERR_INVALID_ACCESS:
-		puts("INVALID_ACCESS");
+		DOSPUTS("INVALID_ACCESS");
 		break;
 	case DOSERR_INVALID_DATA:
-		puts("INVALID_DATA");
+		DOSPUTS("INVALID_DATA");
 		break;
 	case DOSERR_UNUSED:
-		puts("UNUSED");
+		DOSPUTS("UNUSED");
 		break;
 	case DOSERR_INVALID_DRIVE:
-		puts("INVALID_DRIVE");
+		DOSPUTS("INVALID_DRIVE");
 		break;
 	case DOSERR_CANNOT_DEL_CUR_DIR:
-		puts("CANNOT_DEL_CUR_DIR");
+		DOSPUTS("CANNOT_DEL_CUR_DIR");
 		break;
 	case DOSERR_NOT_SAME_DRIVE:
-		puts("NOT_SAME_DRIVE");
+		DOSPUTS("NOT_SAME_DRIVE");
 		break;
 	case DOSERR_NO_MORE_FILES:
-		puts("NO_MORE_FILES");
+		DOSPUTS("NO_MORE_FILES");
 		break;
 	case DOSERR_WRITE_PROTEDTED:
-		puts("WRITE_PROTEDTED");
+		DOSPUTS("WRITE_PROTEDTED");
 		break;
 	case DOSERR_UNKNOWN_UNIT:
-		puts("UNKNOWN_UNIT");
+		DOSPUTS("UNKNOWN_UNIT");
 		break;
 	case DOSERR_DRIVE_NOT_READY:
-		puts("DRIVE_NOT_READY");
+		DOSPUTS("DRIVE_NOT_READY");
 		break;
 	case DOSERR_UNKNOWN_COMMAND:
-		puts("UNKNOWN_COMMAND");
+		DOSPUTS("UNKNOWN_COMMAND");
 		break;
 	case DOSERR_CRC_ERROR:
-		puts("CRC_ERROR");
+		DOSPUTS("CRC_ERROR");
 		break;
 	case DOSERR_BAD_REQ_LEN:
-		puts("BAD_REQ_LEN");
+		DOSPUTS("BAD_REQ_LEN");
 		break;
 	case DOSERR_SEEK_ERROR:
-		puts("SEEK_ERROR");
+		DOSPUTS("SEEK_ERROR");
 		break;
 	case DOSERR_UNKNOWN_MEDIUM:
-		puts("UNKNOWN_MEDIUM");
+		DOSPUTS("UNKNOWN_MEDIUM");
 		break;
 	case DOSERR_SECTOR_NOT_FOUND:
-		puts("SECTOR_NOT_FOUND");
+		DOSPUTS("SECTOR_NOT_FOUND");
 		break;
 	case DOSERR_OUT_OT_PAPER:
-		puts("OUT_OT_PAPER");
+		DOSPUTS("OUT_OT_PAPER");
 		break;
 	case DOSERR_WRITE_FAULT:
-		puts("WRITE_FAULT");
+		DOSPUTS("WRITE_FAULT");
 		break;
 	case DOSERR_READ_FAULT:
-		puts("READ_FAULT");
+		DOSPUTS("READ_FAULT");
 		break;
 	case DOSERR_GENERAL_FAULT:
-		puts("GENERAL_FAULT");
+		DOSPUTS("GENERAL_FAULT");
 		break;
 	case DOSERR_INVALID_DISK_CHANGE:
-		puts("INVALID_DISK_CHANGE");
+		DOSPUTS("INVALID_DISK_CHANGE");
 		break;
 	default:
-		puts("Undefined Error.");
+		DOSPUTS("Undefined Error.");
 		break;
 	}
+	DOSPUTS(DOS_LINEBREAK);
 }
 
 

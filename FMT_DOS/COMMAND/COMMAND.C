@@ -214,7 +214,8 @@ void ExecEcho(const char *afterArgv0)
 		}
 		strncpy(expand,afterArgv0,LINEBUFLEN);
 		ExpandEnvVar(ENVSEG,expand,LINEBUFLEN-1);
-		puts(expand);
+		DOSPUTS(expand);
+		DOSPUTS(DOS_LINEBREAK);
 	}
 }
 
@@ -225,7 +226,8 @@ void ExecExit(struct BatchState *batState,const char afterArgv0[])
 	ExpandEnvVar(ENVSEG,expand,LINEBUFLEN-1);
 	if(0==strcmp(expand,"-f") || 0==strcmp(expand,"-F"))
 	{
-		puts("Exitting.");
+		DOSPUTS("Exitting.");
+		DOSPUTS(DOS_LINEBREAK);
 		exit(0);
 	}
 	else if(RUNMODE_FIRST_LEVEL==opt.runMode)
@@ -235,7 +237,8 @@ void ExecExit(struct BatchState *batState,const char afterArgv0[])
 	}
 	else
 	{
-		puts("Exitting.");
+		DOSPUTS("Exitting.");
+		DOSPUTS(DOS_LINEBREAK);
 		exit(0);
 	}
 }
@@ -289,7 +292,8 @@ void ExecSet(char setParam[])
 	}
 	else
 	{
-		puts("Too long.");
+		DOSPUTS("Too long.");
+		DOSPUTS(DOS_LINEBREAK);
 	}
 }
 
@@ -897,11 +901,13 @@ int RunBatchFile(char cmd[],char param[])
 				}
 				break;
 			case COMTYPE_BINARY32:
-				puts("Direct execution of .EXP not supported.");
+				DOSPUTS("Direct execution of .EXP not supported.");
+				DOSPUTS(DOS_LINEBREAK);
 				ERRORLEVEL=1;
 				break;
 			default:
-				puts("Wrong Command or File Name.");
+				DOSPUTS("Wrong Command or File Name.");
+				DOSPUTS(DOS_LINEBREAK);
 				ERRORLEVEL=1;
 				break;
 			}
@@ -981,10 +987,12 @@ int CommandMain(struct Option *option)
 				DOSEXEC(PSP,ENVSEG,exeCmd,execParamBuf);
 				break;
 			case COMTYPE_BINARY32:
-				puts("Direct execution of .EXP not supported.");
+				DOSPUTS("Direct execution of .EXP not supported.");
+				DOSPUTS(DOS_LINEBREAK);
 				break;
 			default:
-				puts("Wrong Command or File Name.");
+				DOSPUTS("Wrong Command or File Name.");
+				DOSPUTS(DOS_LINEBREAK);
 				break;
 			}
 		}
