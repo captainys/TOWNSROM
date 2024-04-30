@@ -10,7 +10,7 @@
 #include "UTIL.H"
 #include "DEF.H"
 
-#define VERSION "20240429"
+#define VERSION "20240430"
 
 #define Tsugaru_DebugBreak outp(0x2386,2);
 
