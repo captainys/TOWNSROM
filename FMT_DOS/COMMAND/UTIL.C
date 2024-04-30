@@ -496,7 +496,7 @@ char *FindRedirection(char *foundChar,char arg[])
 
 	return NULL;
 }
-void Itoa(char *a,unsigned long int i)
+void Itoa(char *a,unsigned int i)
 {
 	char rev[16];
 	if(0==i)
