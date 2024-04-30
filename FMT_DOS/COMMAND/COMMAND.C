@@ -24,6 +24,7 @@ static struct _find_t findStruct;
 
 
 int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char afterArgv0[]);
+unsigned int BatchReadLine(char line[],unsigned int maxLen,struct BatchState *batState,size_t *fpos);
 
 
 /*
@@ -54,7 +55,6 @@ struct BatchState
 	char fName[MAX_PATH];
 	unsigned int SEG;
 	size_t fPos,fileSize;
-	unsigned char eof;
 };
 
 void InitBatchState(struct BatchState *state)
@@ -292,29 +292,24 @@ void ExecSet(char setParam[])
 
 void ExecGoto(struct BatchState *batState,char gotoLabel[])
 {
-	FILE *fp;
 	static char labelBuf[MAX_PATH],inputBuf[LINEBUFLEN],lineBuf[LINEBUFLEN];
+	size_t fpos=0;
 	GetFirstArgument(labelBuf,gotoLabel);
 	Capitalize(labelBuf);
-	fp=fopen(batState->fName,"r");
-	if(NULL!=fp)
+
+	while(fpos<batState->fileSize)
 	{
-		while(NULL!=fgets(inputBuf,LINEBUFLEN-1,fp))
+		BatchReadLine(inputBuf,LINEBUFLEN-1,batState,&fpos);
+		GetFirstArgument(lineBuf,inputBuf);
+		Capitalize(lineBuf);
+		if(':'==lineBuf[0] && 0==strcmp(labelBuf,lineBuf+1))
 		{
-			GetFirstArgument(lineBuf,inputBuf);
-			Capitalize(lineBuf);
-			if(':'==lineBuf[0] && 0==strcmp(labelBuf,lineBuf+1))
-			{
-				batState->fPos=ftell(fp); /* Next line of the label. */
-				break;
-			}
+			batState->fPos=fpos;
+			break;
 		}
-		fclose(fp);
 	}
-	else
-	{
-		DOSWRITES(DOS_STDERR,"Cannot open batch file."DOS_LINEBREAK);
-	}
+
+	// Label not found
 }
 
 void ExecIf(struct BatchState *batState,char *param)
@@ -699,6 +694,66 @@ void CleanUpRedirection(struct Redirection *info)
 	}
 }
 
+/*! Will update fpos
+*/
+unsigned int BatchReadLine(char line[],unsigned int maxLen,struct BatchState *batState,size_t *fpos)
+{
+	unsigned int i=0;
+	const char far *batPtr=MAKEFARPTR(batState->SEG,0);
+	while(*fpos<batState->fileSize && i+1<maxLen)
+	{
+		if(batPtr[*fpos]==0x0d || batPtr[*fpos]==0x0a || batPtr[*fpos]==0x1A || batPtr[*fpos]==0)
+		{
+			break;
+		}
+		line[i]=batPtr[*fpos];
+		++(*fpos);
+		++i;
+	}
+	line[i]=0;
+	while(batPtr[*fpos]==0x0d || batPtr[*fpos]==0x0a || batPtr[*fpos]==0x1A || batPtr[*fpos]==0)
+	{
+		++(*fpos);
+	}
+	return i;
+}
+
+/* batState->fName must be filled before this function */
+int StartBatchFile(struct BatchState *batState)
+{
+	int fd=DOSREADOPEN(batState->fName);
+	if(0<=fd)
+	{
+		char num[16];
+		unsigned long sz=DOSSEEK(fd,0,DOS_SEEK_END),i;
+		unsigned int parags,realParags,SEG,read;
+		char far *batPtr;
+
+		DOSSEEK(fd,0,DOS_SEEK_SET);
+		parags=sz+1;  // +1 for \0.
+		parags+=15;
+		parags>>=4; // Number of paragraphs
+		batState->SEG=DOSMALLOC(parags);
+		batPtr=MAKEFARPTR(batState->SEG,0);
+		batState->fileSize=sz;
+		_dos_read(fd,batPtr,sz,&read);
+		batPtr[sz]=0;
+		_dos_close(fd);
+
+		return 0;
+	}
+	return -1;
+}
+
+void EndBatchFile(struct BatchState *batState)
+{
+	if(0<batState->SEG)
+	{
+		_dos_freemem(batState->SEG);
+		batState->SEG=0;
+	}
+}
+
 int RunBatchFile(char cmd[],char param[])
 {
 	int returnCode=0;
@@ -724,69 +779,35 @@ int RunBatchFile(char cmd[],char param[])
 	}
 
 	/* printf("BATCHFILE=%s\n",batState.fName); */
+	if(0!=StartBatchFile(&batState))
 	{
-		int fd=DOSREADOPEN(batState.fName);
-		if(0<=fd)
-		{
-			char num[16];
-			unsigned long sz=DOSSEEK(fd,0,DOS_SEEK_END),i;
-			unsigned int parags,realParags,SEG,read;
-			char far *batPtr;
-
-			DOSSEEK(fd,0,DOS_SEEK_SET);
-			parags=sz+1;  // +1 for \0.
-			parags+=15;
-			parags>>=4; // Number of paragraphs
-			batState.SEG=DOSMALLOC(parags);
-			batPtr=MAKEFARPTR(batState.SEG,0);
-			batState.fileSize=sz;
-			_dos_read(fd,batPtr,sz,&read);
-			batPtr[sz]=0;
-			_dos_close(fd);
-		}
+		DOSWRITES(DOS_STDOUT,"File Not Found."DOS_LINEBREAK);
+		DOSWRITES(DOS_STDOUT,"Filename=");
+		DOSWRITES(DOS_STDOUT,batState.fName);
+		DOSWRITES(DOS_STDOUT,DOS_LINEBREAK);
+		return 1;
 	}
 
-	while(0==batState.eof)
+	for(;;)
 	{
-		FILE *fp;
 		int argv0Len=0;
 		static char argv0[MAX_PATH];
 		char *afterArgv0="",*endOfCmd="";
 		struct Redirection redirInfo;
 
-		fp=fopen(batState.fName,"r");
-		if(NULL==fp)
-		{
-			DOSWRITES(DOS_STDOUT,"File Not Found."DOS_LINEBREAK);
-			DOSWRITES(DOS_STDOUT,"Filename=");
-			DOSWRITES(DOS_STDOUT,batState.fName);
-			DOSWRITES(DOS_STDOUT,DOS_LINEBREAK);
-			break;
-		}
-		fseek(fp,batState.fPos,SEEK_SET);
-		while(0==batState.eof)
-		{
-			if(NULL==fgets(lineBuf,LINEBUFLEN-1,fp))
-			{
-				batState.eof=1;
-				break;
-			}
-			ClearTailSpace(lineBuf);
-			if(0!=lineBuf[0])
-			{
-				break;
-			}
-		}
-		batState.fPos=ftell(fp);
-		fclose(fp);
+		BatchReadLine(lineBuf,LINEBUFLEN-1,&batState,&batState.fPos);
+		ClearTailSpace(lineBuf);
 
-		if(0!=batState.eof)
-		{
-			break;
-		}
 		if(0==lineBuf[0])
 		{
-			continue;
+			if(batState.fPos<batState.fileSize)
+			{
+				continue;
+			}
+			else
+			{
+				break;
+			}
 		}
 
 		if(0!=echo)
@@ -840,17 +861,20 @@ int RunBatchFile(char cmd[],char param[])
 					static char argv0[MAX_PATH];
 					static unsigned int argv0Len;
 
+					InitBatchState(&nextBatch);
+
 					strncpy(nextBatch.cmdLine,lineBuf,LINEBUFLEN-1);
 					nextBatch.cmdLine[LINEBUFLEN-1]=0;
 					nextBatch.fPos=0;
-					nextBatch.eof=0;
 
 					argv0Len=GetFirstArgument(argv0,nextBatch.cmdLine);
 					Capitalize(argv0);
 					if(FOUND==FindExecutableFromPath(ENVSEG,nextBatch.fName,argv0))
 					{
 						ParseString(&batArgc,batArgv,nextBatch.fName,GetAfterFirstArgument(nextBatch.cmdLine,argv0Len));
+						EndBatchFile(&batState);
 						batState=nextBatch;
+						StartBatchFile(&batState);
 					}
 					else
 					{
@@ -881,6 +905,9 @@ int RunBatchFile(char cmd[],char param[])
 
 		CleanUpRedirection(&redirInfo);
 	}
+
+	EndBatchFile(&batState);
+
 	return returnCode;
 }
 
