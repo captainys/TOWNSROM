@@ -737,8 +737,6 @@ int StartBatchFile(struct BatchState *batState)
 		parags+=15;
 		parags>>=4; // Number of paragraphs
 
-		Tsugaru_DebugBreak
-
 		batState->SEG=DOSMALLOC(parags);
 		batPtr=MAKEFARPTR(batState->SEG,0);
 		batState->fileSize=sz;
