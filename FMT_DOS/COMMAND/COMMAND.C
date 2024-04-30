@@ -104,20 +104,46 @@ void PrintPSPInfo(unsigned char far *PSPPtr)
 
 /*! Return value 0:Not the First-Level   Non-Zero:First-Level
 */
-void SetUp(struct Option *option,int argc,char *argv[])
+void SetUp(struct Option *option)
 {
-	int i;
+	int i,j;
+	unsigned int optLen;
+	unsigned char far *optPtr;
+	char dir[MAX_DIR];
+
+	PSP=DOSGETPSP();
+	/* printf("PSP=%04x\n",PSP); */
+
+	PSPPtr=(unsigned char far*)MK_FP(PSP,0);
+	/* PrintPSPInfo(PSPPtr); */
 
 	option->runMode=RUNMODE_EXEC_AND_STAY;
 	option->execFilename[0]=0;
 	option->ENVSEGLen=10; /* 160 bytes */
 	option->execParam[0]=0;
 
-	for(i=1; i<argc; ++i)
+	optLen=PSPPtr[0x80];
+	optPtr=PSPPtr+0x81;
+	for(i=0; i<optLen && optPtr[i]<' '; ++i) // Skip preceding control code if any.
 	{
-		if(argv[i][0]=='/')
+	}
+
+	dir[0]=0; // Tentative.
+	if('/'!=optPtr[i])
+	{
+		j=0;
+		for(i=i; i<optLen && ' '<optPtr[i]; ++i)
 		{
-			char c=argv[i][1];
+			dir[j++]=optPtr[i];
+		}
+		dir[j]=0;
+	}
+
+	for(i=i; i<optLen; ++i)
+	{
+		if('/'==optPtr[i])
+		{
+			char c=optPtr[++i];
 			if('a'<=c && c<='z')
 			{
 				c=c+'A'-'a';
@@ -135,42 +161,27 @@ void SetUp(struct Option *option,int argc,char *argv[])
 					option->runMode=RUNMODE_EXEC_AND_STAY;
 				}
 
-				/* Can be:
-				   /c batch.bat arg arg arg ...
-				   /cbatch.bat arg arg arg ...
-				*/
-				if(0!=argv[i][2] && ' '!=argv[i][2] && '\t'!=argv[i][2])
+				++i;
+				while(i<optLen && optPtr[i]<=' ')
 				{
-					/* /cbatch.bat arg arg arg ...
-					   Batch file name is 2 bytes after the current argument.
-					*/
-					argv[i]+=2;
-				}
-				else
-				{
-					/* /c batch.bat arg arg arg ...
-					   Batch file name is the next argument.
-					*/
 					++i;
 				}
-				if(i<argc)
+				j=0;
+				while(i<optLen && ' '<optPtr[i])
 				{
-					int paramPtr=0;
-					strcpy(option->execFilename,argv[i]);
-					for(++i; paramPtr<MAX_EXEPARAM-2 && i<argc; ++i)
-					{
-						int j;
-						if(0!=paramPtr)
-						{
-							option->execParam[paramPtr++]=' ';
-						}
-						for(j=0; paramPtr<MAX_EXEPARAM-2 && 0!=argv[i][j]; ++j)
-						{
-							option->execParam[paramPtr++]=argv[i][j];
-						}
-						option->execParam[paramPtr]=0;
-					}
+					option->execFilename[j++]=optPtr[i++];
 				}
+				option->execFilename[j]=0;
+				while(i<optLen && optPtr[i]<=' ')
+				{
+					++i;
+				}
+				j=0;
+				while(i<optLen)
+				{
+					option->execParam[j++]=optPtr[i++];
+				}
+				option->execParam[j]=0;
 				break;
 			case 'P':
 				option->runMode=RUNMODE_FIRST_LEVEL;
@@ -179,17 +190,11 @@ void SetUp(struct Option *option,int argc,char *argv[])
 		}
 	}
 
-	PSP=DOSGETPSP();
-	/* printf("PSP=%04x\n",PSP); */
-
-	PSPPtr=(unsigned char far*)MK_FP(PSP,0);
-	/* PrintPSPInfo(PSPPtr); */
-
 	ENVSEG=GetUint16(PSPPtr+PSP_ENVSEG);
 	if(0==ENVSEG)
 	{
 		_dos_allocmem(option->ENVSEGLen,&ENVSEG);  /* Return: Non-zero means error. */
-		InitENVSEG(ENVSEG,option->ENVSEGLen,argv[1]);
+		InitENVSEG(ENVSEG,option->ENVSEGLen,dir);
 		/* printf("Allocated ENVSEG:%04x\n",ENVSEG); */
 		SetUint16(PSPPtr+PSP_ENVSEG,ENVSEG);
 	}
@@ -1001,7 +1006,7 @@ int CommandMain(struct Option *option)
 	return returnCode;
 }
 
-int main(int argc,char *argv[])
+int main(void)
 {
 	int returnCode=0;
 
@@ -1012,7 +1017,7 @@ int main(int argc,char *argv[])
 
 	/* Test(argc,argv); */
 
-	SetUp(&opt,argc,argv);
+	SetUp(&opt);
 	if(RUNMODE_FIRST_LEVEL==opt.runMode)
 	{
 		RunBatchFile("AUTOEXEC.BAT","");
