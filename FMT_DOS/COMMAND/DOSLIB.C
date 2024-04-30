@@ -169,8 +169,7 @@ void InitENVSEG(unsigned int ENVSEG,unsigned int len,const char path[])
 
 int FindExecutableFromPath(unsigned int ENVSEG,char fName[MAX_PATH],const char srcFName[])
 {
-	int i;
-	FILE *fp;
+	int i,fd;
 	const char *srcExt;
 	const char *const ext[]=
 	{
@@ -179,9 +178,9 @@ int FindExecutableFromPath(unsigned int ENVSEG,char fName[MAX_PATH],const char s
 
 	/* First try as is. */
 	DOSTRUENAME(fName,srcFName);
-	if(NULL!=(fp=fopen(fName,"rb")))
+	if(0<=(fd=DOSREADOPEN(fName)))
 	{
-		fclose(fp);
+		_dos_close(fd);
 		return FOUND;
 	}
 
@@ -196,12 +195,12 @@ int FindExecutableFromPath(unsigned int ENVSEG,char fName[MAX_PATH],const char s
 		{
 			ReplaceExtension(doslibFNBuf,ext[i]);
 			DOSTRUENAME(fName,doslibFNBuf);
-			if(NULL!=(fp=fopen(fName,"rb")))
+			if(0<=(fd=DOSREADOPEN(fName)))
 			{
 				DOSWRITES(DOS_STDOUT,"Found ");
 				DOSWRITES(DOS_STDOUT,fName);
 				DOSWRITES(DOS_STDOUT,DOS_LINEBREAK);
-				fclose(fp);
+				_dos_close(fd);
 				return FOUND;
 			}
 		}
@@ -229,9 +228,9 @@ int FindExecutableFromPath(unsigned int ENVSEG,char fName[MAX_PATH],const char s
 					doslibFNBuf[fnPtr]=0;
 
 					DOSTRUENAME(fName,doslibFNBuf);
-					if(NULL!=(fp=fopen(fName,"rb")))
+					if(0<=(fd=DOSREADOPEN(fName)))
 					{
-						fclose(fp);
+						_dos_close(fd);
 						return FOUND;
 					}
 					if(0==srcExt[0])
@@ -241,12 +240,12 @@ int FindExecutableFromPath(unsigned int ENVSEG,char fName[MAX_PATH],const char s
 						{
 							ReplaceExtension(doslibFNBuf,ext[i]);
 							DOSTRUENAME(fName,doslibFNBuf);
-							if(NULL!=(fp=fopen(fName,"rb")))
+							if(0<=(fd=DOSREADOPEN(fName)))
 							{
 								DOSWRITES(DOS_STDOUT,"Found ");
 								DOSWRITES(DOS_STDOUT,fName);
 								DOSWRITES(DOS_STDOUT,DOS_LINEBREAK);
-								fclose(fp);
+								_dos_close(fd);
 								return FOUND;
 							}
 						}

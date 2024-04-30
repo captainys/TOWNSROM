@@ -12,6 +12,9 @@
 
 #define VERSION "20240429"
 
+#define Tsugaru_DebugBreak outp(0x2386,2);
+
+
 unsigned char echo=1;
 unsigned char isFirstLevel=0;
 unsigned int PSP=0,ENVSEG=0;
@@ -733,6 +736,9 @@ int StartBatchFile(struct BatchState *batState)
 		parags=sz+1;  // +1 for \0.
 		parags+=15;
 		parags>>=4; // Number of paragraphs
+
+		Tsugaru_DebugBreak
+
 		batState->SEG=DOSMALLOC(parags);
 		batPtr=MAKEFARPTR(batState->SEG,0);
 		batState->fileSize=sz;
