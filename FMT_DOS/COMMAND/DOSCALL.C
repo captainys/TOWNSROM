@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <dos.h>
 #include <fcntl.h>
 #include "DOSCALL.H"

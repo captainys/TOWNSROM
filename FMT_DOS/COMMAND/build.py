@@ -42,7 +42,6 @@ def WatcomBuild(SRCS):
 
 	cmd=["wlink",
 		"system",  "com",
-		"option",  "SMALL",
 		"option",  "map",
 		"name",    SRCS[0]+".COM",
 		"file",    OBJS,

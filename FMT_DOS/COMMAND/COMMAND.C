@@ -37,12 +37,9 @@ There should be no re-entrance for this buffer.
 */
 char execParamBuf[MAX_EXEPARAM];
 
-enum
-{
-	RUNMODE_FIRST_LEVEL,
-	RUNMODE_EXEC_AND_STAY,
-	RUNMODE_EXEC_AND_EXIT
-};
+#define RUNMODE_FIRST_LEVEL 'P'
+#define RUNMODE_EXEC_AND_STAY 'K'
+#define RUNMODE_EXEC_AND_EXIT 'C'
 
 struct Option
 {
@@ -152,14 +149,7 @@ void SetUp(struct Option *option)
 			{
 			case 'C':
 			case 'K':
-				if('C'==c)
-				{
-					option->runMode=RUNMODE_EXEC_AND_EXIT;
-				}
-				else /* if('K'==c) */
-				{
-					option->runMode=RUNMODE_EXEC_AND_STAY;
-				}
+				option->runMode=c;
 
 				++i;
 				while(i<optLen && optPtr[i]<=' ')
@@ -184,7 +174,7 @@ void SetUp(struct Option *option)
 				option->execParam[j]=0;
 				break;
 			case 'P':
-				option->runMode=RUNMODE_FIRST_LEVEL;
+				option->runMode=c;
 				break;
 			}
 		}
@@ -231,19 +221,16 @@ void ExecExit(struct BatchState *batState,const char afterArgv0[])
 	ExpandEnvVar(ENVSEG,expand,LINEBUFLEN-1);
 	if(0==strcmp(expand,"-f") || 0==strcmp(expand,"-F"))
 	{
-		DOSPUTS("Exitting.");
-		DOSPUTS(DOS_LINEBREAK);
+		DOSPUTS("Exitting." DOS_LINEBREAK);
 		exit(0);
 	}
 	else if(RUNMODE_FIRST_LEVEL==opt.runMode)
 	{
-		DOSWRITES(DOS_STDERR,"COMMAND.COM is running first level."DOS_LINEBREAK);
 		DOSWRITES(DOS_STDERR,"Use EXIT -F to force exit."DOS_LINEBREAK);
 	}
 	else
 	{
-		DOSPUTS("Exitting.");
-		DOSPUTS(DOS_LINEBREAK);
+		DOSPUTS("Exitting." DOS_LINEBREAK);
 		exit(0);
 	}
 }
@@ -297,8 +284,7 @@ void ExecSet(char setParam[])
 	}
 	else
 	{
-		DOSPUTS("Too long.");
-		DOSPUTS(DOS_LINEBREAK);
+		DOSPUTS("Too long." DOS_LINEBREAK);
 	}
 }
 

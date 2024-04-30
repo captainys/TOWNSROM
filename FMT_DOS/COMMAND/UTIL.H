@@ -45,7 +45,8 @@ int CaseInsensitiveCompare(char a,char b);
     If successful, it returns the length of the new string.
 */
 int ReplaceStringNF(char str[],unsigned int maxStrLen,const char from[],const char far to[]);
-int ReplaceStringNN(char str[],unsigned int maxStrLen,const char from[],const char to[]);
+
+#define ReplaceStringNN(str,maxLen,from,to) ReplaceStringNF(str,maxLen,from,(const char far *)(to))
 
 
 /*! Substitute environment variables to %var%.
