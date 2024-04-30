@@ -188,7 +188,7 @@ void SetUp(struct Option *option,int argc,char *argv[])
 	ENVSEG=GetUint16(PSPPtr+PSP_ENVSEG);
 	if(0==ENVSEG)
 	{
-		ENVSEG=DOSMALLOC(option->ENVSEGLen);
+		_dos_allocmem(option->ENVSEGLen,&ENVSEG);  /* Return: Non-zero means error. */
 		InitENVSEG(ENVSEG,option->ENVSEGLen,argv[1]);
 		/* printf("Allocated ENVSEG:%04x\n",ENVSEG); */
 		SetUint16(PSPPtr+PSP_ENVSEG,ENVSEG);
@@ -741,7 +741,7 @@ int StartBatchFile(struct BatchState *batState)
 		parags+=15;
 		parags>>=4; // Number of paragraphs
 
-		batState->SEG=DOSMALLOC(parags);
+		_dos_allocmem(parags,&batState->SEG);
 		batPtr=MAKEFARPTR(batState->SEG,0);
 		batState->fileSize=sz;
 		_dos_read(fd,batPtr,sz,&read);

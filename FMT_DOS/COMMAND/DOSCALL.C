@@ -20,7 +20,8 @@ unsigned int DOSGETPSP(void)
 
 
 
-/*! Returns the segment.
+#if 0
+/*! Returns the segment.  Left for reference.
 */
 unsigned int DOSMALLOC(unsigned int pages)
 {
@@ -75,7 +76,11 @@ unsigned int DOSMALLOC(unsigned int pages)
 	return SEGERR[0];
 #endif
 }
+#endif
 
+
+#if 0
+/* Left for reference */
 void DOSFREE(unsigned int SEG)
 {
 	if(0!=SEG)
@@ -107,6 +112,7 @@ void DOSFREE(unsigned int SEG)
 */
 #endif
 }
+#endif
 
 int DOSTRUENAME(char fullpath[],const char src[])
 {
@@ -349,3 +355,21 @@ unsigned long int DOSSEEK(int fd,unsigned long int fpos,unsigned char from)
 		return 0xFFFFFFFFL;
 	}
 }
+
+/*
+void DOSGETCWD(char cwd[68])
+{
+	union REGS regIn,regOut;
+	unsigned drv;
+
+	_dos_getdrive(&drv);
+	cwd[0]='A'+drv-1;
+	cwd[1]=':';
+	cwd[2]='\\';
+
+	regIn.h.ah=0x47;
+	regIn.h.dl=0;
+	regIn.x.si=(unsigned)cwd+3;
+	intdos(&regIn,&regOut);
+}
+*/

@@ -6,8 +6,11 @@
 
 #define LINEBUFLEN 256
 #define MAX_PATH 128
+#define MAX_DIR 68
 #define MAX_ARG 64
 #define MAX_EXEPARAM 128
+/* DOS 3.1 can have up to 64-byte CWD.  Plus drive letter, colon, backslash, and zero.
+*/
 
 #define DOS_STDIN  0
 #define DOS_STDOUT 1
