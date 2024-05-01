@@ -258,7 +258,6 @@ int ReplaceStringNF(char str[],unsigned int maxStrlen,const char from[],const ch
 	fromLen=strlen(from);
 	toLen=_fstrlen(to);
 
-	if(toLen<=fromLen) /* Shorten or no length change. */
 	{
 		int i;
 		for(i=0; 0!=str[i]; ++i)
@@ -273,52 +272,40 @@ int ReplaceStringNF(char str[],unsigned int maxStrlen,const char from[],const ch
 			}
 			if(j==fromLen) /* Found a Match! */
 			{
-				for(j=0; j<toLen; ++j)
+				if(toLen<=fromLen) /* Shorten or no length change. */
 				{
-					str[i+j]=to[j];
+					for(j=0; j<toLen; ++j)
+					{
+						str[i+j]=to[j];
+					}
+					for(j=i+toLen; j+fromLen-toLen<orgStrlen; ++j)
+					{
+						str[j]=str[j+fromLen-toLen];
+					}
+					str[j]=0;
 				}
-				for(j=i+toLen; j+fromLen-toLen<orgStrlen; ++j)
+				else
 				{
-					str[j]=str[j+fromLen-toLen];
-				}
-				str[j]=0;
-			}
-		}
-		return i;
-	}
-	else
-	{
-		int i;
-		unsigned int growth=toLen-fromLen;
-		for(i=0; 0!=str[i]; ++i)
-		{
-			int j;
-			for(j=0; j<fromLen; ++j)
-			{
-				if(0!=CaseInsensitiveCompare(str[i+j],from[j]))
-				{
-					break;
-				}
-			}
-			if(j==fromLen) /* Found a Match! */
-			{
-				unsigned int newStrlen=orgStrlen+growth;
-				if(maxStrlen<newStrlen)
-				{
-					/* Cannot expand.  Give up. */
-					return 0;
-				}
+					unsigned int growth,newStrlen;
+					growth=toLen-fromLen;
+					newStrlen=orgStrlen+growth;
+					if(maxStrlen<newStrlen)
+					{
+						/* Cannot expand.  Give up. */
+						return 0;
+					}
 
-				str[orgStrlen+growth]=0;
-				for(j=orgStrlen+growth-1; i+growth<=j; --j)
-				{
-					str[j]=str[j-growth];
+					str[orgStrlen+growth]=0;
+					for(j=orgStrlen+growth-1; i+growth<=j; --j)
+					{
+						str[j]=str[j-growth];
+					}
+					for(j=0; j<toLen; ++j)
+					{
+						str[i+j]=to[j];
+					}
+					orgStrlen+=growth;
 				}
-				for(j=0; j<toLen; ++j)
-				{
-					str[i+j]=to[j];
-				}
-				orgStrlen+=growth;
 			}
 		}
 		return i;
