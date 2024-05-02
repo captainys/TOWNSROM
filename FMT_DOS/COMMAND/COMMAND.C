@@ -579,11 +579,9 @@ void PrepareExecParam(char execParamBuf[],const char param[],unsigned int execPa
 	execParamBuf[1]=' ';  /* Turned out, ' ' looks to be required. */
 	strncpy(execParamBuf+2,param,execParamBufLen-4); /* -3 should be good enough, but just in case, I'd add an extra 0. */
 	execParamBuf[execParamBufLen-1]=0;
-	execParamBuf[0]=0;
-	for(i=1; 0!=execParamBuf[i]; ++i)
-	{
-		++execParamBuf[0];
-	}
+	i=strlen(execParamBuf+1);
+	execParamBuf[0]=i;
+	++i;
 	execParamBuf[i]=ASCII_CR;
 	execParamBuf[i+1]=0;
 
