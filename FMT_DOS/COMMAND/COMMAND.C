@@ -677,6 +677,8 @@ int SetUpRedirection(struct Redirection *info,char cmdLine[])
 		}
 	}
 
+	// The following two blocks have common lines, but making it a separate function rather increased the binary size
+	// by 24 bytes.
 	if(NULL!=redirIn)
 	{
 		redirIn=SkipHeadSpace(redirIn);
