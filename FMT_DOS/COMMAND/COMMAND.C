@@ -657,21 +657,18 @@ int SetUpRedirection(struct Redirection *info,char cmdLine[])
 	redirStr=cmdLine;
 	while(NULL!=redirStr && 0!=*redirStr)
 	{
-		redirStr=FindRedirection(&redirChar,redirStr+1);
-		if(NULL!=redirStr)
+		redirStr=FindRedirection(&redirChar,redirStr+1); // Will return redirChar=0 if not found.
+		switch(redirChar)
 		{
-			switch(redirChar)
-			{
-			case '<':
-				redirIn=redirStr;
-				break;
-			case '>':
-				redirOut=redirStr;
-				break;
-			case '|':
-				redirPipe=redirStr;
-				break;
-			}
+		case '<':
+			redirIn=redirStr;
+			break;
+		case '>':
+			redirOut=redirStr;
+			break;
+		case '|':
+			redirPipe=redirStr;
+			break;
 		}
 	}
 
@@ -983,8 +980,7 @@ int CommandMain(struct Option *option)
 		DOSPUTS(cwd);
 		DOSPUTC('>');
 		DOSGETS(lineBuf);
-		DOSPUTC(ASCII_CR);
-		DOSPUTC(ASCII_LF);
+		DOSPUTS(DOS_LINEBREAK);
 
 		argv0Len=GetFirstArgument(argv0,lineBuf);
 		Capitalize(argv0);

@@ -197,9 +197,9 @@ int FindExecutableFromPath(unsigned int ENVSEG,char fName[MAX_PATH],const char s
 			DOSTRUENAME(fName,doslibFNBuf);
 			if(0<=(fd=DOSREADOPEN(fName)))
 			{
-				DOSWRITES(DOS_STDOUT,"Found ");
-				DOSWRITES(DOS_STDOUT,fName);
-				DOSWRITES(DOS_STDOUT,DOS_LINEBREAK);
+				DOSPUTS("Found ");
+				DOSPUTS(fName);
+				DOSPUTS(DOS_LINEBREAK);
 				_dos_close(fd);
 				return FOUND;
 			}
@@ -242,9 +242,9 @@ int FindExecutableFromPath(unsigned int ENVSEG,char fName[MAX_PATH],const char s
 							DOSTRUENAME(fName,doslibFNBuf);
 							if(0<=(fd=DOSREADOPEN(fName)))
 							{
-								DOSWRITES(DOS_STDOUT,"Found ");
-								DOSWRITES(DOS_STDOUT,fName);
-								DOSWRITES(DOS_STDOUT,DOS_LINEBREAK);
+								DOSPUTS("Found ");
+								DOSPUTS(fName);
+								DOSPUTS(DOS_LINEBREAK);
 								_dos_close(fd);
 								return FOUND;
 							}
