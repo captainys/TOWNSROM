@@ -12,6 +12,10 @@
 
 #define VERSION "20240430"
 
+#define MSG_CANNOTOPEN "Cannot open "
+#define MSG_WRONGCOMMAND "Wrong Command or File Name."
+#define MSG_EXITING "Exitting."
+
 #define Tsugaru_DebugBreak outp(0x2386,2);
 
 
@@ -62,6 +66,12 @@ void InitBatchState(struct BatchState *state)
 	memset(state,0,sizeof(struct BatchState));
 }
 
+void PrintFileError(const char msg[],const char fileName[])
+{
+	DOSWRITES(DOS_STDERR,msg);
+	DOSWRITES(DOS_STDERR,fileName);
+	DOSWRITES(DOS_STDERR,DOS_LINEBREAK);
+}
 
 #if 0
 void Test(int argc,char *argv[])
@@ -221,7 +231,7 @@ void ExecExit(struct BatchState *batState,const char afterArgv0[])
 	ExpandEnvVar(ENVSEG,expand,LINEBUFLEN-1);
 	if(0==strcmp(expand,"-f") || 0==strcmp(expand,"-F"))
 	{
-		DOSPUTS("Exitting." DOS_LINEBREAK);
+		DOSPUTS(MSG_EXITING DOS_LINEBREAK);
 		exit(0);
 	}
 	else if(RUNMODE_FIRST_LEVEL==opt.runMode)
@@ -230,7 +240,7 @@ void ExecExit(struct BatchState *batState,const char afterArgv0[])
 	}
 	else
 	{
-		DOSPUTS("Exitting." DOS_LINEBREAK);
+		DOSPUTS(MSG_EXITING DOS_LINEBREAK);
 		exit(0);
 	}
 }
@@ -254,8 +264,7 @@ void ExecSet(char setParam[])
 				DOSPUTC(*ENVPtr);
 				++ENVPtr;
 			}
-			DOSPUTC(0x0D);
-			DOSPUTC(0x0A);
+			DOSPUTS(DOS_LINEBREAK);
 			++ENVPtr;
 		}
 		return;
@@ -389,7 +398,7 @@ void ExecDir(char afterArgv0[])
 
 	if(0==findCount)
 	{
-		DOSWRITES(DOS_STDOUT,"No such file or directory."DOS_LINEBREAK);
+		DOSPUTS("No such file or directory."DOS_LINEBREAK);
 	}
 }
 
@@ -399,6 +408,35 @@ void ExecPATH(char afterArgv0[])
 	GetFirstArgument(setpath,afterArgv0);
 	ExpandEnvVar(ENVSEG,setpath,LINEBUFLEN);
 	SetEnv(ENVSEG,"PATH",setpath);
+}
+
+void ExecType(char *fileName)
+{
+	char buf[64]; // Hope 64-bytes is not too large.
+	int fd;
+
+	fileName=SkipHeadSpace(fileName);
+	ClearTailSpace(fileName);
+
+	fd=DOSREADOPEN(fileName);
+	if(fd<0)
+	{
+		PrintFileError(MSG_CANNOTOPEN,fileName);
+		return;
+	}
+
+	for(;;)
+	{
+		unsigned int actualRead,actualWrite;
+		_dos_read(fd,(char far *)buf,64,&actualRead);
+		if(0==actualRead)
+		{
+			break;
+		}
+		_dos_write(DOS_STDOUT,(char far *)buf,actualRead,&actualWrite);
+	}
+
+	fd=_dos_close(fd);
 }
 
 void ExecDriveLetter(char driveLetter)
@@ -469,7 +507,7 @@ int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char after
 		ExecDir(afterArgv0);
 		return 1;
 	}
-	else if(0==strcmp(argv0,"COPY") || 0==strcmp(argv0,"CD"))
+	else if(0==strcmp(argv0,"COPY") || 0==strcmp(argv0,"CP"))
 	{
 		DOSWRITES(DOS_STDOUT,"COPY to be implemented"DOS_LINEBREAK);
 		return 1;
@@ -492,6 +530,11 @@ int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char after
 	else if(0==strcmp(argv0,"RD") || 0==strcmp(argv0,"RMDIR"))
 	{
 		DOSWRITES(DOS_STDOUT,"MKDIR to be implemented"DOS_LINEBREAK);
+		return 1;
+	}
+	else if(0==strcmp(argv0,"TYPE"))
+	{
+		ExecType(afterArgv0);
 		return 1;
 	}
 	return 0;
@@ -642,9 +685,7 @@ int SetUpRedirection(struct Redirection *info,char cmdLine[])
 
 		if(info->fpStdin<0)
 		{
-			DOSWRITES(DOS_STDERR,"Cannot open ");
-			DOSWRITES(DOS_STDERR,redirIn);
-			DOSWRITES(DOS_STDERR,DOS_LINEBREAK);
+			PrintFileError(MSG_CANNOTOPEN,redirIn);
 			return REDIR_ERROR;
 		}
 		info->prevStdin=DOSDUP(DOS_STDIN); // dup in Open WATCOM 1.9 C Runtime Library links malloc and free, which is unnecessary. to increase binary size by 2KB.
@@ -658,9 +699,7 @@ int SetUpRedirection(struct Redirection *info,char cmdLine[])
 		info->fpStdout=DOSWRITEOPEN(redirOut);
 		if(info->fpStdout<0)
 		{
-			DOSWRITES(DOS_STDERR,"Cannot open ");
-			DOSWRITES(DOS_STDERR,redirOut);
-			DOSWRITES(DOS_STDERR,DOS_LINEBREAK);
+			PrintFileError(MSG_CANNOTOPEN,redirOut);
 			return REDIR_ERROR;
 		}
 		info->prevStdout=DOSDUP(DOS_STDOUT); // dup in Open WATCOM 1.9 C Runtime Library links malloc and free, which is unnecessary. to increase binary size by 2KB.
@@ -780,10 +819,7 @@ int RunBatchFile(char cmd[],char param[])
 	/* printf("BATCHFILE=%s\n",batState.fName); */
 	if(0!=StartBatchFile(&batState))
 	{
-		DOSWRITES(DOS_STDOUT,"File Not Found."DOS_LINEBREAK);
-		DOSWRITES(DOS_STDOUT,"Filename=");
-		DOSWRITES(DOS_STDOUT,batState.fName);
-		DOSWRITES(DOS_STDOUT,DOS_LINEBREAK);
+		PrintFileError("File Not Found." DOS_LINEBREAK "Filename=",batState.fName);
 		return 1;
 	}
 
@@ -892,13 +928,11 @@ int RunBatchFile(char cmd[],char param[])
 				}
 				break;
 			case COMTYPE_BINARY32:
-				DOSPUTS("Direct execution of .EXP not supported.");
-				DOSPUTS(DOS_LINEBREAK);
+				DOSPUTS("Direct execution of .EXP not supported."DOS_LINEBREAK);
 				ERRORLEVEL=1;
 				break;
 			default:
-				DOSPUTS("Wrong Command or File Name.");
-				DOSPUTS(DOS_LINEBREAK);
+				DOSPUTS(MSG_WRONGCOMMAND DOS_LINEBREAK);
 				ERRORLEVEL=1;
 				break;
 			}
@@ -978,12 +1012,10 @@ int CommandMain(struct Option *option)
 				DOSEXEC(PSP,ENVSEG,exeCmd,execParamBuf);
 				break;
 			case COMTYPE_BINARY32:
-				DOSPUTS("Direct execution of .EXP not supported.");
-				DOSPUTS(DOS_LINEBREAK);
+				DOSPUTS("Direct execution of .EXP not supported." DOS_LINEBREAK);
 				break;
 			default:
-				DOSPUTS("Wrong Command or File Name.");
-				DOSPUTS(DOS_LINEBREAK);
+				DOSPUTS(MSG_WRONGCOMMAND DOS_LINEBREAK);
 				break;
 			}
 		}
