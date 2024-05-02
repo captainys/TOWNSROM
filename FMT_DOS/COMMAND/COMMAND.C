@@ -10,7 +10,7 @@
 #include "UTIL.H"
 #include "DEF.H"
 
-#define VERSION "20240430"
+#define VERSION "20240501"
 
 #define MSG_CANNOTOPEN "Cannot open "
 #define MSG_WRONGCOMMAND "Wrong Command or File Name."
@@ -886,7 +886,7 @@ int RunBatchFile(char cmd[],char param[])
 			case COMTYPE_BATCH:
 				/*
 				DOS Batch File does not CALL another batch.
-				It does JMP to another batch unless it is invoked from COMMAND.COM.
+				It does JMP to another batch rather than CALL unless it is invoked from COMMAND.COM.
 				*/
 				{
 					static struct BatchState nextBatch;
@@ -897,7 +897,6 @@ int RunBatchFile(char cmd[],char param[])
 
 					strncpy(nextBatch.cmdLine,lineBuf,LINEBUFLEN-1);
 					nextBatch.cmdLine[LINEBUFLEN-1]=0;
-					nextBatch.fPos=0;
 
 					argv0Len=GetFirstArgument(argv0,nextBatch.cmdLine);
 					Capitalize(argv0);
@@ -1025,10 +1024,9 @@ int main(void)
 {
 	int returnCode=0;
 
-	DOSWRITES(DOS_STDOUT,DOS_LINEBREAK);
-	DOSWRITES(DOS_STDOUT,"YAMAND.COM for FM TOWNS Emulators. Ver. "VERSION DOS_LINEBREAK);
-	DOSWRITES(DOS_STDOUT,"By CaptainYS"DOS_LINEBREAK);
-	DOSWRITES(DOS_STDOUT,DOS_LINEBREAK);
+	DOSPUTS(
+	    DOS_LINEBREAK "YAMAND.COM for FM TOWNS Emulators. Ver. "VERSION DOS_LINEBREAK
+	    "By CaptainYS" DOS_LINEBREAK DOS_LINEBREAK);
 
 	/* Test(argc,argv); */
 
