@@ -800,10 +800,7 @@ int RunBatchFile(char cmd[],char param[])
 	static char lineBuf[LINEBUFLEN];
 	struct BatchState batState;
 
-	while(' '==*cmd || '\t'==*cmd)
-	{
-		++cmd;
-	}
+	cmd=SkipHeadSpace(cmd);
 
 	InitBatchState(&batState);
 	strncpy(batState.cmdLine,cmd,LINEBUFLEN-1);
