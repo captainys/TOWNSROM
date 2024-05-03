@@ -10,7 +10,7 @@
 #include "UTIL.H"
 #include "DEF.H"
 
-#define VERSION "20240501"
+#define VERSION "20240503"
 
 #define MSG_CANNOTOPEN "Cannot open "
 #define MSG_WRONGCOMMAND "Wrong Command or File Name."
@@ -250,25 +250,26 @@ void ExecSet(char setParam[])
 	char *var;
 	char data[LINEBUFLEN];
 	int equal=0;
-	while(0!=setParam[equal] && '='!=setParam[equal])
+	while('='!=setParam[equal])
 	{
-		++equal;
-	}
-	if(0==setParam[equal])
-	{
-		const char far *ENVPtr=MAKEFARPTR(ENVSEG,0);
-		while(0!=*ENVPtr)
+		if(0==setParam[equal])
 		{
+			const char far *ENVPtr=MAKEFARPTR(ENVSEG,0);
 			while(0!=*ENVPtr)
 			{
-				DOSPUTC(*ENVPtr);
+				while(0!=*ENVPtr)
+				{
+					DOSPUTC(*ENVPtr);
+					++ENVPtr;
+				}
+				DOSPUTS(DOS_LINEBREAK);
 				++ENVPtr;
 			}
-			DOSPUTS(DOS_LINEBREAK);
-			++ENVPtr;
+			return;
 		}
-		return;
+		++equal;
 	}
+
 	setParam[equal]=0;
 	var=setParam;
 	Capitalize(var);
