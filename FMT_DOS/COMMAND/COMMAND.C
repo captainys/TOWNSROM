@@ -446,100 +446,114 @@ void ExecDriveLetter(char driveLetter)
 	_dos_setdrive(driveLetter-'A'+1,&driveAvail);
 }
 
+const char *const builtInCmd[]=
+{
+	"ECHO",
+	"EXIT",
+	"SET",
+	"GOTO",
+	"IF",
+	"CD",
+	"PAUSE",
+	"PATH",
+	"REM",
+	"DIR",
+	"LS",
+	"COPY",
+	"CP",
+	"DEL",
+	"RM",
+	"REN",
+	"MV",
+	"MD",
+	"MKDIR",
+	"RD",
+	"RMDIR",
+	"TYPE",
+	NULL
+};
+
 /*! Execute a built-in command.
     Return 1 if it is a build-in command.  afterArgv0 may be altered.
     Return 0 if it is not.  afterArgv0 unchanged.
 */
 int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char afterArgv0[])
 {
-	if(0==strcmp(argv0,"ECHO"))
-	{
-		ExecEcho(afterArgv0);
-		return 1;
-	}
-	else if(0==strcmp(argv0,"EXIT"))
-	{
-		ExecExit(batState,afterArgv0);
-		return 1;
-	}
-	else if(0==strcmp(argv0,"SET"))
-	{
-		ExecSet(afterArgv0);
-		return 1;
-	}
-	else if(0==strcmp(argv0,"GOTO"))
-	{
-		ExecGoto(batState,afterArgv0);
-		return 1;
-	}
-	else if(0==strcmp(argv0,"IF"))
-	{
-		ExecIf(batState,afterArgv0);
-		return 1;
-	}
-	else if(0==strcmp(argv0,"CD"))
-	{
-		ExecCD(afterArgv0);
-		return 1;
-	}
-	else if(0==strcmp(argv0+1,":"))
+	if(':'==*(unsigned short *)(argv0+1))
 	{
 		ExecDriveLetter(argv0[0]);
 		return 1;
 	}
-	else if(0==strcmp(argv0,"PAUSE"))
+
+	switch(FindStr(argv0,builtInCmd))
 	{
-		char lineBuf[LINEBUFLEN];
-		DOSWRITES(DOS_STDOUT,"<<Press Enter to Continue>>"DOS_LINEBREAK);
-		DOSGETS(lineBuf);
+	case 0:
+		ExecEcho(afterArgv0);
 		return 1;
-	}
-	else if(0==strcmp(argv0,"PATH"))
-	{
+	case 1:
+		ExecExit(batState,afterArgv0);
+		return 1;
+
+
+	case 2:
+		ExecSet(afterArgv0);
+		return 1;
+	case 3:
+		ExecGoto(batState,afterArgv0);
+		return 1;
+	case 4:
+		ExecIf(batState,afterArgv0);
+		return 1;
+	case 5:
+		ExecCD(afterArgv0);
+		return 1;
+	case 6:
+		{
+			char lineBuf[LINEBUFLEN];
+			DOSWRITES(DOS_STDOUT,"<<Press Enter to Continue>>"DOS_LINEBREAK);
+			DOSGETS(lineBuf);
+		}
+		return 1;
+	case 7:
 		ExecPATH(afterArgv0);
 		return 1;
-	}
-	else if(0==strcmp(argv0,"REM"))
-	{
+	case 8: // REM
 		return 1;
-	}
-	else if(0==strcmp(argv0,"DIR") || 0==strcmp(argv0,"LS"))
-	{
+	case 9:
+	case 10:
 		ExecDir(afterArgv0);
 		return 1;
-	}
-	else if(0==strcmp(argv0,"COPY") || 0==strcmp(argv0,"CP"))
-	{
+	case 11:
+	case 12:
 		DOSWRITES(DOS_STDOUT,"COPY to be implemented"DOS_LINEBREAK);
 		return 1;
-	}
-	else if(0==strcmp(argv0,"DEL") || 0==strcmp(argv0,"RM"))
-	{
+	case 13:
+	case 14:
 		DOSWRITES(DOS_STDOUT,"DEL to be implemented"DOS_LINEBREAK);
 		return 1;
-	}
-	else if(0==strcmp(argv0,"REN") || 0==strcmp(argv0,"MV"))
-	{
+	case 15:
+	case 16:
 		DOSWRITES(DOS_STDOUT,"REN to be implemented"DOS_LINEBREAK);
 		return 1;
-	}
-	else if(0==strcmp(argv0,"MD") || 0==strcmp(argv0,"MKDIR"))
-	{
+	case 17:
+	case 18:
 		DOSWRITES(DOS_STDOUT,"MKDIR to be implemented"DOS_LINEBREAK);
 		return 1;
-	}
-	else if(0==strcmp(argv0,"RD") || 0==strcmp(argv0,"RMDIR"))
-	{
+	case 19:
+	case 20:
 		DOSWRITES(DOS_STDOUT,"MKDIR to be implemented"DOS_LINEBREAK);
 		return 1;
-	}
-	else if(0==strcmp(argv0,"TYPE"))
-	{
+	case 21:
 		ExecType(afterArgv0);
 		return 1;
 	}
 	return 0;
 }
+
+const char *commandTypeExt[]=
+{
+	"EXE","COM","EXP","BAT",NULL
+};
 
 /*! Identifies the executable pointed by argv0.
     It sets actual full-path executable name in exeCmd.
@@ -554,17 +568,14 @@ int IdentifyCommandType(char exeCmd[],const char argv0[])
 		{
 			if('.'==exeCmd[i])
 			{
-				if(0==strcmp(exeCmd+i+1,"EXE") ||
-				   0==strcmp(exeCmd+i+1,"COM"))
+				switch(FindStr(exeCmd+i+1,commandTypeExt))
 				{
+				case 0:
+				case 1:
 					return COMTYPE_BINARY;
-				}
-				if(0==strcmp(exeCmd+i+1,"EXP"))
-				{
+				case 2:
 					return COMTYPE_BINARY32;
-				}
-				if(0==strcmp(exeCmd+i+1,"BAT"))
-				{
+				case 3:
 					return COMTYPE_BATCH;
 				}
 				break;
