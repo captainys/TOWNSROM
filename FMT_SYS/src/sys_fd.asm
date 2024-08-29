@@ -168,9 +168,9 @@ fd_command_05:
 
 	inc		cl
 	cmp		cl,SECTOR_PER_TRACK_1232KB_DISK
-	jb		.fd_sector_continue
+	jbe		.fd_sector_continue		; Bug Fix by CaptainYS
 
-	xor		cl,cl
+	mov		cl,1					; Bug Fix by CaptainYS
 	inc		ch
 	and		ch,1
 	jne		.fd_sector_continue
