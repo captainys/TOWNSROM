@@ -144,6 +144,9 @@ MAKE_FULLPATH_IS_RELPATH:
 						; Get to the CDS
 						PUSH	DS
 						PUSH	SI
+
+						; This can be C:/NUL.  DOS may use slash for CHARDEV.
+						; Do not use GET_DRIVE_NUM_FROM_FILENAME_BUFFER_WITH_CHECK
 						MOV		AL,CS:[FILENAME_BUFFER]
 						SUB		AL,'A'
 						CALL	GET_ALth_CDS_IN_DSSI
