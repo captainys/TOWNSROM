@@ -4392,3 +4392,40 @@ WRITE_VOLUME_LABEL_EXIT:
 						POP		SI
 						POP		DS
 						RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; AL used for GET_ALth_CDS_IN_DSSI.
+
+; Input CS:[FILENAME_BUFFER] filled
+; Output CF=0 AL=Drive number 'A:' is zero
+;        CF=1 AL=0FFh  Not a disk file.  Maybe CHARDEV
+GET_DRIVE_NUM_FROM_FILENAME_BUFFER:
+						CMP		WORD PTR CS:[FILENAME_BUFFER+1],05C3Ah ; ':\'
+						JNE		GET_DRIVE_NUM_MAYBE_REDIRECTED
+
+						MOV		AL,CS:[FILENAME_BUFFER]
+						SUB		AL,'A'
+
+						CLC
+						RET
+
+GET_DRIVE_NUM_MAYBE_REDIRECTED:
+						CMP		WORD PTR CS:[FILENAME_BUFFER],05C5Ch ; '\\'
+						JNE		GET_DRIVE_NUM_MAYBE_MAYBE_CHARDEV
+						CMP		BYTE PTR CS:[FILENAME_BUFFER+3],2Eh ; '.'
+						JNE		GET_DRIVE_NUM_MAYBE_MAYBE_CHARDEV
+						;CMP		BYTE PTR CS:[FILENAME_BUFFER+5],2Eh ; '.'
+						;JNE		GET_DRIVE_NUM_MAYBE_MAYBE_CHARDEV
+						; Format might be like '\\Q.A.'
+
+						MOV		AL,CS:[FILENAME_BUFFER+2]
+						SUB		AL,'A'
+
+						CLC
+						RET
+
+GET_DRIVE_NUM_MAYBE_MAYBE_CHARDEV:
+						MOV		AL,0FFh
+						STC
+						RET
