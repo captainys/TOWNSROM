@@ -2132,12 +2132,12 @@ FOPEN:
 
 						; Have JFN, SFN, and SF_ENTRY pointer.
 						; Saved file name
-						CMP		WORD PTR CS:[FILENAME_BUFFER+1],05C3Ah ; ':\'
-						JNE		FOPEN_CHARDEV
+
+						CALL	GET_DRIVE_NUM_FROM_FILENAME_BUFFER_WITH_CHECK
+						JC		FOPEN_CHARDEV	; Maybe CHARDEV
+
 ; FOPEN_NOT_CHARDEV:
 ;   Can be INT 2F device or BLOCK device.
-						MOV		AL,CS:[FILENAME_BUFFER]
-						SUB		AL,'A'
 						CALL	GET_ALth_CDS_IN_DSSI	; Not supposed to fail if above MAKE_FULLPATH succeeded.
 						TEST	WORD PTR DS:[SI+CDS_DRIVE_TYPE],CDS_TYPE_REDIRECTED
 						JE		FOPEN_BLOCKDEV
@@ -2274,8 +2274,7 @@ FOPENPREP_ERROR:
 ; Output
 ;   CUR_SF_ENTRY Populated.
 OPEN_DISK_FILE:
-						MOV		AL,CS:[FILENAME_BUFFER]
-						SUB		AL,'A'
+						CALL	GET_DRIVE_NUM_FROM_FILENAME_BUFFER_WITH_CHECK
 						CALL	GET_ALth_CDS_IN_DSSI
 						MOV		AX,DOSERR_INVALID_DRIVE
 						JC		OPEN_DISK_FILE_ERR
@@ -2436,9 +2435,10 @@ FCREATE:
 						CALL	FOPEN_FCREATE_PREP
 						JB		FCREATE_ERROR
 
-						CMP		WORD PTR CS:[FILENAME_BUFFER+1],05C3Ah ; ':\'
+						CALL	GET_DRIVE_NUM_FROM_FILENAME_BUFFER_WITH_CHECK
+						JNC		FCREATE_DISK_FILE
+
 						MOV		AX,DOSERR_ACCESS_DENIED
-						JE		FCREATE_DISK_FILE
 
 						; Observation from Afterburner II
 						; If it tries to create "NUL", it just opens.
@@ -2449,8 +2449,7 @@ FCREATE:
 
 
 FCREATE_DISK_FILE:
-						MOV		AL,CS:[FILENAME_BUFFER]
-						SUB		AL,'A'
+						; AL comes from GET_DRIVE_NUM_FROM_FILENAME_BUFFER_WITH_CHECK
 						CALL	GET_ALth_CDS_IN_DSSI	; Not supposed to fail if above MAKE_FULLPATH succeeded.
 						TEST	WORD PTR DS:[SI+CDS_DRIVE_TYPE],CDS_TYPE_REDIRECTED
 						JE		FCREATE_BLOCKDEV
@@ -2560,8 +2559,8 @@ FCREATE_IF_NOT_EXIST_ALREADY_EXISTS:
 
 
 CREATE_DISK_FILE:
-						MOV		AL,CS:[FILENAME_BUFFER]
-						SUB		AL,'A'
+						CALL	GET_DRIVE_NUM_FROM_FILENAME_BUFFER_WITH_CHECK
+						JC		CREATE_DISK_FILE_INVALID_DRIVE
 						CALL	GET_ALth_CDS_IN_DSSI
 						JC		CREATE_DISK_FILE_INVALID_DRIVE
 
@@ -2810,9 +2809,17 @@ FDELETE:
 						MOV		AX,DOSERR_FILE_NOT_FOUND
 						JC		FDELETE_EXIT
 
-						CMP		WORD PTR CS:[FILENAME_BUFFER+1],02F3Ah ; ':\'
+						; The following 3 lines were incorrect.
+						; Supposed to check 5C3AH, but ended up checking 2F3AH,
+						; But, subsequent JE was supposed to be JNE
+						; Two errors were cancelling each other.
+						; Leaving it just because it was funny.
+						;CMP		WORD PTR CS:[FILENAME_BUFFER+1],02F3Ah ; ':\'
+						;MOV		AX,DOSERR_FILE_NOT_FOUND
+						;JE		FDELETE_EXIT
+						CALL	GET_DRIVE_NUM_FROM_FILENAME_BUFFER_WITH_CHECK
 						MOV		AX,DOSERR_FILE_NOT_FOUND
-						JE		FDELETE_EXIT
+						JC		FDELETE_EXIT
 
 						CALL	DRIVE_NUMBER_FROM_FILENAME_BUFFER
 						CALL	GET_DRIVE_CDS
@@ -4397,10 +4404,13 @@ WRITE_VOLUME_LABEL_EXIT:
 
 ; AL used for GET_ALth_CDS_IN_DSSI.
 
+; DRIVE_LETTER_FROM_FILENAME_BUFFER and DRIVE_NUMBER_FROM_FILENAME_BUFFER
+; do not return anything if the file name is not "?:\" or "\\?.?." format.
+
 ; Input CS:[FILENAME_BUFFER] filled
 ; Output CF=0 AL=Drive number 'A:' is zero
 ;        CF=1 AL=0FFh  Not a disk file.  Maybe CHARDEV
-GET_DRIVE_NUM_FROM_FILENAME_BUFFER:
+GET_DRIVE_NUM_FROM_FILENAME_BUFFER_WITH_CHECK:
 						CMP		WORD PTR CS:[FILENAME_BUFFER+1],05C3Ah ; ':\'
 						JNE		GET_DRIVE_NUM_MAYBE_REDIRECTED
 
