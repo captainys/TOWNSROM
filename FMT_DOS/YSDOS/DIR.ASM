@@ -941,8 +941,7 @@ FIND_FIRST:
 						MOV		CL,CS:[SATTR]
 						MOV		ES:[DI+FIND_ATTR_FILTER],CL
 
-						MOV		AL,BYTE PTR CS:[FILENAME_BUFFER]
-						SUB		AL,'A'
+						CALL	GET_DRIVE_NUM_FROM_FILENAME_BUFFER_WITH_CHECK
 
 						INC		AL
 						MOV		ES:[DI],AL	; This seems to be an insane (FCB) drive number.
@@ -1330,6 +1329,7 @@ CHDIR_REDIRECTED:
 CHDIR_NOT_REDIRECTED:
 						MOV		EDX,-1 ; Tentative.  May become CDS_CURDIR_CLUSTER
 
+						; Not Redirected.  Don't worry about \\Q.A.
 						MOV		EAX,DWORD PTR CS:[FILENAME_BUFFER]
 						XOR		AL,AL
 						CMP		EAX,005C3A00h ; '\:'
