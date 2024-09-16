@@ -335,7 +335,7 @@ void SetEnv(unsigned int ENVSEG,const char var[],const char data[])
 		return;
 	}
 
-	for(nextPoint=insPoint; ENVPtr[nextPoint]!=0; ++nextPoint)
+	for(nextPoint=insPoint; ENVPtr[nextPoint]!=0; )
 	{
 		++nextPoint;
 		if(ENVLen<=nextPoint+4)
