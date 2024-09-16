@@ -183,6 +183,16 @@ void SetUp(struct Option *option)
 				}
 				option->execParam[j]=0;
 				break;
+			case 'E':
+				if(':'==optPtr[i+1])
+				{
+					option->ENVSEGLen=atoi(optPtr+i+2);
+					if(512<option->ENVSEGLen)
+					{
+						option->ENVSEGLen=512;
+					}
+				}
+				break;
 			case 'P':
 				option->runMode=c;
 				break;
