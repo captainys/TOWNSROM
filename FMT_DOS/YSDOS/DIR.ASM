@@ -986,7 +986,8 @@ FIND_FIRST:
 
 						; So, looks like the structure returned by MSCDEX is incompatible with DOS 3.x.
 
-						PUSHF	; Save CF
+						PUSHF		; Save CF
+						PUSH	AX	; Save Error Code
 						; Just in case, I make a copy even when it returns CF=1.
 
 						PUSH	CS
@@ -1005,7 +1006,8 @@ FIND_FIRST:
 						; ES:DI is already FINDSTRUCT
 						CALL	DIRENT_TO_FINDSTRUCT
 
-						POPF	; Restore CF
+						POP		AX	; Restore Error Code
+						POPF		; Restore CF
 
 						RET
 
