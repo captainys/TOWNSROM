@@ -409,7 +409,23 @@ MAKE_11BYTE_FILENAME_LOOP:
 						STOSB
 						LOOP	MAKE_11BYTE_FILENAME_LOOP
 
-						LODSB	; If no '.' after 8 letters, '.' must appear here.
+
+						; PANIC BALL 2 tries to open CLASSIC1mb.mb
+						; This hang over 'mb' should be ignored.
+
+						; Falling down here means, DS:SI is pointing to separator, terminator, '.', or something else.
+						; Keep scanning, keep CX unchanged, until finding separator, terminator, '.'.
+MAKE_11BYTE_FILENAME_SKIP_HANGOVER:
+						LODSB
+						CMP		AL,'\'
+						JE		MAKE_11BYTE_FILENAME_LOOP_BREAK
+						CMP		AL,'/'
+						JE		MAKE_11BYTE_FILENAME_LOOP_BREAK
+						CMP		AL,0
+						JE		MAKE_11BYTE_FILENAME_LOOP_BREAK
+						CMP		AL,'.'
+						JNE		MAKE_11BYTE_FILENAME_SKIP_HANGOVER
+
 
 MAKE_11BYTE_FILENAME_LOOP_BREAK:
 						CMP		AL,'.'
