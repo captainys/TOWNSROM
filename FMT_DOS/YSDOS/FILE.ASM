@@ -2201,6 +2201,12 @@ FOPEN:
 						JE		FOPEN_BLOCKDEV
 
 ; FOPEN_INT2FDEV:
+						; MSCDEX assumes CURRENT_CDS_STRUCT has CDS pointer.
+						; This description was apparently not documented for AX=1116H (INT2FH_OPEN), but
+						; all other functions (stupidly) demands it.
+						MOV		CS:[CURRENT_CDS_STRUCT],SI
+						MOV		CS:[CURRENT_CDS_STRUCT_SEG],DS
+
 						LES		DI,CS:[CUR_SF_ENTRY] ; ES:DI is SF_ENTRY to be filled.
 
 						MOVZX	AX,BYTE PTR CS:[FILE_OPENMODE]
