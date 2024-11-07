@@ -49,6 +49,50 @@ GET_ALth_CDS_DSSI_EXIT:
 
 
 
+; The original MSCDEX makes \\Q.A.\FILENAME.EXT
+; Needs to be converted to Q:\FILENAME.EXT
+FIX_BSBS_DOTDOT:
+						CMP		WORD PTR CS:[FILENAME_BUFFER],5C5Ch ; '\\'
+						JNE		FIXED_BSBS_DOTDOT
+						CMP		BYTE CS:[FILENAME_BUFFER+3],'.'
+						JNE		FIXED_BSBS_DOTDOT
+						CMP		BYTE CS:[FILENAME_BUFFER+5],'.'
+						JNE		FIXED_BSBS_DOTDOT
+
+						; +0 '\'
+						; +1 '\'
+						; +2 'Q'
+						; +3 '.'
+						; +4 'A'
+						; +5 '.'
+
+						PUSH	DI
+						PUSH	AX
+
+						MOV		DI,OFFSET FILENAME_BUFFER
+						MOV		AL,CS:[FILENAME_BUFFER+2]
+						MOV		CS:[FILENAME_BUFFER],AL
+						MOV		BYTE CS:[FILENAME_BUFFER+1],':'
+
+						MOV		DI,OFFSET FILENAME_BUFFER+2
+FIX_BSBS_DOTDOT_LOOP:
+						MOV		AL,CS:[DI+4]
+						MOV		CS:[DI],AL
+						INC		DI
+						OR		AL,AL
+						JNE		FIX_BSBS_DOTDOT_LOOP
+
+						POP		AX
+						POP		DI
+
+FIXED_BSBS_DOTDOT:
+						RET
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
 ; Input
 ;   DS:SI  Input file name
 ; Output
@@ -66,6 +110,10 @@ MAKE_FULLPATH:
 						MOV		AX,INT2FH_QUALIFY_FILENAME
 						INT		2FH
 						JC		MAKE_FULLPATH_NOT_INT2F
+
+						CALL	FIX_BSBS_DOTDOT
+
+						CLC
 						RET
 
 MAKE_FULLPATH_NOT_INT2F:
@@ -176,6 +224,7 @@ MAKE_FULLPATH_IS_RELPATH_2:
 
 MAKE_FULLPATH_CRUNCHDOT:
 
+						CALL	FIX_BSBS_DOTDOT
 
 						CLC
 						RET

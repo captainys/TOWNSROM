@@ -125,24 +125,6 @@ int DOSTRUENAME(char fullpath[],const char src[])
 	regIn.x.di=(unsigned int)fullpath;
 	regIn.x.si=(unsigned int)src;
 	intdosx(&regIn,&regOut,&sregs);
-
-	// If \\Q.A.\AUTOEXEC.BAT, should be changed to Q:\AUTOEXEC.BAT
-	if(fullpath[0]=='\\' &&
-	   fullpath[1]=='\\' &&
-	   fullpath[3]=='.' &&
-	   fullpath[5]=='.' &&
-	   fullpath[6]=='\\')
-	{
-		int i;
-		fullpath[0]=fullpath[2];
-		fullpath[1]=':';
-		for(i=6; 0!=fullpath[i]; ++i)
-		{
-			fullpath[i-4]=fullpath[i];
-		}
-		fullpath[i-4]=0;
-	}
-
 	return CF(regOut); /* CF */
 
 #if 0
