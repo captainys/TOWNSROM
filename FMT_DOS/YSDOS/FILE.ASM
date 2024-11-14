@@ -245,7 +245,7 @@ MAKE_FULLPATH_DIR_NOT_FOUND:
 ; Input
 ;   DS:SI  File Name
 ; Output
-;   CF=0  CS:[FILENAME_BUFFER] Full Path Name
+;   CF=0  CS:[FILENAME_BUFFER] Full Path Name, DS:SI points to CS:[FILENAME_BUFFER]
 ; Make full path name and crunch "." and "..", but not expand to lesser wildcard.
 MAKE_FULLPATH_CRUNCH:
 						PUSH	CS
@@ -259,10 +259,104 @@ MAKE_FULLPATH_CRUNCH:
 						MOV		SI,OFFSET FILENAME_BUFFER
 						CALL	CRUNCH_FILEPATH
 
+						CALL	MAKE_FULLPATH_ENFORCE_8DOT3
+
+						MOV		SI,OFFSET FILENAME_BUFFER
+
 MAKE_FULLPATH_CRUNCH_EXIT:
 						RET
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; void eleven(char str[256])
+; {
+; 	char *src=str,*dst=str;
+; 	int len=0,lenThr=8;
+; 	for(;;)
+; 	{
+; 		int reset=0;
+; 		if(':'==*src || '\\'==*src || '/'==*src || 0==*src)
+; 		{
+; 			lenThr=8;
+; 			len=0;
+; 			reset=1;
+; 		}
+; 		else if('.'==*src)
+; 		{
+; 			lenThr=3;
+; 			len=0;
+; 			reset=1;
+; 		}
+; 
+; 		if(len<lenThr)
+; 		{
+; 			*(dst)=*(src++);
+; 			if(*(dst++)==0)
+; 			{
+; 				break;
+; 			}
+; 			++len;
+; 		}
+; 		else
+; 		{
+; 			++src;
+; 		}
+; 
+; 		if(0!=reset)
+; 		{
+; 			len=0;
+; 		}
+; 	}
+; }
+
+MAKE_FULLPATH_ENFORCE_8DOT3:
+						PUSH	CS
+						POP		DS
+						PUSH	CS
+						POP		ES
+						MOV		SI,OFFSET FILENAME_BUFFER
+						MOV		DI,SI
+						CLD
+
+						MOV		CL,8	; lenThr
+						XOR		BL,BL	; len
+MAKE_FULLPATH_ENFORCE_8DOT3_LOOP:
+						MOV		BH,1	; BL increment
+						LODSB
+
+						CMP		AL,'.'
+						JNE		MAKE_FULLPATH_ENFORCE_8DOT3_NOTDOT
+						MOV		CL,3
+						XOR		BX,BX
+						JMP		MAKE_FULLPATH_ENFORCE_8DOT3_NEXT
+
+MAKE_FULLPATH_ENFORCE_8DOT3_NOTDOT:
+						CMP		AL,':'
+						JE		MAKE_FULLPATH_ENFORCE_8DOT3_DIVIDER
+						CMP		AL,'\'
+						JE		MAKE_FULLPATH_ENFORCE_8DOT3_DIVIDER
+						CMP		AL,'/'
+						JE		MAKE_FULLPATH_ENFORCE_8DOT3_DIVIDER
+						AND		AL,AL
+						JNE		MAKE_FULLPATH_ENFORCE_8DOT3_NEXT
+
+MAKE_FULLPATH_ENFORCE_8DOT3_DIVIDER:
+						MOV		CL,8
+						XOR		BX,BX
+
+MAKE_FULLPATH_ENFORCE_8DOT3_NEXT:
+						CMP		BL,CL
+						JAE		MAKE_FULLPATH_ENFORCE_8DOT3_SKIP
+						STOSB
+						ADD		BL,BH
+
+MAKE_FULLPATH_ENFORCE_8DOT3_SKIP:
+						AND		AL,AL
+						JNE		MAKE_FULLPATH_ENFORCE_8DOT3_LOOP
+
+						CLC
+						RET
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
