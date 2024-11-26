@@ -1325,6 +1325,15 @@ CHDIR_REDIRECTED:
 
 						; If no error, file name must be copied to CDS.
 						JNC		CHDIR_COPY
+
+						; If error maybe \\Q.A. format will give no error.
+						LDS		BX,CS:[CURRENT_CDS_STRUCT]
+						CALL	MAKE_BSBS_DOTDOT
+
+						MOV		AX,INT2FH_CHDIR	; This does not really CHDIR.  It only checks the name is a directory.
+						INT		2Fh
+						JNC		CHDIR_COPY
+
 						RET
 
 

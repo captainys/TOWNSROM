@@ -92,6 +92,73 @@ FIXED_BSBS_DOTDOT:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+; Make MSCDEX happy.  MSCDEX wants \\Q.A. instead of Q: for CHDIR.
+; Also MSCDEX does not accept \\Q.A.\ to change directory to the root dir.
+; It removes the last \ or / if the string is ending with it.
+;
+; Input:
+;   DS:BX  CDS for the drive
+;   CS:FILENAME_BUFFER  Full-path file name.
+MAKE_BSBS_DOTDOT:
+						PUSH	EAX
+
+						CMP		WORD CS:[FILENAME_BUFFER],5C5CH
+						JE		MAKE_BSBS_DOTDOT_RET	; Already "\\"
+
+						CMP		WORD CS:[FILENAME_BUFFER],2F2FH
+						JE		MAKE_BSBS_DOTDOT_RET	; Already "//"
+
+						CMP		BYTE CS:[FILENAME_BUFFER+1],':'
+						JNE		MAKE_BSBS_DOTDOT_RET	; First letter does not seem to be a drive letter.  WTF!?
+
+						MOV		EAX,DS:[BX]
+						ROR		EAX,16
+						MOV		AL,DS:[BX+5]
+						CMP		EAX,5C5C2E2Eh	; "\\.."
+						JE		MAKE_BSBS_DOTDOT_IT_IS_CULPRIT
+						CMP		EAX,2F2F2E2Eh	; "//.."
+						JNE		MAKE_BSBS_DOTDOT_RET
+
+MAKE_BSBS_DOTDOT_IT_IS_CULPRIT:
+						; Q: -> \\Q.A.  Four extra bytes of waste.
+
+						MOV		SI,FILENAME_BUFFER
+MAKE_BSBS_DOTDOT_FIND_END:
+						CMP		WORD CS:[SI],'\'	; 5C 00 -> Remove 5C
+						JE		MAKE_BSBS_DOTDOT_ERASE_LAST_SLASH
+						CMP		WORD CS:[SI],'/'	; 2F 00 -> Remove 2F
+						JE		MAKE_BSBS_DOTDOT_ERASE_LAST_SLASH
+						CMP		BYTE CS:[SI],0
+						JE		MAKE_BSBS_DOTDOT_MAKE_ROOM
+						INC		SI
+						JMP		MAKE_BSBS_DOTDOT_FIND_END
+
+MAKE_BSBS_DOTDOT_ERASE_LAST_SLASH:
+						MOV		BYTE CS:[SI],0
+
+						; CS:[SI] is zero.
+
+MAKE_BSBS_DOTDOT_MAKE_ROOM:
+						MOV		AL,CS:[SI]
+						MOV		CS:[SI+4],AL
+						DEC		SI
+						CMP		SI,FILENAME_BUFFER
+						JNE		MAKE_BSBS_DOTDOT_MAKE_ROOM
+
+						MOV		EAX,DS:[BX]
+						MOV		CS:[SI],EAX
+						MOV		AX,DS:[BX+4]
+						MOV		CS:[SI+4],AX
+
+						; Stupidly, MSCDEX does not accept \\Q.A.\
+						; To to back to 
+
+MAKE_BSBS_DOTDOT_RET:
+						POP		EAX
+						RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ; Input
 ;   DS:SI  Input file name
