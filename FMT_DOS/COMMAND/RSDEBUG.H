@@ -11,4 +11,13 @@
 	outp(0xA00,c); \
 }
 
+#define RS232C_PUTS(s) \
+{ \
+	int i; \
+	for(i=0; 0!=(s)[i]; ++i) \
+	{ \
+		RS232C_PUTC((s)[i]); \
+	} \
+}
+
 #endif
