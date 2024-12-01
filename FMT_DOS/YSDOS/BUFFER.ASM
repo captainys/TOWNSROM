@@ -261,6 +261,7 @@ POPULATE_BUFFER_SUCCESS:
 						RET
 POPULATE_BUFFER_FAIL:
 						SUB		DI,IO_BUF_INFO_size
+						MOV		BYTE [DI+IO_BUF_DRV_LOGICAL],0FFh	; Logical Drive=-1.  Make it invalid.
 						STC
 						RET
 POPULATE_BUFFER			ENDP

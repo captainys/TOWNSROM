@@ -1017,6 +1017,10 @@ FIND_FIRST_NOT_REDIRECTED:
 						; GS:BP is the DPB
 						LGS		BP,DS:[BX+CDS_DRIVE_PARAM_BLOCK]
 
+						CALL	DRIVE_NUMBER_FROM_FILENAME_BUFFER
+						CALL	MEDIACHECK_READYCDS		; CF=1 Error  CF=0 AL=(0:No Change  1:Disk Changed)
+						JC		FIND_FIRST_ACCESS_DENIED
+
 						; I just need to call FETCH_DIR.
 						; I need to know the position in the directory.
 
@@ -1113,6 +1117,11 @@ FIND_FIRST_FILE_NOT_FOUND:
 
 FIND_FIRST_INVALID_DRIVE:
 						MOV		AX,DOSERR_INVALID_DRIVE
+						STC
+						RET
+
+FIND_FIRST_ACCESS_DENIED:
+						MOV		AX,DOSERR_ACCESS_DENIED
 						STC
 						RET
 
