@@ -3,7 +3,7 @@
 
 ; YSDOS Extension
 ;   INT 21H  AX=77D2H  Get seconds (hour*3600+min*60+sec) from DEVCALL_READ_CLOCK
-;   INT 21H  AX=77D3H  Add Buffer  ES:DI=1024+16 bytes buffer initialized and added to the IOBUF.
+;   INT 21H  AX=77D3H  Add Buffer  ES:DI=2048+16 bytes buffer initialized and added to the IOBUF.
 
 
 INT21H_CALLER_CS		DW		0

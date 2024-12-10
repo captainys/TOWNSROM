@@ -751,7 +751,7 @@ DISCARD_BUFFER:
 
 
 ; Input
-;   ES:DI New Buffer (1024+16 bytes of reserved memory block)
+;   ES:DI New Buffer (2048+16 bytes of reserved memory block)
 ADD_BUFFER:
 						MOV		EAX,CS:[IO_BUFF_PTR]
 						MOV		ES:[DI+IO_BUF_NEXT],EAX
