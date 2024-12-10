@@ -3,7 +3,7 @@
 
 ; YSDOS Extension
 ;   INT 21H  AX=77D2H  Get seconds (hour*3600+min*60+sec) from DEVCALL_READ_CLOCK
-
+;   INT 21H  AX=77D3H  Add Buffer  ES:DI=1024+16 bytes buffer initialized and added to the IOBUF.
 
 
 INT21H_CALLER_CS		DW		0
@@ -1918,6 +1918,8 @@ INT_21H_F9H_TO_FFH_NONE:
 INT_21H_77H_YSDOS_EXTENSION:
 						CMP		AL,0D2H
 						JE		INT_21H_77D2H_YSDOS_EXTENSION
+						CMP		AL,0D3H
+						JE		INT_21H_77D3H_YSDOS_EXTENSION
 						IRET
 
 ; For replacing DOS 0000:[04BCH], which apparently regturns 16 times seconds.
@@ -1949,4 +1951,9 @@ INT_21H_77D2H_YSDOS_EXTENSION:
 						POP		BP
 						POP		DX
 						POP		CX
+						IRET
+
+
+INT_21H_77D3H_YSDOS_EXTENSION:
+						CALL	ADD_BUFFER
 						IRET

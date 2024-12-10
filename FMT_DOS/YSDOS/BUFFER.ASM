@@ -261,7 +261,7 @@ POPULATE_BUFFER_SUCCESS:
 						RET
 POPULATE_BUFFER_FAIL:
 						SUB		DI,IO_BUF_INFO_size
-						MOV		BYTE [DI+IO_BUF_DRV_LOGICAL],0FFh	; Logical Drive=-1.  Make it invalid.
+						MOV		BYTE [DI+IO_BUF_DRV_LOGICAL],IO_BUF_DRV_UNUSED	; Logical Drive=-1.  Make it invalid.
 						STC
 						RET
 POPULATE_BUFFER			ENDP
@@ -747,3 +747,15 @@ DISCARD_BUFFER:
 
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+; Input
+;   ES:DI New Buffer (1024+16 bytes of reserved memory block)
+ADD_BUFFER:
+						MOV		EAX,CS:[IO_BUFF_PTR]
+						MOV		ES:[DI+IO_BUF_NEXT],EAX
+						MOV		WORD PTR ES:[DI+IO_BUF_DRV_LOGICAL],IO_BUF_DRV_UNUSED
+						MOV		CS:[IO_BUFF_PTR],DI
+						MOV		CS:[IO_BUFF_PTR+2],ES
+						RET
