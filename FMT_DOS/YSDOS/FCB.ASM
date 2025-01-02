@@ -132,16 +132,16 @@ COPY_FINDSTRUC_TO_FCB:
 						MOV		ES:[DI+7+0CH],AX
 
 						MOV		AX,[FIND_FCB_STRUCT+FIND_FOUND_TIME]
-						MOV		ES:[DI+7+16H],AX	; 16H is questionable.
+						MOV		ES:[DI+1EH],AX	; 16H is questionable.
 
 						MOV		AX,[FIND_FCB_STRUCT+FIND_FOUND_DATE]
-						MOV		ES:[DI+7+14H],AX	; 14H is questionable.
+						MOV		ES:[DI+20H],AX	; 14H is questionable.
 
 						MOV		AX,[FIND_FCB_STRUCT+FIND_COUNT_IN_DIR]
 						MOV		ES:[DI+7+20H],AX
 
 						MOV		EAX,[FIND_FCB_STRUCT+FIND_FOUND_FILE_SIZE]
-						MOV		ES:[DI+7+10H],EAX
+						MOV		ES:[DI+24H],EAX
 
 
 						MOV		CX,8
