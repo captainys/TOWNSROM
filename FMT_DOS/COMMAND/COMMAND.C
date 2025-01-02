@@ -1,3 +1,5 @@
+// Memo to myself.  printf will increase the binary size by 7KB.
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,7 +41,7 @@ unsigned int BatchReadLine(char line[],unsigned int maxLen,struct BatchState *ba
 2nd byte and the rest, parameter terminated by CR.
 There should be no re-entrance for this buffer.
 */
-char execParamBuf[MAX_EXEPARAM];
+char execParamBuf[MAX_EXEPARAM],tmpBuf1[LINEBUFLEN],tmpBuf2[LINEBUFLEN],tmpBuf3[LINEBUFLEN];
 
 #define RUNMODE_FIRST_LEVEL 'P'
 #define RUNMODE_EXEC_AND_STAY 'K'
@@ -71,6 +73,62 @@ void PrintFileError(const char msg[],const char fileName[])
 	DOSWRITES(DOS_STDERR,msg);
 	DOSWRITES(DOS_STDERR,fileName);
 	DOSWRITES(DOS_STDERR,DOS_LINEBREAK);
+}
+
+int TrueNameIsDir(const char fileName[])
+{
+	unsigned int attr;
+	if(0!=fileName[0] && 0==strcmp(fileName+1,":\\"))
+	{
+		return 1;
+	}
+	if(0==_dos_getfileattr(fileName,&attr))
+	{
+		return 0!=(attr&_A_SUBDIR);
+	}
+	return 0;
+}
+
+void JoinFileName(char full[],const char toAdd[])
+{
+	unsigned int len1=strlen(full);
+	unsigned int len2=strlen(toAdd);
+
+	if(0<len1 && '\\'!=full[len1-1])
+	{
+		if(len1+2<MAX_PATH)
+		{
+			full[len1]='\\';
+			full[len1+1]=0;
+			++len1;
+		}
+		else
+		{
+			return;
+		}
+	}
+
+	if(len1+len2+1<MAX_PATH)
+	{
+		strcat(full,toAdd);
+	}
+}
+
+void DropLastName(char fileName[])
+{
+	unsigned int lastSlash=0;
+	int i;
+	for(i=0; 0!=fileName[i]; ++i)
+	{
+		if('/'==fileName[i] || '\\'==fileName[i])
+		{
+			lastSlash=i;
+		}
+	}
+	if(0!=fileName[lastSlash+1])
+	{
+		fileName[lastSlash]=0;
+	}
 }
 
 #if 0
@@ -375,13 +433,18 @@ void ExecCD(char afterArgv0[])
 void ExecDir(char afterArgv0[])
 {
 	int findCount=0;
-	static char path[LINEBUFLEN];
-	GetFirstArgument(path,afterArgv0);
-	ExpandEnvVar(ENVSEG,path,MAX_PATH);
-
-	if(0==path[0])
+	GetFirstArgument(tmpBuf1,afterArgv0);
+	ExpandEnvVar(ENVSEG,tmpBuf1,MAX_PATH);
+	if(0==tmpBuf1[0])
 	{
-		strcpy(path,"*.*");
+		tmpBuf1[0]='.';
+		tmpBuf1[1]=0;
+	}
+	DOSTRUENAME(tmpBuf2,tmpBuf1);
+
+	if(TrueNameIsDir(tmpBuf2))
+	{
+		JoinFileName(tmpBuf1,"*.*");
 	}
 
 	for(;;)
@@ -389,7 +452,7 @@ void ExecDir(char afterArgv0[])
 		int err=1;
 		if(0==findCount)
 		{
-			err=_dos_findfirst(path,0x16,&findStruct);
+			err=_dos_findfirst(tmpBuf1,0x16,&findStruct);
 		}
 		else
 		{
@@ -410,6 +473,110 @@ void ExecDir(char afterArgv0[])
 	if(0==findCount)
 	{
 		DOSPUTS("No such file or directory."DOS_LINEBREAK);
+	}
+	else
+	{
+		_dos_findclose(&findStruct);
+	}
+}
+
+void ExecCopy(char afterArgv0[])
+{
+	unsigned int srcLen,dstLen,srcIsDir,dstIsDir,findCount=0;;
+	char *src=tmpBuf1,*dst=tmpBuf2,*tmp=tmpBuf3;
+
+	srcLen=GetFirstArgument(tmp,afterArgv0);
+	if(0==srcLen)
+	{
+		DOSPUTS("Need source."DOS_LINEBREAK);
+		return;
+	}
+	DOSTRUENAME(src,tmp);
+
+	dstLen=GetFirstArgument(tmp,afterArgv0+srcLen);
+	if(0==dstLen)
+	{
+		DOSGETCWD(dst);
+	}
+	else if(':'==tmp[1] && 0==tmp[2])
+	{
+		tmp[0]|=0x20;  // Force it to small letter.
+		DOSGETCWDDRV(dst,tmp[0]-'a');
+	}
+	else
+	{
+		DOSTRUENAME(dst,tmp);
+	}
+
+	DOSPUTS("From:");
+	DOSPUTS(src);
+	DOSPUTS(DOS_LINEBREAK);
+	DOSPUTS("To  :");
+	DOSPUTS(dst);
+	DOSPUTS(DOS_LINEBREAK);
+
+	// Dst can be a directory or a file name.
+	dstIsDir=TrueNameIsDir(dst);
+	srcIsDir=TrueNameIsDir(src);
+
+	for(;;)
+	{
+		int err=1;
+		if(0==findCount)
+		{
+			strcpy(tmp,src);
+			if(srcIsDir)
+			{
+				JoinFileName(tmp,"*.*");
+			}
+			err=_dos_findfirst(tmp,0x16,&findStruct);
+		}
+		else
+		{
+			err=_dos_findnext(&findStruct);
+		}
+		if(0!=err)
+		{
+			break;
+		}
+
+		++findCount;
+
+		if(0==(findStruct.attrib&_A_SUBDIR))
+		{
+			if(0==srcIsDir)
+			{
+				DropLastName(src);
+			}
+			JoinFileName(src,findStruct.name);
+
+			if(0==dstIsDir)
+			{
+				DropLastName(dst);
+			}
+			JoinFileName(dst,findStruct.name);
+
+			if(0!=strcmp(src,dst))
+			{
+				DOSPUTS(src);
+				DOSPUTS(" -> ");
+				DOSPUTS(dst);
+				DOSPUTS(DOS_LINEBREAK);
+			}
+
+			if(0!=dstIsDir)
+			{
+				DropLastName(dst);
+			}
+			if(0!=srcIsDir)
+			{
+				DropLastName(src);
+			}
+		}
+	}
+	if(0<findCount)
+	{
+		_dos_findclose(&findStruct);
 	}
 }
 
@@ -535,7 +702,7 @@ int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char after
 		return 1;
 	case 11:
 	case 12:
-		DOSWRITES(DOS_STDOUT,"COPY to be implemented"DOS_LINEBREAK);
+		ExecCopy(afterArgv0);
 		return 1;
 	case 13:
 	case 14:

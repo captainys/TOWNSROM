@@ -60,7 +60,7 @@ def Run(argv):
 		"-DONTAUTOSAVECMOS",
 		#"-HIGHRES",
 		"-DEBUG",
-		"-PAUSE",
+		#"-PAUSE",
 		"-CD",
 		"C:/d/townsiso/TownsOSV2.1L20.cue",
 		"-HD0",

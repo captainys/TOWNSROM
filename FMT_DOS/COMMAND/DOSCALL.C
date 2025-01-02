@@ -356,20 +356,30 @@ unsigned long int DOSSEEK(int fd,unsigned long int fpos,unsigned char from)
 	}
 }
 
-void DOSGETCWD(char cwd[68])
+unsigned char DOSGETCURDRV(void)
 {
 	union REGS regIn,regOut;
-	unsigned drv;
+	regIn.h.ah=0x19;
+	intdos(&regIn,&regOut);
+	return regOut.h.al;
+}
 
-	_dos_getdrive(&drv);
-	cwd[0]='A'+drv-1;
+void DOSGETCWDDRV(char cwd[MAX_DIR],unsigned char drv)
+{
+	union REGS regIn,regOut;
+	cwd[0]='A'+drv;
 	cwd[1]=':';
 	cwd[2]='\\';
 
 	regIn.h.ah=0x47;
-	regIn.h.dl=0;
+	regIn.h.dl=drv+1;
 	regIn.x.si=(unsigned)cwd+3;
 	intdos(&regIn,&regOut);
+}
+
+void DOSGETCWD(char cwd[68])
+{
+	DOSGETCWDDRV(cwd,DOSGETCURDRV()); // Memo _dos_getdrive(&drv) gives drv==1 for A drive.
 }
 
 int DOSDUP(int fdFrom)

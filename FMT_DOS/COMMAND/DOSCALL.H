@@ -62,6 +62,13 @@ int DOSWRITEOPEN(const char fileName[]);
 
 unsigned long int DOSSEEK(int fd,unsigned long int fpos,unsigned char from);
 
+/*! Returns the current drive.
+*/
+unsigned char DOSGETCURDRV(void);
+
+/*! Returns a current working directory of a drive.  drv==0->A:
+*/
+void DOSGETCWDDRV(char cwd[MAX_DIR],unsigned char drv);
 
 void DOSGETCWD(char cwd[MAX_DIR]);
 
