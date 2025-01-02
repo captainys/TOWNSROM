@@ -114,6 +114,50 @@ void JoinFileName(char full[],const char toAdd[])
 	}
 }
 
+int CopyFileSetDate(const char src[],const char dst[],unsigned short BUFSEG)
+{
+	int srcFD,dstFD;
+	char far *buf=MK_FP(BUFSEG,0);
+	unsigned int date,time;
+
+	srcFD=DOSREADOPEN(src);
+	if(srcFD<0)
+	{
+		DOSPUTS("No such file or directory."DOS_LINEBREAK);
+		ERRORLEVEL=1;
+		return 1;
+	}
+	dstFD=DOSWRITEOPEN(dst);
+	if(dstFD<0)
+	{
+		_dos_close(srcFD);
+		DOSPUTS("Cannot write to file."DOS_LINEBREAK);
+		ERRORLEVEL=1;
+		return 1;
+	}
+
+	for(;;)
+	{
+		unsigned int actualRead,actualWrite;
+		_dos_read(srcFD,buf,READ_BUF_SIZE,&actualRead);
+		if(0==actualRead)
+		{
+			break;
+		}
+		_dos_write(dstFD,buf,actualRead,&actualWrite);
+	}
+
+	_dos_getftime(srcFD,&date,&time);
+	_dos_setftime(dstFD,date,time);
+
+	_dos_close(dstFD);
+	_dos_close(srcFD);
+}
+void SetFileAttrib(const char dst[],unsigned short attrib)
+{
+	_dos_setfileattr(dst,attrib);
+}
+
 void DropLastName(char fileName[])
 {
 	unsigned int lastSlash=0;
@@ -482,6 +526,7 @@ void ExecDir(char afterArgv0[])
 
 void ExecCopy(char afterArgv0[])
 {
+	unsigned short BUFSEG=0;
 	unsigned int srcLen,dstLen,srcIsDir,dstIsDir,findCount=0;;
 	char *src=tmpBuf1,*dst=tmpBuf2,*tmp=tmpBuf3;
 
@@ -489,6 +534,7 @@ void ExecCopy(char afterArgv0[])
 	if(0==srcLen)
 	{
 		DOSPUTS("Need source."DOS_LINEBREAK);
+		ERRORLEVEL=1;
 		return;
 	}
 	DOSTRUENAME(src,tmp);
@@ -518,6 +564,13 @@ void ExecCopy(char afterArgv0[])
 	// Dst can be a directory or a file name.
 	dstIsDir=TrueNameIsDir(dst);
 	srcIsDir=TrueNameIsDir(src);
+
+	if(0!=_dos_allocmem(READ_BUF_SIZE/DOS_PARAGRAPH_SIZE,&BUFSEG))
+	{
+		DOSPUTS("Out of memory."DOS_LINEBREAK);
+		ERRORLEVEL=1;
+		return;
+	}
 
 	for(;;)
 	{
@@ -562,6 +615,9 @@ void ExecCopy(char afterArgv0[])
 				DOSPUTS(" -> ");
 				DOSPUTS(dst);
 				DOSPUTS(DOS_LINEBREAK);
+				CopyFileSetDate(src,dst,BUFSEG);
+				findStruct.attrib&=~(_A_RDONLY|_A_HIDDEN|_A_SYSTEM);
+				SetFileAttrib(dst,findStruct.attrib);
 			}
 
 			if(0!=dstIsDir)
@@ -578,6 +634,7 @@ void ExecCopy(char afterArgv0[])
 	{
 		_dos_findclose(&findStruct);
 	}
+	_dos_freemem(BUFSEG);
 }
 
 void ExecPATH(char afterArgv0[])

@@ -1,6 +1,9 @@
 #ifndef DEF_H_IS_INCLUDED
 #define DEF_H_IS_INCLUDED
 
+#define DOS_PARAGRAPH_SIZE 16
+#define READ_BUF_SIZE 4096
+
 #define ASCII_CR 0x0D
 #define ASCII_LF 0x0A
 
