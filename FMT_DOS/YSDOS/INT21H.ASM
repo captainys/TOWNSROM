@@ -225,9 +225,9 @@ INT_21H_REGISTERS_SAVED:
 						CMP		AH,10H
 						JE		INT_21H_10H_TO_17H_FCB
 						CMP		AH,11H
-						JE		INT_21H_10H_TO_17H_FCB
+						JE		INT_21H_11H_FIND_FIRST_FCB
 						CMP		AH,12H
-						JE		INT_21H_10H_TO_17H_FCB
+						JE		INT_21H_12H_FIND_NEXT_FCB
 						CMP		AH,13H
 						JE		INT_21H_10H_TO_17H_FCB
 						CMP		AH,14H
@@ -533,6 +533,33 @@ INT_21H_10H_TO_17H_FCB:
 						JMP		INT_RESTORE_AND_IRET_WITH_CF
 
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+; Input  DS:DX Unopened FCB
+; Output DTA Unopened FCB for first matching file or FFh no matching filename
+INT_21H_11H_FIND_FIRST_FCB:
+						CALL	FIND_FIRST_FCB
+
+						MOV	AH,11H	; Restore AH
+						RETURN_REGISTERW	AX
+
+						JMP		INT_RESTORE_AND_IRET_WITH_CF
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+; Input  DS:DX Unopened FCB
+; Output DTA Unopened FCB or FFh no more matching filename
+INT_21H_12H_FIND_NEXT_FCB:
+						CALL	FIND_NEXT_FCB
+
+						MOV	AH,12H	; Restore AH
+						RETURN_REGISTERW	AX
+
+						JMP		INT_RESTORE_AND_IRET_WITH_CF
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
