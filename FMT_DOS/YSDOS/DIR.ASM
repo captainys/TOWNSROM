@@ -958,6 +958,9 @@ FIND_FIRST:
 						JE		FIND_FIRST_NOT_REDIRECTED
 
 ;FIND_FIRST_REDIRECTED:
+						MOV		WORD PTR CS:[CURRENT_CDS_STRUCT],BX
+						MOV		WORD PTR CS:[CURRENT_CDS_STRUCT+2],DS
+
 						_LES	DI,CS:[DMA_BUFFER_PTR]
 						PUSH	ES
 						PUSH	DI
@@ -1161,6 +1164,10 @@ FIND_NEXT:
 						; SHSUCDX assumes SDB, not DTA.  I don't know if it is an expected behavior.
 						PUSH	DS
 						PUSH	BX	; Save CDS
+
+						; CURRENT_CDS_STRUCT is supposed to be set by the previous FIND_FIRST, but just in case.
+						MOV		WORD PTR CS:[CURRENT_CDS_STRUCT],BX
+						MOV		WORD PTR CS:[CURRENT_CDS_STRUCT+2],DS
 
 						_LDS	SI,CS:[DMA_BUFFER_PTR]
 						PUSH	CS
