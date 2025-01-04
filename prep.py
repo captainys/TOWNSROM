@@ -44,3 +44,6 @@ def Prep():
 
 
 
+if __name__=="__main__":
+	Prep()
+	print("Done.")
