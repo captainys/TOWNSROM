@@ -12,7 +12,7 @@
 #include "UTIL.H"
 #include "DEF.H"
 
-#define VERSION "20250226"
+#define VERSION "20250227"
 
 #define MSG_CANNOTOPEN "Cannot open "
 #define MSG_WRONGCOMMAND "Wrong Command or File Name."
@@ -303,6 +303,24 @@ void SetUp(struct Option *option)
 	}
 
 	ENVSEG=GetUint16(PSPPtr+PSP_ENVSEG);
+
+	if(0!=ENVSEG && GetArenaBytes(ENVSEG)<option->ENVSEGLen*16) // If DOS assigned a useless small ENVSEG, make replace with another one.
+	{
+		unsigned int prevENVSEG=ENVSEG;
+		char far *toPtr;
+		char far *fromPtr=MAKEFARPTR(prevENVSEG,0);
+
+		_dos_allocmem(option->ENVSEGLen,&ENVSEG);  /* Return: Non-zero means error. */
+		InitENVSEG(ENVSEG,option->ENVSEGLen,dir);
+
+		toPtr=MAKEFARPTR(ENVSEG,0);
+		_fmemcpy(toPtr,fromPtr,GetArenaBytes(prevENVSEG));
+
+		_dos_freemem(prevENVSEG);
+
+		SetUint16(PSPPtr+PSP_ENVSEG,ENVSEG);
+	}
+
 	if(0==ENVSEG)
 	{
 		_dos_allocmem(option->ENVSEGLen,&ENVSEG);  /* Return: Non-zero means error. */
