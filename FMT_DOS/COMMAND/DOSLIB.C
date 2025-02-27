@@ -14,6 +14,7 @@ const char *YAMANDCOM="YAMAND.COM";
 
 static char doslibFNBuf[MAX_PATH];
 
+#define Tsugaru_DebugBreak outp(0x2386,2);
 
 
 void PrintDOSError(int errCode)
@@ -428,7 +429,7 @@ void SetEnv(unsigned int ENVSEG,const char var[],const char data[])
 		unsigned int growth=VARDATALen-curLen;
 		unsigned int ptr;
 
-		if(ENVLen<=growth)
+		if(ENVLen<=final+growth)
 		{
 			/* Out of Memory */
 			return;

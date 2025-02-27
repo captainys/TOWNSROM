@@ -12,7 +12,7 @@
 #include "UTIL.H"
 #include "DEF.H"
 
-#define VERSION "20240503"
+#define VERSION "20250226"
 
 #define MSG_CANNOTOPEN "Cannot open "
 #define MSG_WRONGCOMMAND "Wrong Command or File Name."
