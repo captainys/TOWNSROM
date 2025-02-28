@@ -331,6 +331,7 @@ try_fd_boot:
 
 	; Reading System Message and Hourglass Icon
 	push	ax
+	push	si
 	push	ds
 
 	push	cs
@@ -346,6 +347,7 @@ try_fd_boot:
 	call	textout
 
 	pop		ds
+	pop		si
 	pop		ax
 
 
@@ -356,10 +358,7 @@ try_fd_boot:
 	mov		bl,2
 	mov	ax,0ffffh
 
-	; call	far 0B000h:0004h
-	DB		9AH
-	DW		 0004H
-	DW		0B000H
+	call far [cs:si]
 
 .cannot_boot:
 	ret
@@ -402,6 +401,7 @@ try_hd_boot:
 
 	; Reading System Message and Hourglass Icon
 	push	ax
+	push	si
 	push	ds
 
 	push	cs
@@ -417,6 +417,7 @@ try_hd_boot:
 	call	textout
 
 	pop		ds
+	pop		si
 	pop		ax
 
 	; BL:Device Type   1:SCSI  2:FD  8:CD
@@ -426,10 +427,7 @@ try_hd_boot:
 	mov		bl,1
 	mov	ax,0ffffh
 
-	; call	far 0B000h:0004h
-	DB		9AH
-	DW		 0004H
-	DW		0B000H
+	call far [cs:si]
 
 .cannot_boot:
 	ret
