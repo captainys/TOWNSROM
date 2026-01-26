@@ -12,8 +12,9 @@
 #include "UTIL.H"
 #include "DEF.H"
 
-#define VERSION "20250227"
+#define VERSION "20260125"
 
+#define MSG_CANNOT_DELETE "Cannot delete "
 #define MSG_CANNOTOPEN "Cannot open "
 #define MSG_WRONGCOMMAND "Wrong Command or File Name."
 #define MSG_EXITING "Exitting."
@@ -152,6 +153,8 @@ int CopyFileSetDate(const char src[],const char dst[],unsigned short BUFSEG)
 
 	_dos_close(dstFD);
 	_dos_close(srcFD);
+
+	return 0;
 }
 void SetFileAttrib(const char dst[],unsigned short attrib)
 {
@@ -210,6 +213,18 @@ void PrintPSPInfo(unsigned char far *PSPPtr)
 	putchar('\n');
 }
 #endif
+
+int fatoi(const char far *str)
+{
+	int i=0;
+	while('0'<=*str && *str<='9')
+	{
+		i*=10;
+		i+=(*str-'0');
+		++str;
+	}
+	return i;
+}
 
 /*! Return value 0:Not the First-Level   Non-Zero:First-Level
 */
@@ -288,7 +303,7 @@ void SetUp(struct Option *option)
 			case 'E':
 				if(':'==optPtr[i+1])
 				{
-					option->ENVSEGLen=atoi(optPtr+i+2);
+					option->ENVSEGLen=fatoi(optPtr+i+2);
 					if(512<option->ENVSEGLen)
 					{
 						option->ENVSEGLen=512;
@@ -544,7 +559,7 @@ void ExecDir(char afterArgv0[])
 
 void ExecCopy(char afterArgv0[])
 {
-	unsigned short BUFSEG=0;
+	unsigned int BUFSEG=0;
 	unsigned int srcLen,dstLen,srcIsDir,dstIsDir,findCount=0;;
 	char *src=tmpBuf1,*dst=tmpBuf2,*tmp=tmpBuf3;
 
@@ -663,6 +678,25 @@ void ExecPATH(char afterArgv0[])
 	SetEnv(ENVSEG,"PATH",setpath);
 }
 
+void ExecDel(char *fileName)
+{
+	char err;
+	fileName=SkipHeadSpace(fileName);
+	ClearTailSpace(fileName);
+	if(0!=DOSDELETE(fileName))
+	{
+		PrintFileError(MSG_CANNOT_DELETE,fileName);
+	}
+}
+void ExecRen(char afterArgv0[])
+{
+}
+void ExecMkdir(char afterArgv0[])
+{
+}
+void ExecRmdir(char afterArgv0[])
+{
+}
 void ExecType(char *fileName)
 {
 	char buf[64]; // Hope 64-bytes is not too large.
@@ -781,19 +815,19 @@ int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char after
 		return 1;
 	case 13:
 	case 14:
-		DOSWRITES(DOS_STDOUT,"DEL to be implemented"DOS_LINEBREAK);
+		ExecDel(afterArgv0);
 		return 1;
 	case 15:
 	case 16:
-		DOSWRITES(DOS_STDOUT,"REN to be implemented"DOS_LINEBREAK);
+		ExecRen(afterArgv0);
 		return 1;
 	case 17:
 	case 18:
-		DOSWRITES(DOS_STDOUT,"MKDIR to be implemented"DOS_LINEBREAK);
+		ExecMkdir(afterArgv0);
 		return 1;
 	case 19:
 	case 20:
-		DOSWRITES(DOS_STDOUT,"MKDIR to be implemented"DOS_LINEBREAK);
+		ExecRmdir(afterArgv0);
 		return 1;
 	case 21:
 		ExecType(afterArgv0);
@@ -1053,7 +1087,7 @@ void EndBatchFile(struct BatchState *batState)
 	}
 }
 
-int RunBatchFile(char cmd[],char param[])
+int RunBatchFile(char cmd[],char param[]) // This will destroy param.
 {
 	int returnCode=0;
 	int batArgc=0;

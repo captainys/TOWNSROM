@@ -74,6 +74,11 @@ void DOSGETCWD(char cwd[MAX_DIR]);
 
 
 /*!
+*/
+unsigned char DOSDELETE(const char fileName[]);
+
+
+/*!
 dup in Open WATCOM 1.9 C Runtime Library links malloc and free, which are unnecessary. to increase binary size by 2KB.
 */
 int DOSDUP(int fdFrom);

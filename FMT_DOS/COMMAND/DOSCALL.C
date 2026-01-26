@@ -356,6 +356,21 @@ unsigned long int DOSSEEK(int fd,unsigned long int fpos,unsigned char from)
 	}
 }
 
+unsigned char DOSDELETE(const char fileName[])
+{
+	int i;
+	union REGS regIn,regOut;
+	regIn.x.ax=0x4100;
+	regIn.x.dx=(unsigned int)fileName;
+	regIn.x.cx=0;
+	intdos(&regIn,&regOut);
+	if(0!=CF(regOut))
+	{
+		return regOut.x.ax;
+	}
+	return 0;
+}
+
 unsigned char DOSGETCURDRV(void)
 {
 	union REGS regIn,regOut;
