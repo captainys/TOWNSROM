@@ -18,6 +18,8 @@
 #define MSG_CANNOTOPEN "Cannot open "
 #define MSG_WRONGCOMMAND "Wrong Command or File Name."
 #define MSG_EXITING "Exitting."
+#define MSG_CANNOT_MKDIR "Cannot make directory "
+#define MSG_MISSING_ARG "Missing argument."
 
 #define BUILTIN_COMMAND_OK 0
 #define BUILTIN_COMMAND_ERR 1
@@ -728,13 +730,42 @@ int ExecRen(char afterArgv0[])
 }
 int ExecMkdir(char afterArgv0[])
 {
-	ERRORLEVEL=1;
-	return BUILTIN_COMMAND_ERR;
+	GetFirstArgument(tmpBuf1,afterArgv0);
+	ExpandEnvVar(ENVSEG,tmpBuf1,MAX_PATH);
+	if(0==tmpBuf1[0])
+	{
+		DOSPUTS(MSG_MISSING_ARG DOS_LINEBREAK);
+		ERRORLEVEL=1;
+		return BUILTIN_COMMAND_ERR;
+	}
+	DOSTRUENAME(tmpBuf2,tmpBuf1);
+
+	if(TrueNameIsDir(tmpBuf2))
+	{
+		// Already exists.  Return no error.
+		return BUILTIN_COMMAND_OK;
+	}
+
+	if(0!=DOSMKDIR(tmpBuf2))
+	{
+		PrintFileError(MSG_CANNOT_MKDIR,tmpBuf2);
+		ERRORLEVEL=1;
+		return BUILTIN_COMMAND_ERR;
+	}
+	return BUILTIN_COMMAND_OK;
 }
-int ExecRmdir(char afterArgv0[])
+int ExecRmdir(char *fileName)
 {
-	ERRORLEVEL=1;
-	return BUILTIN_COMMAND_ERR;
+	char err;
+	fileName=SkipHeadSpace(fileName);
+	ClearTailSpace(fileName);
+	if(0!=DOSRMDIR(fileName))
+	{
+		PrintFileError(MSG_CANNOT_DELETE,fileName);
+		ERRORLEVEL=1;
+		return BUILTIN_COMMAND_ERR;
+	}
+	return BUILTIN_COMMAND_OK;
 }
 int ExecType(char *fileName)
 {

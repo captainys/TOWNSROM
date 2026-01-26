@@ -108,7 +108,7 @@ INT_21H_COMMAND			PROC
 
 						PUSH	BP
 						MOV		BP,SP
-						MOV		BP,[BP+2]	; Caller CS
+						MOV		BP,[BP+4]	; Caller CS
 						MOV		CS:[INT21H_CALLER_CS],BP
 						POP		BP
 INT_21H_ALREADY_INDOS:

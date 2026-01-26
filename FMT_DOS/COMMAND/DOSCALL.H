@@ -46,6 +46,18 @@ int DOSCHDIR(const char dir[]);
 
 
 
+/*!
+*/
+int DOSMKDIR(const char dir[]);
+
+
+
+/*!
+*/
+int DOSRMDIR(const char dir[]);
+
+
+
 /*! Use INT 21H AH=0AH to get one line of input.
     buf must be minimum LINEBUFLEN.
 */

@@ -271,12 +271,11 @@ int DOSGETERRORLEVEL(void)
 	return (regOut.x.ax&0x0F);
 }
 
-
-int DOSCHDIR(const char dir[])
+static int DOSCALL_DS_DX_IS_POINTER(unsigned short AX,const void *ptr)
 {
 	union REGS regIn,regOut;
-	regIn.x.ax=0x3B00;
-	regIn.x.dx=(unsigned int)dir; /* DS:DX is dir. */
+	regIn.x.ax=AX;
+	regIn.x.dx=(unsigned int)ptr; /* DS:DX is dir. */
 	intdos(&regIn,&regOut);
 	if(CF(regOut))
 	{
@@ -285,6 +284,20 @@ int DOSCHDIR(const char dir[])
 	return 0;
 }
 
+int DOSCHDIR(const char dir[])
+{
+	return DOSCALL_DS_DX_IS_POINTER(0x3B00,dir);
+}
+
+int DOSMKDIR(const char dir[])
+{
+	return DOSCALL_DS_DX_IS_POINTER(0x3900,dir);
+}
+
+int DOSRMDIR(const char dir[])
+{
+	return DOSCALL_DS_DX_IS_POINTER(0x3A00,dir);
+}
 
 void DOSPUTS(const char str[])
 {
