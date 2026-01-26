@@ -7,6 +7,12 @@
 
 
 
+/*!
+*/
+char far *DOSGETSYSVARS(void);
+
+
+
 /*! Returns the PSP segment.
 */
 unsigned int DOSGETPSP(void);

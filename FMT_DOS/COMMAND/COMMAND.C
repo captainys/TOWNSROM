@@ -331,7 +331,7 @@ void SetUp(struct Option *option)
 		char far *fromPtr=MAKEFARPTR(prevENVSEG,0);
 
 		_dos_allocmem(option->ENVSEGLen,&ENVSEG);  /* Return: Non-zero means error. */
-		InitENVSEG(ENVSEG,option->ENVSEGLen,dir);
+		InitENVSEG(ENVSEG,option->ENVSEGLen,dir);  /* <- Do I need this? */
 
 		toPtr=MAKEFARPTR(ENVSEG,0);
 		_fmemcpy(toPtr,fromPtr,GetArenaBytes(prevENVSEG));

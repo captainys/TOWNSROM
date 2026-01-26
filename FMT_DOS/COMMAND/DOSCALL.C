@@ -11,6 +11,26 @@
 
 
 
+/*!
+*/
+char far *DOSGETSYSVARS(void)
+{
+	union REGS regIn,regOut;
+	struct SREGS sreg;
+	char far *ptr;
+
+	segread(&sreg);
+
+	regIn.x.ax=0x5200;
+	intdosx(&regIn,&regOut,&sreg);
+
+	ptr=MK_FP(sreg.es,regOut.x.bx);
+
+	return ptr;
+}
+
+
+
 unsigned int DOSGETPSP(void)
 {
 	union REGS regIn,regOut;

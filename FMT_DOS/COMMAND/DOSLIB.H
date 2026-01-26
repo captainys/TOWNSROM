@@ -24,6 +24,8 @@
 #define FARPTR2OFS(ptr) FP_OFF(ptr);
 #define MAKEFARPTR(SEG,OFS) MK_FP((SEG),(OFS))
 
+#define DOS_SYSVARS_FILENAME_BUFFER0 0x360
+
 
 #define DOSERR_NO_ERROR					0x00
 #define DOSERR_INVALID_FUNC				0x01
