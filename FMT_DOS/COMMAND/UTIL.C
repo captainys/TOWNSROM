@@ -429,7 +429,7 @@ void Itoa(char *a,unsigned int i)
 		*a=0;
 	}
 }
-int FindStr(const char str[],const char *lst[])
+int FindStr(const char str[],const char *const lst[])
 {
 	int i;
 	for(i=0; NULL!=lst[i]; ++i)

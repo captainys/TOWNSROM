@@ -37,7 +37,8 @@ static struct Option opt;
 static struct _find_t findStruct;
 
 
-int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char afterArgv0[]);
+int ExecBatchControlCommand(struct BatchState *batState,const char argv0[],char afterArgv0[]);
+int ExecBuiltInCommand(const char argv0[],char afterArgv0[]);
 unsigned int BatchReadLine(char line[],unsigned int maxLen,struct BatchState *batState,size_t *fpos);
 
 
@@ -393,6 +394,7 @@ int ExecExit(struct BatchState *batState,const char afterArgv0[])
 		DOSPUTS(MSG_EXITING DOS_LINEBREAK);
 		exit(0);
 	}
+	ERRORLEVEL=1;
 	return BUILTIN_COMMAND_ERR; // Somehow did not exit.
 }
 
@@ -447,6 +449,7 @@ int ExecSet(char setParam[])
 	else
 	{
 		DOSPUTS("Too long." DOS_LINEBREAK);
+		ERRORLEVEL=1;
 		return BUILTIN_COMMAND_ERR;
 	}
 }
@@ -471,6 +474,7 @@ int ExecGoto(struct BatchState *batState,char gotoLabel[])
 	}
 
 	// Label not found
+	ERRORLEVEL=1;
 	return BUILTIN_COMMAND_ERR;
 }
 
@@ -491,16 +495,24 @@ int ExecIf(struct BatchState *batState,char *param)
 		compareLevel=atoi(wordBuf);
 		if(compareLevel<=ERRORLEVEL)
 		{
+			int returnCode;
+
 			/* To be safe for reentrance, don't look at wordBuf after ExecBuiltInCommand */
 			len=GetFirstArgument(wordBuf,param);
 			Capitalize(wordBuf);
-			ExecBuiltInCommand(batState,wordBuf,param+len);
-			return BUILTIN_COMMAND_OK;
+			returnCode=ExecBatchControlCommand(batState,wordBuf,param+len);
+			if(BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==returnCode)
+			{
+				returnCode=ExecBuiltInCommand(wordBuf,param+len);
+			}
+			return returnCode;
 		}
+		return BUILTIN_COMMAND_OK;
 	}
 	else
 	{
 		DOSWRITES(DOS_STDERR,"What condition?"DOS_LINEBREAK);
+		ERRORLEVEL=1;
 		return BUILTIN_COMMAND_ERR;
 	}
 }
@@ -514,6 +526,7 @@ int ExecCD(char afterArgv0[])
 	if(0!=err)
 	{
 		DOSWRITES(DOS_STDERR,"Cannot change directory."DOS_LINEBREAK);
+		ERRORLEVEL=1;
 		return BUILTIN_COMMAND_ERR;
 	}
 	return BUILTIN_COMMAND_OK;
@@ -562,6 +575,7 @@ int ExecDir(char afterArgv0[])
 	if(0==findCount)
 	{
 		DOSPUTS("No such file or directory."DOS_LINEBREAK);
+		ERRORLEVEL=1;
 		return BUILTIN_COMMAND_ERR;
 	}
 	else
@@ -702,20 +716,24 @@ int ExecDel(char *fileName)
 	if(0!=DOSDELETE(fileName))
 	{
 		PrintFileError(MSG_CANNOT_DELETE,fileName);
+		ERRORLEVEL=1;
 		return BUILTIN_COMMAND_ERR;
 	}
 	return BUILTIN_COMMAND_OK;
 }
 int ExecRen(char afterArgv0[])
 {
+	ERRORLEVEL=1;
 	return BUILTIN_COMMAND_ERR;
 }
 int ExecMkdir(char afterArgv0[])
 {
+	ERRORLEVEL=1;
 	return BUILTIN_COMMAND_ERR;
 }
 int ExecRmdir(char afterArgv0[])
 {
+	ERRORLEVEL=1;
 	return BUILTIN_COMMAND_ERR;
 }
 int ExecType(char *fileName)
@@ -730,6 +748,7 @@ int ExecType(char *fileName)
 	if(fd<0)
 	{
 		PrintFileError(MSG_CANNOTOPEN,fileName);
+		ERRORLEVEL=1;
 		return BUILTIN_COMMAND_ERR;
 	}
 
@@ -755,13 +774,18 @@ int ExecDriveLetter(char driveLetter)
 	return BUILTIN_COMMAND_OK;
 }
 
+const char *const batchControlCmd[]=
+{
+	"EXIT",
+	"GOTO",
+	"IF",
+	NULL
+};
+
 const char *const builtInCmd[]=
 {
 	"ECHO",
-	"EXIT",
 	"SET",
-	"GOTO",
-	"IF",
 	"CD",
 	"PAUSE",
 	"PATH",
@@ -782,11 +806,25 @@ const char *const builtInCmd[]=
 	NULL
 };
 
-/*! Execute a built-in command.
-    Return 1 if it is a build-in command.  afterArgv0 may be altered.
-    Return 0 if it is not.  afterArgv0 unchanged.
+/*! Execute IF, GOTO, EXIT
 */
-int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char afterArgv0[])
+int ExecBatchControlCommand(struct BatchState *batState,const char argv0[],char afterArgv0[])
+{
+	switch(FindStr(argv0,batchControlCmd))
+	{
+	case 0: // "EXIT",
+		return ExecExit(batState,afterArgv0);
+	case 1: // "GOTO",
+		return ExecGoto(batState,afterArgv0);
+	case 2: // "IF",
+		return ExecIf(batState,afterArgv0);
+	}
+	return BUILTIN_COMMAND_NOT_BUILTIN_COMMAND;
+}
+
+/*! Execute a built-in command.
+*/
+int ExecBuiltInCommand(const char argv0[],char afterArgv0[])
 {
 	if(':'==*(unsigned short *)(argv0+1))
 	{
@@ -795,50 +833,42 @@ int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char after
 
 	switch(FindStr(argv0,builtInCmd))
 	{
-	case 0:
+	case 0: // "ECHO",
 		return ExecEcho(afterArgv0);
-	case 1:
-		return ExecExit(batState,afterArgv0);
-
-
-	case 2:
+	case 1: // "SET",
 		return ExecSet(afterArgv0);
-	case 3:
-		return ExecGoto(batState,afterArgv0);
-	case 4:
-		return ExecIf(batState,afterArgv0);
-	case 5:
+	case 2: // "CD",
 		return ExecCD(afterArgv0);
-	case 6:
+	case 3: // "PAUSE",
 		{
 			char lineBuf[LINEBUFLEN];
 			DOSWRITES(DOS_STDOUT,"<<Press Enter to Continue>>"DOS_LINEBREAK);
 			DOSGETS(lineBuf);
 		}
 		return BUILTIN_COMMAND_OK;
-	case 7:
+	case 4: // "PATH",
 		return ExecPATH(afterArgv0);
-	case 8: // REM
+	case 5: // "REM",
 		return BUILTIN_COMMAND_OK;;
-	case 9:
-	case 10:
+	case 6: // "DIR",
+	case 7: // "LS",
 		return ExecDir(afterArgv0);
-	case 11:
-	case 12:
+	case 8: // "COPY",
+	case 9: // "CP",
 		return ExecCopy(afterArgv0);
-	case 13:
-	case 14:
+	case 10: // "DEL",
+	case 11: // "RM",
 		return ExecDel(afterArgv0);
-	case 15:
-	case 16:
+	case 12: // "REN",
+	case 13: // "MV",
 		return ExecRen(afterArgv0);
-	case 17:
-	case 18:
+	case 14: // "MD",
+	case 15: // "MKDIR",
 		return ExecMkdir(afterArgv0);
-	case 19:
-	case 20:
+	case 16: // "RD",
+	case 17: // "RMDIR",
 		return ExecRmdir(afterArgv0);
-	case 21:
+	case 18: // "TYPE",
 		return ExecType(afterArgv0);
 	}
 	return BUILTIN_COMMAND_NOT_BUILTIN_COMMAND;
@@ -1180,7 +1210,8 @@ int RunBatchFile(char cmd[],char param[]) // This will destroy param.
 		{
 			continue;
 		}
-		else if(BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==ExecBuiltInCommand(&batState,argv0,afterArgv0))
+		else if(BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==ExecBatchControlCommand(&batState,argv0,afterArgv0) &&
+		        BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==ExecBuiltInCommand(argv0,afterArgv0))
 		{
 			static char exeCmd[MAX_PATH];
 			int comType=IdentifyCommandType(exeCmd,argv0);
@@ -1296,7 +1327,8 @@ int CommandMain(struct Option *option)
 			CleanUpRedirection(&redirInfo);
 			continue;
 		}
-		if(BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==ExecBuiltInCommand(&batState,argv0,afterArgv0))
+		if(BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==ExecBatchControlCommand(&batState,argv0,afterArgv0) &&
+		   BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==ExecBuiltInCommand(argv0,afterArgv0))
 		{
 			/* Then exec external command */
 			int comType=IdentifyCommandType(exeCmd,argv0);
@@ -1347,7 +1379,11 @@ int main(void)
 	else if(RUNMODE_EXEC_AND_EXIT==opt.runMode)
 	{
 		Capitalize(opt.execFilename);
-		returnCode=ExecExternalCommand(opt.execFilename,opt.execParam);
+		returnCode=ExecBuiltInCommand(opt.execFilename,opt.execParam);
+		if(BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==returnCode)
+		{
+			returnCode=ExecExternalCommand(opt.execFilename,opt.execParam);
+		}
 	}
 
 	return returnCode;

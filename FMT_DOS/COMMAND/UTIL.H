@@ -108,6 +108,6 @@ char *FindRedirection(char *c,char arg[]);
 void Itoa(char *a,unsigned int i);
 
 
-int FindStr(const char str[],const char *lst[]);
+int FindStr(const char str[],const char *const lst[]);
 
 #endif
