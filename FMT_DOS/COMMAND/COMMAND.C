@@ -12,12 +12,16 @@
 #include "UTIL.H"
 #include "DEF.H"
 
-#define VERSION "20260125"
+#define VERSION "20260125b"
 
 #define MSG_CANNOT_DELETE "Cannot delete "
 #define MSG_CANNOTOPEN "Cannot open "
 #define MSG_WRONGCOMMAND "Wrong Command or File Name."
 #define MSG_EXITING "Exitting."
+
+#define BUILTIN_COMMAND_OK 0
+#define BUILTIN_COMMAND_ERR 1
+#define BUILTIN_COMMAND_NOT_BUILTIN_COMMAND (~0)
 
 #define Tsugaru_DebugBreak outp(0x2386,2);
 
@@ -345,7 +349,7 @@ void SetUp(struct Option *option)
 	}
 }
 
-void ExecEcho(const char *afterArgv0)
+int ExecEcho(const char *afterArgv0)
 {
 	if(0==strcmp(afterArgv0,"OFF"))
 	{
@@ -367,9 +371,10 @@ void ExecEcho(const char *afterArgv0)
 		DOSPUTS(expand);
 		DOSPUTS(DOS_LINEBREAK);
 	}
+	return 0;
 }
 
-void ExecExit(struct BatchState *batState,const char afterArgv0[])
+int ExecExit(struct BatchState *batState,const char afterArgv0[])
 {
 	char expand[LINEBUFLEN];
 	GetFirstArgument(expand,afterArgv0);
@@ -388,9 +393,10 @@ void ExecExit(struct BatchState *batState,const char afterArgv0[])
 		DOSPUTS(MSG_EXITING DOS_LINEBREAK);
 		exit(0);
 	}
+	return BUILTIN_COMMAND_ERR; // Somehow did not exit.
 }
 
-void ExecSet(char setParam[])
+int ExecSet(char setParam[])
 {
 	char *var;
 	char data[LINEBUFLEN];
@@ -410,7 +416,7 @@ void ExecSet(char setParam[])
 				DOSPUTS(DOS_LINEBREAK);
 				++ENVPtr;
 			}
-			return;
+			return BUILTIN_COMMAND_OK;
 		}
 		++equal;
 	}
@@ -436,14 +442,16 @@ void ExecSet(char setParam[])
 			}
 		}
 		SetEnv(ENVSEG,var,data+skipByte);
+		return BUILTIN_COMMAND_OK;
 	}
 	else
 	{
 		DOSPUTS("Too long." DOS_LINEBREAK);
+		return BUILTIN_COMMAND_ERR;
 	}
 }
 
-void ExecGoto(struct BatchState *batState,char gotoLabel[])
+int ExecGoto(struct BatchState *batState,char gotoLabel[])
 {
 	static char labelBuf[MAX_PATH],inputBuf[LINEBUFLEN],lineBuf[LINEBUFLEN];
 	size_t fpos=0;
@@ -458,14 +466,15 @@ void ExecGoto(struct BatchState *batState,char gotoLabel[])
 		if(':'==lineBuf[0] && 0==strcmp(labelBuf,lineBuf+1))
 		{
 			batState->fPos=fpos;
-			break;
+			return BUILTIN_COMMAND_OK;
 		}
 	}
 
 	// Label not found
+	return BUILTIN_COMMAND_ERR;
 }
 
-void ExecIf(struct BatchState *batState,char *param)
+int ExecIf(struct BatchState *batState,char *param)
 {
 	unsigned int len;
 	static char wordBuf[MAX_PATH];
@@ -486,16 +495,17 @@ void ExecIf(struct BatchState *batState,char *param)
 			len=GetFirstArgument(wordBuf,param);
 			Capitalize(wordBuf);
 			ExecBuiltInCommand(batState,wordBuf,param+len);
+			return BUILTIN_COMMAND_OK;
 		}
 	}
 	else
 	{
 		DOSWRITES(DOS_STDERR,"What condition?"DOS_LINEBREAK);
-		return;
+		return BUILTIN_COMMAND_ERR;
 	}
 }
 
-void ExecCD(char afterArgv0[])
+int ExecCD(char afterArgv0[])
 {
 	int err;
 	char dir[MAX_PATH];
@@ -504,10 +514,12 @@ void ExecCD(char afterArgv0[])
 	if(0!=err)
 	{
 		DOSWRITES(DOS_STDERR,"Cannot change directory."DOS_LINEBREAK);
+		return BUILTIN_COMMAND_ERR;
 	}
+	return BUILTIN_COMMAND_OK;
 }
 
-void ExecDir(char afterArgv0[])
+int ExecDir(char afterArgv0[])
 {
 	int findCount=0;
 	GetFirstArgument(tmpBuf1,afterArgv0);
@@ -550,14 +562,16 @@ void ExecDir(char afterArgv0[])
 	if(0==findCount)
 	{
 		DOSPUTS("No such file or directory."DOS_LINEBREAK);
+		return BUILTIN_COMMAND_ERR;
 	}
 	else
 	{
 		_dos_findclose(&findStruct);
+		return BUILTIN_COMMAND_OK;
 	}
 }
 
-void ExecCopy(char afterArgv0[])
+int ExecCopy(char afterArgv0[])
 {
 	unsigned int BUFSEG=0;
 	unsigned int srcLen,dstLen,srcIsDir,dstIsDir,findCount=0;;
@@ -568,7 +582,7 @@ void ExecCopy(char afterArgv0[])
 	{
 		DOSPUTS("Need source."DOS_LINEBREAK);
 		ERRORLEVEL=1;
-		return;
+		return BUILTIN_COMMAND_ERR;
 	}
 	DOSTRUENAME(src,tmp);
 
@@ -602,7 +616,7 @@ void ExecCopy(char afterArgv0[])
 	{
 		DOSPUTS("Out of memory."DOS_LINEBREAK);
 		ERRORLEVEL=1;
-		return;
+		return BUILTIN_COMMAND_ERR;
 	}
 
 	for(;;)
@@ -668,17 +682,19 @@ void ExecCopy(char afterArgv0[])
 		_dos_findclose(&findStruct);
 	}
 	_dos_freemem(BUFSEG);
+	return BUILTIN_COMMAND_OK;
 }
 
-void ExecPATH(char afterArgv0[])
+int ExecPATH(char afterArgv0[])
 {
 	static char setpath[LINEBUFLEN];
 	GetFirstArgument(setpath,afterArgv0);
 	ExpandEnvVar(ENVSEG,setpath,LINEBUFLEN);
 	SetEnv(ENVSEG,"PATH",setpath);
+	return BUILTIN_COMMAND_OK;
 }
 
-void ExecDel(char *fileName)
+int ExecDel(char *fileName)
 {
 	char err;
 	fileName=SkipHeadSpace(fileName);
@@ -686,18 +702,23 @@ void ExecDel(char *fileName)
 	if(0!=DOSDELETE(fileName))
 	{
 		PrintFileError(MSG_CANNOT_DELETE,fileName);
+		return BUILTIN_COMMAND_ERR;
 	}
+	return BUILTIN_COMMAND_OK;
 }
-void ExecRen(char afterArgv0[])
+int ExecRen(char afterArgv0[])
 {
+	return BUILTIN_COMMAND_ERR;
 }
-void ExecMkdir(char afterArgv0[])
+int ExecMkdir(char afterArgv0[])
 {
+	return BUILTIN_COMMAND_ERR;
 }
-void ExecRmdir(char afterArgv0[])
+int ExecRmdir(char afterArgv0[])
 {
+	return BUILTIN_COMMAND_ERR;
 }
-void ExecType(char *fileName)
+int ExecType(char *fileName)
 {
 	char buf[64]; // Hope 64-bytes is not too large.
 	int fd;
@@ -709,7 +730,7 @@ void ExecType(char *fileName)
 	if(fd<0)
 	{
 		PrintFileError(MSG_CANNOTOPEN,fileName);
-		return;
+		return BUILTIN_COMMAND_ERR;
 	}
 
 	for(;;)
@@ -724,12 +745,14 @@ void ExecType(char *fileName)
 	}
 
 	fd=_dos_close(fd);
+	return BUILTIN_COMMAND_OK;
 }
 
-void ExecDriveLetter(char driveLetter)
+int ExecDriveLetter(char driveLetter)
 {
 	unsigned int driveAvail;
 	_dos_setdrive(driveLetter-'A'+1,&driveAvail);
+	return BUILTIN_COMMAND_OK;
 }
 
 const char *const builtInCmd[]=
@@ -767,73 +790,58 @@ int ExecBuiltInCommand(struct BatchState *batState,const char argv0[],char after
 {
 	if(':'==*(unsigned short *)(argv0+1))
 	{
-		ExecDriveLetter(argv0[0]);
-		return 1;
+		return ExecDriveLetter(argv0[0]);
 	}
 
 	switch(FindStr(argv0,builtInCmd))
 	{
 	case 0:
-		ExecEcho(afterArgv0);
-		return 1;
+		return ExecEcho(afterArgv0);
 	case 1:
-		ExecExit(batState,afterArgv0);
-		return 1;
+		return ExecExit(batState,afterArgv0);
 
 
 	case 2:
-		ExecSet(afterArgv0);
-		return 1;
+		return ExecSet(afterArgv0);
 	case 3:
-		ExecGoto(batState,afterArgv0);
-		return 1;
+		return ExecGoto(batState,afterArgv0);
 	case 4:
-		ExecIf(batState,afterArgv0);
-		return 1;
+		return ExecIf(batState,afterArgv0);
 	case 5:
-		ExecCD(afterArgv0);
-		return 1;
+		return ExecCD(afterArgv0);
 	case 6:
 		{
 			char lineBuf[LINEBUFLEN];
 			DOSWRITES(DOS_STDOUT,"<<Press Enter to Continue>>"DOS_LINEBREAK);
 			DOSGETS(lineBuf);
 		}
-		return 1;
+		return BUILTIN_COMMAND_OK;
 	case 7:
-		ExecPATH(afterArgv0);
-		return 1;
+		return ExecPATH(afterArgv0);
 	case 8: // REM
-		return 1;
+		return BUILTIN_COMMAND_OK;;
 	case 9:
 	case 10:
-		ExecDir(afterArgv0);
-		return 1;
+		return ExecDir(afterArgv0);
 	case 11:
 	case 12:
-		ExecCopy(afterArgv0);
-		return 1;
+		return ExecCopy(afterArgv0);
 	case 13:
 	case 14:
-		ExecDel(afterArgv0);
-		return 1;
+		return ExecDel(afterArgv0);
 	case 15:
 	case 16:
-		ExecRen(afterArgv0);
-		return 1;
+		return ExecRen(afterArgv0);
 	case 17:
 	case 18:
-		ExecMkdir(afterArgv0);
-		return 1;
+		return ExecMkdir(afterArgv0);
 	case 19:
 	case 20:
-		ExecRmdir(afterArgv0);
-		return 1;
+		return ExecRmdir(afterArgv0);
 	case 21:
-		ExecType(afterArgv0);
-		return 1;
+		return ExecType(afterArgv0);
 	}
-	return 0;
+	return BUILTIN_COMMAND_NOT_BUILTIN_COMMAND;
 }
 
 const char *commandTypeExt[]=
@@ -1172,7 +1180,7 @@ int RunBatchFile(char cmd[],char param[]) // This will destroy param.
 		{
 			continue;
 		}
-		else if(0==ExecBuiltInCommand(&batState,argv0,afterArgv0))
+		else if(BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==ExecBuiltInCommand(&batState,argv0,afterArgv0))
 		{
 			static char exeCmd[MAX_PATH];
 			int comType=IdentifyCommandType(exeCmd,argv0);
@@ -1288,7 +1296,7 @@ int CommandMain(struct Option *option)
 			CleanUpRedirection(&redirInfo);
 			continue;
 		}
-		if(0==ExecBuiltInCommand(&batState,argv0,afterArgv0))
+		if(BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==ExecBuiltInCommand(&batState,argv0,afterArgv0))
 		{
 			/* Then exec external command */
 			int comType=IdentifyCommandType(exeCmd,argv0);
