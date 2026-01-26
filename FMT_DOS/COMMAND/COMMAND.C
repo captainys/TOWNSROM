@@ -12,7 +12,7 @@
 #include "UTIL.H"
 #include "DEF.H"
 
-#define VERSION "20260125b"
+#define VERSION "20260126"
 
 #define MSG_CANNOT_DELETE "Cannot delete "
 #define MSG_CANNOTOPEN "Cannot open "
