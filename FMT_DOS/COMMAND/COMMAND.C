@@ -44,6 +44,27 @@ int ExecBuiltInCommand(const char argv0[],char afterArgv0[]);
 unsigned int BatchReadLine(char line[],unsigned int maxLen,struct BatchState *batState,size_t *fpos);
 
 
+
+int IsInTsugaru(void)
+{
+	unsigned int ax;
+	outpw(0x2F10,0x0f0f);
+	ax=inpw(0x2F10);	// Supposed to return NOT of the last written value.
+	if(0xF0F0!=ax)
+	{
+		return 0;
+	}
+	outpw(0x2F10,0x5555);
+	ax=inpw(0x2f10);	// Supposed to return NOT of the last written value.
+	if(0xAAAA!=ax)
+	{
+		return 0;
+	}
+	return 1;
+}
+
+
+
 /*
 1st byte is length excluding the last CR.
 2nd byte and the rest, parameter terminated by CR.
@@ -1347,6 +1368,10 @@ int CommandMain(struct Option *option)
 		DOSGETCWD(cwd);  // getcwd of Open WATCOM 1.9 links free() and increases the binary size unnecessarily. 
 		DOSPUTS(cwd);
 		DOSPUTC('>');
+		if(IsInTsugaru())
+		{
+			outp(0x2386,0x0F);
+		}
 		DOSGETS(lineBuf);
 		DOSPUTS(DOS_LINEBREAK);
 
