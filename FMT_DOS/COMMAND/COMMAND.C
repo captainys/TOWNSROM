@@ -12,7 +12,7 @@
 #include "UTIL.H"
 #include "DEF.H"
 
-#define VERSION "20260126"
+#define VERSION "20260130"
 
 #define MSG_CANNOT_DELETE "Cannot delete "
 #define MSG_CANNOTOPEN "Cannot open "
@@ -528,6 +528,9 @@ int ExecIf(struct BatchState *batState,char *param)
 			{
 				returnCode=ExecBuiltInCommand(wordBuf,param+len);
 			}
+			if(BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==returnCode)
+			{
+			}
 			return returnCode;
 		}
 		return BUILTIN_COMMAND_OK;
@@ -819,6 +822,15 @@ int ExecType(char *fileName)
 	return BUILTIN_COMMAND_OK;
 }
 
+int ExecErrorLevel(void)
+{
+	char str[16];
+	Itoa(str,ERRORLEVEL);
+	DOSPUTS(str);
+	DOSPUTS(DOS_LINEBREAK);
+	return BUILTIN_COMMAND_OK;
+}
+
 int ExecDriveLetter(char driveLetter)
 {
 	unsigned int driveAvail;
@@ -855,6 +867,7 @@ const char *const builtInCmd[]=
 	"RD",
 	"RMDIR",
 	"TYPE",
+	"ERRORLEVEL", // Print ERRORLEVEL.
 	NULL
 };
 
@@ -922,6 +935,8 @@ int ExecBuiltInCommand(const char argv0[],char afterArgv0[])
 		return ExecRmdir(afterArgv0);
 	case 18: // "TYPE",
 		return ExecType(afterArgv0);
+	case 19: // "ERRORLEVEL", // Print ERRORLEVEL.
+		return ExecErrorLevel();
 	}
 	return BUILTIN_COMMAND_NOT_BUILTIN_COMMAND;
 }
@@ -1358,6 +1373,7 @@ int CommandMain(struct Option *option)
 	/* printf("Entering Interactive Mode.\n"); */
 	for(;;)
 	{
+		int DOSERR=0;
 		static char cwd[MAX_PATH];
 		static char lineBuf[LINEBUFLEN];
 		static char argv0[MAX_PATH],exeCmd[MAX_PATH];
@@ -1395,13 +1411,17 @@ int CommandMain(struct Option *option)
 				break;
 			case COMTYPE_BINARY:
 				PrepareExecParam(execParamBuf,afterArgv0,MAX_EXEPARAM);
-				DOSEXEC(PSP,ENVSEG,exeCmd,execParamBuf);
+				DOSERR=DOSEXEC(PSP,ENVSEG,exeCmd,execParamBuf);
+				ERRORLEVEL=DOSGETERRORLEVEL();
+				PrintDOSError(DOSERR);
 				break;
 			case COMTYPE_BINARY32:
 				DOSPUTS("Direct execution of .EXP not supported." DOS_LINEBREAK);
+				ERRORLEVEL=1;
 				break;
 			default:
 				DOSPUTS(MSG_WRONGCOMMAND DOS_LINEBREAK);
+				ERRORLEVEL=1;
 				break;
 			}
 		}
