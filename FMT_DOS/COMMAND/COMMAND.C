@@ -23,7 +23,12 @@
 
 #define BUILTIN_COMMAND_OK 0
 #define BUILTIN_COMMAND_ERR 1
+#define BUILTIN_COMMAND_IF_TRUE 2
 #define BUILTIN_COMMAND_NOT_BUILTIN_COMMAND (~0)
+/*!
+BUILTIN_COMMAND_IF_TRUE may be returned by ExecIf.  If the return value is BUILTIN_COMMAND_IF_TRUE,
+run the command in the commandToExec.
+*/
 
 #define Tsugaru_DebugBreak outp(0x2386,2);
 
@@ -501,48 +506,6 @@ int ExecGoto(struct BatchState *batState,char gotoLabel[])
 	return BUILTIN_COMMAND_ERR;
 }
 
-int ExecIf(struct BatchState *batState,char *param)
-{
-	unsigned int len;
-	static char wordBuf[MAX_PATH];
-	len=GetFirstArgument(wordBuf,param);
-	param+=len;
-	Capitalize(wordBuf);
-	if(0==strcmp(wordBuf,"ERRORLEVEL"))
-	{
-		int compareLevel;
-		len=GetFirstArgument(wordBuf,param);
-		Capitalize(wordBuf);
-		param+=len;
-
-		compareLevel=atoi(wordBuf);
-		if(compareLevel<=ERRORLEVEL)
-		{
-			int returnCode;
-
-			/* To be safe for reentrance, don't look at wordBuf after ExecBuiltInCommand */
-			len=GetFirstArgument(wordBuf,param);
-			Capitalize(wordBuf);
-			returnCode=ExecBatchControlCommand(batState,wordBuf,param+len);
-			if(BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==returnCode)
-			{
-				returnCode=ExecBuiltInCommand(wordBuf,param+len);
-			}
-			if(BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==returnCode)
-			{
-			}
-			return returnCode;
-		}
-		return BUILTIN_COMMAND_OK;
-	}
-	else
-	{
-		DOSWRITES(DOS_STDERR,"What condition?"DOS_LINEBREAK);
-		ERRORLEVEL=1;
-		return BUILTIN_COMMAND_ERR;
-	}
-}
-
 int ExecCD(char afterArgv0[])
 {
 	int err;
@@ -842,7 +805,6 @@ const char *const batchControlCmd[]=
 {
 	"EXIT",
 	"GOTO",
-	"IF",
 	NULL
 };
 
@@ -871,7 +833,7 @@ const char *const builtInCmd[]=
 	NULL
 };
 
-/*! Execute IF, GOTO, EXIT
+/*! Execute GOTO, EXIT
 */
 int ExecBatchControlCommand(struct BatchState *batState,const char argv0[],char afterArgv0[])
 {
@@ -881,10 +843,47 @@ int ExecBatchControlCommand(struct BatchState *batState,const char argv0[],char 
 		return ExecExit(batState,afterArgv0);
 	case 1: // "GOTO",
 		return ExecGoto(batState,afterArgv0);
-	case 2: // "IF",
-		return ExecIf(batState,afterArgv0);
 	}
 	return BUILTIN_COMMAND_NOT_BUILTIN_COMMAND;
+}
+
+/*! Execute a built-in command.
+*/
+int ExecIf(char cmdToExec[],const char argv0[],char param[])
+{
+	if(0==strcmp(argv0,"IF"))
+	{
+		unsigned int len;
+		static char wordBuf[MAX_PATH];
+		len=GetFirstArgument(wordBuf,param);
+		param+=len;
+		Capitalize(wordBuf);
+		if(0==strcmp(wordBuf,"ERRORLEVEL"))
+		{
+			int compareLevel;
+			len=GetFirstArgument(wordBuf,param);
+			Capitalize(wordBuf);
+			param+=len;
+
+			compareLevel=atoi(wordBuf);
+			if(compareLevel<=ERRORLEVEL)
+			{
+				strcpy(cmdToExec,param);
+				return BUILTIN_COMMAND_IF_TRUE;
+			}
+			return BUILTIN_COMMAND_OK;
+		}
+		else
+		{
+			DOSWRITES(DOS_STDERR,"What condition?"DOS_LINEBREAK);
+			ERRORLEVEL=1;
+			return BUILTIN_COMMAND_ERR;
+		}
+	}
+	else
+	{
+		return BUILTIN_COMMAND_NOT_BUILTIN_COMMAND;
+	}
 }
 
 /*! Execute a built-in command.
@@ -1222,7 +1221,7 @@ int RunBatchFile(char cmd[],char param[]) // This will destroy param.
 
 	for(;;)
 	{
-		int argv0Len=0;
+		int argv0Len=0,returnCode=0;
 		static char argv0[MAX_PATH];
 		char *afterArgv0="",*endOfCmd="";
 		struct Redirection redirInfo;
@@ -1230,6 +1229,7 @@ int RunBatchFile(char cmd[],char param[]) // This will destroy param.
 		BatchReadLine(lineBuf,LINEBUFLEN-1,&batState,&batState.fPos);
 		ClearTailSpace(lineBuf);
 
+	HIT_IF_COMMAND:
 		if(0==lineBuf[0])
 		{
 			if(batState.fPos<batState.fileSize)
@@ -1277,8 +1277,16 @@ int RunBatchFile(char cmd[],char param[]) // This will destroy param.
 		{
 			continue;
 		}
-		else if(BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==ExecBatchControlCommand(&batState,argv0,afterArgv0) &&
-		        BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==ExecBuiltInCommand(argv0,afterArgv0))
+
+		returnCode=ExecIf(lineBuf,argv0,afterArgv0);
+		if(BUILTIN_COMMAND_IF_TRUE==returnCode)
+		{
+			goto HIT_IF_COMMAND;
+		}
+
+		if(BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==returnCode &&
+		   BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==ExecBatchControlCommand(&batState,argv0,afterArgv0) &&
+		   BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==ExecBuiltInCommand(argv0,afterArgv0))
 		{
 			static char exeCmd[MAX_PATH];
 			int comType=IdentifyCommandType(exeCmd,argv0);
