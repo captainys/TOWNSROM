@@ -1381,7 +1381,7 @@ int CommandMain(struct Option *option)
 	/* printf("Entering Interactive Mode.\n"); */
 	for(;;)
 	{
-		int DOSERR=0;
+		int DOSERR=0,returnCode=0;
 		static char cwd[MAX_PATH];
 		static char lineBuf[LINEBUFLEN];
 		static char argv0[MAX_PATH],exeCmd[MAX_PATH];
@@ -1399,6 +1399,7 @@ int CommandMain(struct Option *option)
 		DOSGETS(lineBuf);
 		DOSPUTS(DOS_LINEBREAK);
 
+	HIT_IF_CONDITION:
 		argv0Len=GetFirstArgument(argv0,lineBuf);
 		Capitalize(argv0);
 		afterArgv0=GetAfterFirstArgument(lineBuf,argv0Len);
@@ -1407,7 +1408,18 @@ int CommandMain(struct Option *option)
 			CleanUpRedirection(&redirInfo);
 			continue;
 		}
-		if(BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==ExecBatchControlCommand(&batState,argv0,afterArgv0) &&
+
+		returnCode=ExecIf(lineBuf,argv0,afterArgv0);
+		if(BUILTIN_COMMAND_IF_TRUE==returnCode)
+		{
+			goto HIT_IF_CONDITION;
+		}
+
+		// In the real COMMAND.COM, internal commands apparently does not change ERRORLEVEL
+		// if used from the prompt.  Internal commands only sets ERRORLEVEL inside a batch
+		// file.  It may cause a compatibility problem.
+		if(BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==returnCode &&
+		   BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==ExecBatchControlCommand(&batState,argv0,afterArgv0) &&
 		   BUILTIN_COMMAND_NOT_BUILTIN_COMMAND==ExecBuiltInCommand(argv0,afterArgv0))
 		{
 			/* Then exec external command */
