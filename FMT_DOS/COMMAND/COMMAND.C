@@ -1399,6 +1399,8 @@ int CommandMain(struct Option *option)
 		DOSGETS(lineBuf);
 		DOSPUTS(DOS_LINEBREAK);
 
+		ClearTailSpace(lineBuf);
+
 	HIT_IF_CONDITION:
 		argv0Len=GetFirstArgument(argv0,lineBuf);
 		Capitalize(argv0);
