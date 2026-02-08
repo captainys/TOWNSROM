@@ -1147,6 +1147,18 @@ FIND_NEXT:
 						MOV		CS:[SATTR],CL
 
 						MOVZX	AX,BYTE PTR ES:[DI+FIND_DRIVE]
+
+						; Problem:
+						; SHSUCDX writes 0xD0 for Q drive, which is supposed to be 0xD1.
+						; TGDRV writes 0x8?.  If I assume SHSUCDX and TGDRV are only two possible
+						; redirected drive, I can assume D0 is actually D1.
+						; Temporary fix.  TOWNS Q drive is always CD.  If 0xD0, make it 0xD1.
+						CMP		AL,0D0h
+						JNE		FIND_NEXT_DIRTY_WORKAROUND
+						INC		AL
+FIND_NEXT_DIRTY_WORKAROUND:
+
+						AND		AL,03FH	; Was missing and added to handle redirected drive.
 						CALL	FCBDRIVE_TO_SANE_DRIVE
 						JC		FIND_NEXT_INVALID_DRIVE
 
