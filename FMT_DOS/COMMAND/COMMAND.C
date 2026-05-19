@@ -12,7 +12,7 @@
 #include "UTIL.H"
 #include "DEF.H"
 
-#define VERSION "20260130"
+#define VERSION "20260519"
 
 #define MSG_CANNOT_DELETE "Cannot delete "
 #define MSG_CANNOTOPEN "Cannot open "
@@ -853,11 +853,18 @@ int ExecIf(char cmdToExec[],const char argv0[],char param[])
 {
 	if(0==strcmp(argv0,"IF"))
 	{
+		int NOT=0,returncode=0;
 		unsigned int len;
 		static char wordBuf[MAX_PATH];
 		len=GetFirstArgument(wordBuf,param);
 		param+=len;
 		Capitalize(wordBuf);
+		if(0==strcmp(wordBuf,"NOT"))
+		{
+			NOT=1;
+			len=GetFirstArgument(wordBuf,param);
+			param+=len;
+		}
 		if(0==strcmp(wordBuf,"ERRORLEVEL"))
 		{
 			int compareLevel;
@@ -868,10 +875,27 @@ int ExecIf(char cmdToExec[],const char argv0[],char param[])
 			compareLevel=atoi(wordBuf);
 			if(compareLevel<=ERRORLEVEL)
 			{
-				strcpy(cmdToExec,param);
-				return BUILTIN_COMMAND_IF_TRUE;
+				returncode=1;
 			}
-			return BUILTIN_COMMAND_OK;
+		}
+		if(0==strcmp(wordBuf,"EXIST"))
+		{
+			int fd;
+			int compareLevel;
+			len=GetFirstArgument(wordBuf,param);
+			Capitalize(wordBuf);
+			param+=len;
+
+			fd=DOSREADOPEN(wordBuf);
+			if(0<=fd)
+			{
+				_dos_close(fd);
+			}
+
+			if(compareLevel<=ERRORLEVEL)
+			{
+				returncode=1;
+			}
 		}
 		else
 		{
@@ -879,6 +903,14 @@ int ExecIf(char cmdToExec[],const char argv0[],char param[])
 			ERRORLEVEL=1;
 			return BUILTIN_COMMAND_ERR;
 		}
+
+		returncode^=NOT;
+		if(returncode)
+		{
+			strcpy(cmdToExec,param);
+			return BUILTIN_COMMAND_IF_TRUE;
+		}
+		return BUILTIN_COMMAND_OK;
 	}
 	else
 	{
