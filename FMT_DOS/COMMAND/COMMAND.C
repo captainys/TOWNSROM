@@ -1082,6 +1082,7 @@ int SetUpRedirection(struct Redirection *info,char cmdLine[])
 {
 	char redirChar=0;
 	char *redirStr="",*redirIn=NULL,*redirOut=NULL,*redirPipe=NULL;
+	int redirOutAppend=0;
 
 	info->fpStdin=-1;
 	info->fpStdout=-1;
@@ -1099,6 +1100,11 @@ int SetUpRedirection(struct Redirection *info,char cmdLine[])
 			break;
 		case '>':
 			redirOut=redirStr;
+			if('>'==*redirOut) // Is it >> ?
+			{
+				redirOutAppend=1;
+				++redirOut;
+			}
 			break;
 		case '|':
 			redirPipe=redirStr;
@@ -1127,7 +1133,14 @@ int SetUpRedirection(struct Redirection *info,char cmdLine[])
 		redirOut=SkipHeadSpace(redirOut);
 		ClearTailSpace(redirOut);
 
-		info->fpStdout=DOSWRITEOPEN(redirOut);
+		if(0==redirOutAppend)
+		{
+			info->fpStdout=DOSWRITEOPEN(redirOut);
+		}
+		else
+		{
+			info->fpStdout=DOSAPPENDOPEN(redirOut);
+		}
 		if(info->fpStdout<0)
 		{
 			PrintFileError(MSG_CANNOTOPEN,redirOut);

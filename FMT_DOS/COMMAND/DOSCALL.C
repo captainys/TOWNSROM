@@ -2,6 +2,7 @@
 #include <string.h>
 #include <dos.h>
 #include <fcntl.h>
+#include <io.h> // for lseek
 #include "DOSCALL.H"
 #include "UTIL.H"
 
@@ -360,6 +361,21 @@ int DOSWRITEOPEN(const char fileName[])
 	}
 	if(0==_dos_creat(fileName,_A_NORMAL,&fd)) // Use INT 21H AH=3CH (Create or Truncate)
 	{
+		return fd;
+	}
+	return -1;
+}
+
+int DOSAPPENDOPEN(const char fileName[])
+{
+	int fd;
+	if(0==_dos_creatnew(fileName,_A_NORMAL,&fd)) // Use INT 21H AH=5BH (Create if not exist)
+	{
+		return fd;
+	}
+	if(0==_dos_open(fileName,O_RDWR,&fd)) // Use INT 21H AH=3CH (Create or Truncate)
+	{
+		lseek(fd,0,SEEK_END);
 		return fd;
 	}
 	return -1;

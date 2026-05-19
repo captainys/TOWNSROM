@@ -19,6 +19,12 @@ def Prep():
 	cwd=os.getcwd();
 	os.chdir(THISDIR)
 
+	proc=subprocess.Popen(["python",os.path.join("FMT_DOS","COMMAND","build.py")])
+	proc.communicate()
+	if 0!=proc.returncode:
+		print("Error building and assembling COMMAND.COM")
+		quit(1)
+
 	proc=subprocess.Popen(["python",os.path.join("FMT_DOS","build.py")])
 	proc.communicate()
 	if 0!=proc.returncode:

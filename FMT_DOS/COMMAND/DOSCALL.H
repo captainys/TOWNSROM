@@ -76,6 +76,8 @@ void DOSWRITES(int fd,const char str[]);
 int DOSREADOPEN(const char fileName[]);
 /*! Returns a file handle if success, or -1 if fail. */
 int DOSWRITEOPEN(const char fileName[]);
+/*! Returns a file handle if success, or -1 if fail. */
+int DOSAPPENDOPEN(const char fileName[]);
 
 
 unsigned long int DOSSEEK(int fd,unsigned long int fpos,unsigned char from);
